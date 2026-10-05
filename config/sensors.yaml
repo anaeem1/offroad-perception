@@ -1,0 +1,14 @@
+# Fill from RELLIS-3D calibration files in week 1
+lidar:
+  id: os1_lidar
+  topic: /os1_cloud_node/points
+  expected_rate_hz: 10
+  timeout_ms: 250
+camera:
+  id: pylon_camera
+  topic: /pylon_camera_node/image_raw
+  match_window_ms: 50
+  timeout_ms: 250
+grid:
+  extent_m: 40.0
+  resolution_m: 0.2

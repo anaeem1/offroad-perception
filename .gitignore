@@ -1,0 +1,24 @@
+# Data and large artifacts live under $OFFROAD_DATA_ROOT (see CLAUDE.md), not in git.
+/data
+*.onnx
+*.engine
+*.plan
+*.pth
+*.pt
+*.bag
+*.mcap
+*.db3
+*.zip
+
+# colcon (the repo root is the ROS 2 workspace)
+/build/
+/install/
+/log/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# SLURM
+slurm-*.out
