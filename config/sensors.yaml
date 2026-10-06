@@ -1,14 +1,37 @@
-# Fill from RELLIS-3D calibration files in week 1
+# Sensor configuration for replay of RELLIS-3D sequence 00004 (bag 20200215_trail_1).
+# Measured values come from docs/measurements/bag_00004_inspection.json unless noted.
 lidar:
   id: os1_lidar
+  frame_id: ouster1/os1_lidar
   topic: /os1_cloud_node/points
-  expected_rate_hz: 10
+  expected_rate_hz: 10            # measured 10.0; max inter-scan gap 100.5 ms
   timeout_ms: 250
+  layout: {height: 64, width: 2048, point_step: 48}   # organized; per-point `t` (ns) enables deskew
+  receive_lag_ms_median: 127      # bag receive time - header.stamp: the scan is already this old on arrival
 camera:
   id: pylon_camera
+  frame_id: pylon_camera
   topic: /pylon_camera_node/image_raw
-  match_window_ms: 50
+  info_topic: /pylon_camera_node/camera_info
+  encoding: bayer_rggb8           # raw Bayer: the runtime must debayer to match the RGB training images
+  width: 1920
+  height: 1200
+  expected_rate_hz: 10            # measured 9.99; max inter-frame gap 138 ms (dropped frame)
+  match_window_ms: 50             # measured camera-lidar stamp offset: median -22.8 ms, 99.9 % within window
   timeout_ms: 250
+  distortion_model: plumb_bob     # K and D from camera_info; identical to the RELLIS-3D calibration files
+extrinsics:
+  # Camera pose in the lidar frame (T_lidar_cam) from the RELLIS-3D calibration file for sequence 00004.
+  # Extrinsics differ between sequences. Agrees with /tf_static to 0.11 deg / 3.6 cm
+  # (docs/measurements/extrinsics_tf_vs_calib.json). Known residual: lidar/image label agreement
+  # peaks ~0.5 deg below nominal pitch in all sequences (docs/measurements/projection_check.json).
+  lidar_to_camera:
+    source: rellis3d/calib/Rellis_3D/00004/transforms.yaml
+    q_xyzw: [0.5115674, 0.49051429, -0.49270892, -0.50490835]
+    t_xyz: [-0.09581321, 0.04062246, -0.16507774]
+  base_link: /tf_static           # base_link -> pylon_camera, base_link -> ... -> ouster1/os1_lidar
+ego_motion:
+  topic: /odometry/filtered       # odom -> base_link, 50 Hz
 grid:
   extent_m: 40.0
   resolution_m: 0.2
