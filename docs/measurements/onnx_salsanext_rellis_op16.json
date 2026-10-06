@@ -1,0 +1,55 @@
+{
+  "model": "salsanext_rellis",
+  "source_checkpoint": "2020-10-14-17:37rellis/SalsaNext_valid_best",
+  "date": "2026-10-06",
+  "onnx_file": "/usace_share/Share_Abdullah/offroad_perception/onnx/salsanext_rellis_op16.onnx",
+  "sha256": "638dec88479ede0df153bc64fd50c9b9e55b5fb38bcebafb73d499cdf63adc0e",
+  "size_mb": 25.7,
+  "opset": 16,
+  "io_shapes": {
+    "input": [
+      1,
+      5,
+      64,
+      2048
+    ],
+    "probs": [
+      1,
+      15,
+      64,
+      2048
+    ],
+    "labels": [
+      1,
+      64,
+      2048
+    ]
+  },
+  "ops": {
+    "Add": 8,
+    "ArgMax": 1,
+    "AveragePool": 4,
+    "BatchNormalization": 42,
+    "Cast": 1,
+    "Concat": 13,
+    "Conv": 51,
+    "DepthToSpace": 4,
+    "LeakyRelu": 50,
+    "Softmax": 1
+  },
+  "parity_vs_pytorch_cpu": {
+    "samples": 3,
+    "max_abs_prob_diff": 6.139278411865234e-06,
+    "min_label_agreement": 1.0,
+    "sample_ids": [
+      "00000/os1_cloud_node_kitti_bin/000000.bin",
+      "00002/os1_cloud_node_kitti_bin/002475.bin",
+      "00002/os1_cloud_node_kitti_bin/004146.bin"
+    ]
+  },
+  "env": {
+    "torch": "2.5.1+cu124",
+    "onnx": "1.17.0",
+    "onnxruntime": "1.20.2"
+  }
+}

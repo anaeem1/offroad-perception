@@ -1,0 +1,76 @@
+{
+  "what": "SegFormer fine-tuned on RELLIS-3D images from nvidia/segformer-b0-finetuned-cityscapes-1024-1024",
+  "checkpoint": "/usace_share/Share_Abdullah/offroad_perception/runs/segformer_b0_20261006_9700/best",
+  "date": "2026-10-06",
+  "input_size_hw": [
+    640,
+    1024
+  ],
+  "scored_at": "full label resolution 1200x1920 (logits upsampled)",
+  "train": {
+    "iters": 8000,
+    "batch": 16,
+    "crop": [
+      640,
+      640
+    ],
+    "lr": 6e-05,
+    "wall_time_min": 15.5,
+    "device": "NVIDIA H100 NVL"
+  },
+  "best_val_miou": 49.15,
+  "test": {
+    "per_class_iou": {
+      "dirt": 0.0,
+      "grass": 86.32,
+      "tree": 77.89,
+      "pole": 1.65,
+      "water": 7.99,
+      "sky": 97.05,
+      "vehicle": 29.56,
+      "object": 31.57,
+      "asphalt": 20.7,
+      "building": 5.62,
+      "log": 1.45,
+      "person": 89.18,
+      "fence": 26.89,
+      "bush": 66.83,
+      "concrete": 81.68,
+      "barrier": 25.28,
+      "puddle": 70.49,
+      "mud": 38.85,
+      "rubble": 52.26
+    },
+    "miou": 42.7,
+    "absent_classes": [],
+    "support_pixels": {
+      "dirt": 9690,
+      "grass": 1364538849,
+      "tree": 421358453,
+      "pole": 1820068,
+      "water": 959662,
+      "sky": 1169367710,
+      "vehicle": 2184284,
+      "object": 2696747,
+      "asphalt": 3850438,
+      "building": 620290,
+      "log": 29728,
+      "person": 3216634,
+      "fence": 2067483,
+      "bush": 662926185,
+      "concrete": 126705811,
+      "barrier": 4598056,
+      "puddle": 53611796,
+      "mud": 29818401,
+      "rubble": 1907260
+    }
+  },
+  "published_reference": {
+    "HRNet+OCR": 48.83,
+    "GSCNN": 50.13,
+    "note": "RELLIS-3D README, 18 classes"
+  },
+  "env": {
+    "torch": "2.5.1+cu124"
+  }
+}

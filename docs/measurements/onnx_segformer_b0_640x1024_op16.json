@@ -1,0 +1,64 @@
+{
+  "model": "segformer_b0_640x1024",
+  "source_checkpoint": "/usace_share/Share_Abdullah/offroad_perception/runs/segformer_b0_20261006_9700/best",
+  "date": "2026-10-06",
+  "onnx_file": "/usace_share/Share_Abdullah/offroad_perception/onnx/segformer_b0_640x1024_op16.onnx",
+  "sha256": "d5a779caaec1925acd19854a1b5e12351e06857ea43a5ea1d494edd6d75717f5",
+  "size_mb": 14.41,
+  "opset": 16,
+  "io_shapes": {
+    "input": [
+      1,
+      3,
+      640,
+      1024
+    ],
+    "probs": [
+      1,
+      19,
+      160,
+      256
+    ],
+    "labels": [
+      1,
+      160,
+      256
+    ]
+  },
+  "ops": {
+    "Add": 136,
+    "ArgMax": 1,
+    "Cast": 1,
+    "Concat": 1,
+    "Conv": 20,
+    "Div": 47,
+    "Erf": 8,
+    "MatMul": 64,
+    "Mul": 46,
+    "Pow": 30,
+    "ReduceMean": 60,
+    "Relu": 1,
+    "Reshape": 76,
+    "Resize": 4,
+    "Softmax": 9,
+    "Split": 2,
+    "Sqrt": 30,
+    "Sub": 31,
+    "Transpose": 76
+  },
+  "parity_vs_pytorch_cpu": {
+    "samples": 3,
+    "max_abs_prob_diff": 1.9669532775878906e-06,
+    "min_label_agreement": 1.0,
+    "sample_ids": [
+      "00000/pylon_camera_node/frame000000-1581624652_750.jpg",
+      "00002/pylon_camera_node/frame002473-1581797397_709.jpg",
+      "00002/pylon_camera_node/frame004145-1581797564_909.jpg"
+    ]
+  },
+  "env": {
+    "torch": "2.5.1+cu124",
+    "onnx": "1.17.0",
+    "onnxruntime": "1.20.2"
+  }
+}
