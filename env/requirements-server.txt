@@ -1,0 +1,23 @@
+# Server (x86_64, H100) training + ONNX export environment. Python 3.10.
+# Install with env/setup_env.sh; the fully resolved lock is requirements-server.lock.txt.
+# torch is held at 2.5.x: its default ONNX exporter is the TorchScript one, which emits
+# opset 16/17 for the Jetson's TensorRT (newer torch defaults to the dynamo exporter, opset 18+).
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch==2.5.1+cu124
+torchvision==0.20.1+cu124
+transformers==4.46.3
+onnx==1.17.0
+onnxsim==0.4.36
+onnxruntime-gpu==1.20.2
+numpy==1.26.4
+opencv-python-headless==4.10.0.84
+rosbags==0.10.11
+gdown==5.2.0
+pyyaml==6.0.2
+scipy==1.14.1
+matplotlib==3.9.2
+pandas==2.2.3
+tqdm==4.67.1
+tensorboard==2.18.0
+# tensorrt + polygraphy (server-side ONNX parse check only) are pinned once the
+# Jetson's JetPack/TensorRT version is known. Engines are always built on the Jetson.
