@@ -1,0 +1,27 @@
+# RELLIS-3D class -> traversability cost prior (authoritative; docs/traversability_cost_table.md mirrors it).
+# Keys are RELLIS-3D ontology ids, the same ids carried in perception_msgs semantic_class fields.
+# cost: 0 = free ... 254 = lethal; 255 = UNKNOWN (never free). `null` = class contributes nothing
+# to the grid. obstacle: non-traversable points of this class are clustered for the tracker.
+# Semantic cost is a prior: geometric checks (step height, slope) may raise a cell's cost, never lower it.
+version: 0.1
+classes:
+  0:  {name: void,     cost: 255,  obstacle: false}  # unlabeled / unsure -> unknown, not free
+  1:  {name: dirt,     cost: 10,   obstacle: false}
+  3:  {name: grass,    cost: 40,   obstacle: false}  # drivable, but can hide stumps and holes
+  4:  {name: tree,     cost: 254,  obstacle: false}  # static structure: lethal cells, not tracked
+  5:  {name: pole,     cost: 254,  obstacle: true}   # thin: under-represented in a 0.2 m grid
+  6:  {name: water,    cost: 254,  obstacle: false}  # deep water; depth unobservable
+  7:  {name: sky,      cost: null, obstacle: false}  # no ground cell; lidar "sky" = misclassification
+  8:  {name: vehicle,  cost: 254,  obstacle: true}
+  9:  {name: object,   cost: 254,  obstacle: true}
+  10: {name: asphalt,  cost: 0,    obstacle: false}
+  12: {name: building, cost: 254,  obstacle: false}
+  15: {name: log,      cost: 254,  obstacle: true}
+  17: {name: person,   cost: 254,  obstacle: true}   # safety-critical: consumers inflate margins
+  18: {name: fence,    cost: 254,  obstacle: false}
+  19: {name: bush,     cost: 180,  obstacle: false}  # possibly pushable, but occludes what is behind
+  23: {name: concrete, cost: 0,    obstacle: false}
+  27: {name: barrier,  cost: 254,  obstacle: true}
+  31: {name: puddle,   cost: 80,   obstacle: false}  # shallow by definition; can hide ruts
+  33: {name: mud,      cost: 140,  obstacle: false}  # immobilization risk for wheeled machines
+  34: {name: rubble,   cost: 160,  obstacle: false}  # construction-relevant; slow + tracked only
