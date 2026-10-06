@@ -1,0 +1,134 @@
+{
+  "what": "lidar GT class == image GT class at projected pixel (both non-void), per extrinsic offset",
+  "date": "2026-10-06",
+  "figure": "docs/figures/projection_overlay.jpg",
+  "figure_frame": "00004/000104",
+  "distortion_source": "RELLIS-3D utils/lidar2img.ipynb",
+  "sequences": {
+    "00000": {
+      "frames": 40,
+      "labeled_point_pairs_nominal": 327031,
+      "agreement_pct": {
+        "yaw-2.0": 71.78,
+        "yaw-1.0": 73.25,
+        "yaw-0.5": 73.85,
+        "yaw+0.0": 74.16,
+        "yaw+0.5": 73.76,
+        "yaw+1.0": 73.14,
+        "yaw+2.0": 71.86,
+        "pitch-2.0": 72.97,
+        "pitch-1.0": 74.96,
+        "pitch-0.5": 75.34,
+        "pitch+0.0": 74.16,
+        "pitch+0.5": 71.54,
+        "pitch+1.0": 68.58,
+        "pitch+2.0": 62.29
+      },
+      "best_offset_deg": {
+        "yaw": 0.0,
+        "pitch": -0.5
+      },
+      "nominal_is_peak": false
+    },
+    "00001": {
+      "frames": 40,
+      "labeled_point_pairs_nominal": 244071,
+      "agreement_pct": {
+        "yaw-2.0": 80.77,
+        "yaw-1.0": 84.9,
+        "yaw-0.5": 87.39,
+        "yaw+0.0": 89.04,
+        "yaw+0.5": 88.0,
+        "yaw+1.0": 85.7,
+        "yaw+2.0": 81.79,
+        "pitch-2.0": 77.98,
+        "pitch-1.0": 86.39,
+        "pitch-0.5": 90.61,
+        "pitch+0.0": 89.04,
+        "pitch+0.5": 83.5,
+        "pitch+1.0": 78.15,
+        "pitch+2.0": 68.33
+      },
+      "best_offset_deg": {
+        "yaw": 0.0,
+        "pitch": -0.5
+      },
+      "nominal_is_peak": false
+    },
+    "00002": {
+      "frames": 40,
+      "labeled_point_pairs_nominal": 296863,
+      "agreement_pct": {
+        "yaw-2.0": 84.61,
+        "yaw-1.0": 85.85,
+        "yaw-0.5": 86.27,
+        "yaw+0.0": 86.55,
+        "yaw+0.5": 86.62,
+        "yaw+1.0": 86.46,
+        "yaw+2.0": 85.4,
+        "pitch-2.0": 87.15,
+        "pitch-1.0": 89.18,
+        "pitch-0.5": 88.87,
+        "pitch+0.0": 86.55,
+        "pitch+0.5": 83.06,
+        "pitch+1.0": 78.93,
+        "pitch+2.0": 70.47
+      },
+      "best_offset_deg": {
+        "yaw": 0.5,
+        "pitch": -1.0
+      },
+      "nominal_is_peak": false
+    },
+    "00003": {
+      "frames": 40,
+      "labeled_point_pairs_nominal": 247857,
+      "agreement_pct": {
+        "yaw-2.0": 79.95,
+        "yaw-1.0": 82.28,
+        "yaw-0.5": 83.14,
+        "yaw+0.0": 83.42,
+        "yaw+0.5": 82.68,
+        "yaw+1.0": 81.46,
+        "yaw+2.0": 79.03,
+        "pitch-2.0": 79.59,
+        "pitch-1.0": 84.21,
+        "pitch-0.5": 85.21,
+        "pitch+0.0": 83.42,
+        "pitch+0.5": 79.42,
+        "pitch+1.0": 74.6,
+        "pitch+2.0": 65.1
+      },
+      "best_offset_deg": {
+        "yaw": 0.0,
+        "pitch": -0.5
+      },
+      "nominal_is_peak": false
+    },
+    "00004": {
+      "frames": 40,
+      "labeled_point_pairs_nominal": 239788,
+      "agreement_pct": {
+        "yaw-2.0": 73.18,
+        "yaw-1.0": 76.27,
+        "yaw-0.5": 77.33,
+        "yaw+0.0": 77.56,
+        "yaw+0.5": 76.65,
+        "yaw+1.0": 75.18,
+        "yaw+2.0": 71.83,
+        "pitch-2.0": 74.67,
+        "pitch-1.0": 78.97,
+        "pitch-0.5": 79.7,
+        "pitch+0.0": 77.56,
+        "pitch+0.5": 72.66,
+        "pitch+1.0": 67.39,
+        "pitch+2.0": 57.89
+      },
+      "best_offset_deg": {
+        "yaw": 0.0,
+        "pitch": -0.5
+      },
+      "nominal_is_peak": false
+    }
+  }
+}

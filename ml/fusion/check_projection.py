@@ -67,7 +67,9 @@ def render(xyz, lid, img, cam, T, colors):
             r, g, b = colors.get(int(cls), (255, 255, 255))
             cv2.circle(by_class, (x, y), 3, (b, g, r), -1)
     for panel, text in ((by_range, "lidar range, 0-40 m"), (by_class, "lidar ground-truth class")):
-        cv2.putText(panel, text, (30, 70), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (255, 255, 255), 4, cv2.LINE_AA)
+        (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 2.0, 4)
+        cv2.rectangle(panel, (0, 0), (tw + 60, th + 60), (0, 0, 0), -1)
+        cv2.putText(panel, text, (30, th + 30), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (255, 255, 255), 4, cv2.LINE_AA)
     out = np.vstack([by_range, by_class])
     return cv2.resize(out, (1280, int(out.shape[0] * 1280 / out.shape[1])), interpolation=cv2.INTER_AREA)
 
