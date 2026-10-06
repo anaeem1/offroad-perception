@@ -1,0 +1,121 @@
+{
+  "what": "SalsaNext, RELLIS-3D released checkpoint, Ouster OS1-64 SemanticKITTI-format scans",
+  "checkpoint": "2020-10-14-17:37rellis/SalsaNext_valid_best",
+  "split": "pt_test.lst",
+  "n_scans": 3343,
+  "date": "2026-10-06",
+  "classes_scored": 14,
+  "ignored": [
+    "void (incl. dirt, sky, object, asphalt, building)"
+  ],
+  "published_miou": 40.2,
+  "cnn_only": {
+    "upstream": {
+      "per_class_iou": {
+        "grass": 65.12,
+        "tree": 78.75,
+        "pole": 47.85,
+        "water": 0.0,
+        "vehicle": 22.96,
+        "log": 17.1,
+        "person": 82.66,
+        "fence": 12.56,
+        "bush": 73.84,
+        "concrete": 67.97,
+        "barrier": 69.8,
+        "puddle": 22.03,
+        "mud": 10.32,
+        "rubble": 14.06
+      },
+      "miou": 41.79,
+      "miou_published_convention": 39.0
+    },
+    "strict": {
+      "per_class_iou": {
+        "grass": 65.12,
+        "tree": 78.75,
+        "pole": 47.85,
+        "water": 0.0,
+        "vehicle": 22.96,
+        "log": 17.1,
+        "person": 82.66,
+        "fence": 12.56,
+        "bush": 73.84,
+        "concrete": 67.97,
+        "barrier": 69.8,
+        "puddle": 22.03,
+        "mud": 10.32,
+        "rubble": 14.06
+      },
+      "miou": 41.79,
+      "miou_published_convention": 39.0
+    }
+  },
+  "cnn_plus_knn": {
+    "upstream": {
+      "per_class_iou": {
+        "grass": 64.68,
+        "tree": 79.13,
+        "pole": 49.41,
+        "water": 0.0,
+        "vehicle": 25.5,
+        "log": 17.04,
+        "person": 83.94,
+        "fence": 12.81,
+        "bush": 73.24,
+        "concrete": 68.32,
+        "barrier": 73.76,
+        "puddle": 21.96,
+        "mud": 10.38,
+        "rubble": 13.57
+      },
+      "miou": 42.41,
+      "miou_published_convention": 39.58
+    },
+    "strict": {
+      "per_class_iou": {
+        "grass": 64.68,
+        "tree": 79.13,
+        "pole": 49.41,
+        "water": 0.0,
+        "vehicle": 25.5,
+        "log": 17.04,
+        "person": 83.94,
+        "fence": 12.81,
+        "bush": 73.24,
+        "concrete": 68.32,
+        "barrier": 73.76,
+        "puddle": 21.96,
+        "mud": 10.38,
+        "rubble": 13.57
+      },
+      "miou": 42.41,
+      "miou_published_convention": 39.58
+    }
+  },
+  "support_points": {
+    "grass": 74990270,
+    "tree": 26969136,
+    "pole": 20522,
+    "water": 944,
+    "vehicle": 200466,
+    "log": 2168,
+    "person": 5750267,
+    "fence": 172553,
+    "bush": 110622028,
+    "concrete": 13670794,
+    "barrier": 67161,
+    "puddle": 489189,
+    "mud": 499587,
+    "rubble": 3147
+  },
+  "timing_ms": {
+    "device": "NVIDIA H100 NVL",
+    "note": "server-side PyTorch FP32, not a Jetson number",
+    "cnn_median": 4.95,
+    "knn_median": 0.82
+  },
+  "env": {
+    "torch": "2.5.1+cu124"
+  }
+}

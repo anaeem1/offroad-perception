@@ -28,6 +28,16 @@ know" is carried by confidence. 8k iterations, batch 16, AdamW, poly LR.
 - Licensing: SegFormer weights are under NVIDIA's non-commercial license, and the Cityscapes init adds
   Cityscapes' terms. Fine for a portfolio; a product would need another backbone or a commercial license.
 ## Evidence
-- Test-split per-class IoU: `docs/measurements/camera_segformer_b0_test.json`
+- Test split (1,672 images), `docs/measurements/camera_segformer_b0_test.json`. 15.5 min on 1× H100.
+
+  | | mIoU, 19 classes | 18 published classes |
+  |---|---|---|
+  | SegFormer-B0 640×1024 (ours) | **42.7** | 45.1 |
+  | HRNet+OCR full-res (RELLIS-3D README) | 48.83 (÷19) | 51.6 |
+
+  Strong where it matters most: person 89.2 (HRNet+OCR 89.5), sky 97.1, grass 86.3, concrete 81.7.
+  Weak on thin or rare classes: pole 1.7, log 1.5, building 5.6, water 8.0, asphalt 20.7, barrier
+  25.3, fence 26.9. Thin obstacles therefore must not rely on the camera; lidar pole IoU is 47.9
+  (ADR-0003). Best val mIoU 49.15 (iteration 4000); the val-test gap is unexplained so far.
 - ONNX export and parity: `docs/measurements/onnx_segformer_b0_640x1024_op*.json`
 - Jetson latency: week 3.
