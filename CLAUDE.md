@@ -42,10 +42,19 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 
 ## Environments
 - **Server (this machine):** dataset storage, training, ONNX export, offline evaluation.
-  - GPU / scheduler: <FILL: e.g. SLURM with H100 nodes, partition name, conda vs. container>
-  - Data root: <FILL: path with ~40 GB+ free>
+  - GPU / scheduler: SLURM, partition `H100` (4 nodes × 1 H100 NVL 94 GB, 32 CPU, 280 GB RAM; QoS
+    `h100_normal`: ≤3 GPUs/user, ≤3 days). Submit with `scripts/slurm/*.sbatch` from the repo root.
+    On Oct 6 nodes 1, 3 and 4 were DOWN after an unexpected reboot and need an admin to resume them.
+  - **Compute nodes have no internet.** Download data, pip packages and HF weights on the login node
+    (1 CPU). Jobs run with `HF_HUB_OFFLINE=1`.
+  - Env: conda prefix at `<data root>/env` (no Docker/Apptainer access). Always `source env/activate.sh`.
+    Pins in `env/requirements-server.txt`, full lock in `env/requirements-server.lock.txt`.
+    torch stays on 2.5.x on purpose (TorchScript ONNX exporter, opset 16/17).
+  - Data root: `/usace_share/Share_Abdullah/offroad_perception` (repo symlink `data`, gitignored).
+    Shared NFS volume, ~94 % full; this project uses ~100 GB. `/home` is 99 % full: keep data off it.
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
-  - Model / JetPack: <FILL> → this determines the ROS 2 distro and TensorRT version.
+  - Model / JetPack: **Orin Nano**; JetPack not yet known. Run `scripts/jetson/jetson_info.sh` and see
+    `docs/jetson_setup.md`. SSH access from the server is still being arranged.
   - TensorRT engines must be built **on the Jetson**, not on the server.
   - Keep exported ONNX opsets compatible with the Jetson's TensorRT version.
 
@@ -58,13 +67,36 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
-- Done: repo skeleton, `perception_msgs` contract v0.1, interface contract doc, ADR-0001, week 1 checklist.
-- Not started: environment setup, data download, any model work.
-- Open: Jetson model/JetPack; grid extent and resolution (initial 40 m × 40 m @ 0.2 m);
-  RELLIS class → traversability cost table; ADR-0002 (late vs. early fusion).
+*Updated 2026-10-06 (end of week 1, day 1-2 session).*
+- **Week 1 exit criterion met on the server side.** Both models export to ONNX; projection overlay verified.
+- Done:
+  - Repo under git (own repo, branch `main`); env built; RELLIS-3D subset + bag 00004 downloaded.
+  - Bag 00004 converted to ROS 2 mcap (topic-filtered, Humble-compatible). Timing, frames and TF
+    measured; `config/sensors.yaml` filled.
+  - Projection check: overlay in `docs/figures/`. Label agreement 74–89 %. Yaw is correct; pitch peaks
+    0.5° below nominal in all sequences (not corrected; week 2 A/B).
+  - Camera: SegFormer-B0 640×1024, test mIoU 42.7 (ADR-0004). Lidar: released SalsaNext, 41.79
+    CNN-only / 42.41 with KNN; reproduces the published 40.2 under its own convention (ADR-0003).
+  - ONNX: both models at opset 16 and 17 in `data/onnx/`, parity < 1e-5 vs PyTorch.
+  - ADR-0002 (late fusion), ADR-0003, ADR-0004; cost table v0.1; contract reviewed.
+- Not started: everything on the Jetson (needs SSH access); fusion, BEV grid, tracker (week 2).
+- Open / needs a decision:
+  - **ADR-0005 (proposed):** the 150 ms output-age bound can't hold (lidar arrives 127 ms after its
+    sweep-start stamp). The proposal is 250 ms plus contract v1.0. Owner decision needed.
+  - JetPack version, and so the shipping opset (16 vs 17) and ROS 2 distro.
+  - Grid extent/resolution: decide in week 2 from the observed-cell fraction per range band.
+  - KNN on the Jetson: +4.0 barrier / +2.5 vehicle IoU vs. its latency; decide in week 3.
+- **Evaluation trap:** RELLIS-3D splits are by sequence, and sequence 00004 (our replay bag) is entirely
+  in both models' training splits. IoU measured on its replay is training-set accuracy. Sequence 00001
+  is the only one with no training frames (`docs/measurements/split_by_sequence.json`), so the week 2
+  IoU needs the 00001 bag (16 GB zip). Download not yet approved.
+- Week 2 requirements already known: a height-above-ground obstacle check (the lidar model cannot
+  output `object`); a debayer colour-order check for the `bayer_rggb8` images.
 
 ## Working conventions
 - Python for training and evaluation; C++ for the runtime tracker and inference nodes.
 - Small, reviewable commits with descriptive messages.
 - Keep `docs/week1_checklist.md` (and later weekly checklists) updated as tasks complete.
+- Measurements go in `docs/measurements/*.json`, written by the script that measured them.
+  Quote numbers from there, never from memory.
 - At the end of each session, update the "Current state" section above.

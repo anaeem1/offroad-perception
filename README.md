@@ -33,6 +33,26 @@ flowchart LR
 
 Full spec: [docs/interface_contract.md](docs/interface_contract.md)
 
+## Measured so far (week 1)
+Every number links to the measurement file it came from.
+
+![Lidar points projected onto the camera image, coloured by range (top) and by ground-truth class (bottom)](docs/figures/projection_overlay.jpg)
+
+*RELLIS-3D sequence 00004, frame 104. Lidar ground-truth classes agree with the image labels at
+74–89 % of projected points per sequence, and agreement peaks at the nominal yaw
+([projection_check.json](docs/measurements/projection_check.json)).*
+
+| Component | Model | Test mIoU | Source |
+|---|---|---|---|
+| Camera seg | SegFormer-B0, 640×1024, fine-tuned | 42.7 (19 classes) | [camera_segformer_b0_test.json](docs/measurements/camera_segformer_b0_test.json) |
+| Lidar seg | SalsaNext, released RELLIS-3D weights, no KNN | 41.8 (14 classes) | [lidar_salsanext_test.json](docs/measurements/lidar_salsanext_test.json) |
+
+| Sensor fact (bag 00004) | Value | Why it matters |
+|---|---|---|
+| Camera horizontal FOV | 37.7° (10.5 % of lidar azimuth) | Lidar is the primary 360° source ([ADR-0002](docs/adr/0002-late-fusion.md)) |
+| Camera − lidar stamp offset | median −22.8 ms; 99.9 % within ±50 ms | Validates the contract's match window |
+| Lidar scan age on arrival | median 127 ms (stamp = sweep start) | Output-age bound under review ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) |
+
 ## Latency budget (target, Jetson, 10 Hz lidar)
 | Stage | Budget (ms) | Measured (ms) |
 |---|---|---|
@@ -46,6 +66,8 @@ Full spec: [docs/interface_contract.md](docs/interface_contract.md)
 ## Repo layout
 - `src/perception_msgs/` — the contract (ROS 2 interfaces)
 - `docs/adr/` — architecture decision records
-- `docs/` — interface contract, ODD, hazard analysis (week 4)
-- `config/` — sensor frames, rates, thresholds
-- `scripts/` — data prep and bag conversion
+- `docs/measurements/` — every measured number, as JSON; `docs/figures/` — figures generated from them
+- `docs/` — interface contract, cost table, Jetson setup, ODD and hazard analysis (week 4)
+- `config/` — sensor frames, rates, extrinsics, class → cost table
+- `ml/` — training, evaluation, ONNX export, projection (Python, server side)
+- `env/` — pinned server environment; `scripts/` — data download, bag conversion, SLURM jobs, Jetson checks
