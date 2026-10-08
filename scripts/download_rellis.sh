@@ -26,6 +26,7 @@ salsanext_weights 1DxuzlnFKnU8EpSuODRywJUrJlieUUheg  0.2  weights/salsanext_rell
 images            1F3Leu0H_m6aPVpZITragfreO_SGtL2yV  11   rellis3d
 lidar_scans       1lDSVRf_kZrD0zHHMsKJ0V1GN9QATR4wH  14   rellis3d
 bag_00004_merged  1AuEjX0do3jGZhGKPszSEUNoj85YswNya  14   bags/ros1/00004
+bag_00001_merged  1geoU45pPavnabQ0arm4ILeHSsG3cU6ti  16   bags/ros1/00001
 "
 
 log() { echo "[$(date '+%F %T')] $*"; }
