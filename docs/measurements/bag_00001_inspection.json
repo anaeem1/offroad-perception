@@ -1,0 +1,484 @@
+{
+  "bag": "/usace_share/Share_Abdullah/offroad_perception/bags/ros2/20200213_trail_1",
+  "humble_deserialization": {
+    "/imu/data": "ok",
+    "/os1_cloud_node/imu": "ok",
+    "/odometry/filtered": "ok",
+    "/vectornav/GPS": "ok",
+    "/tf": "ok",
+    "/pylon_camera_node/camera_info": "ok",
+    "/pylon_camera_node/image_raw": "ok",
+    "/os1_cloud_node/points": "ok",
+    "/vectornav/Odom": "ok",
+    "/tf_static": "ok"
+  },
+  "camera_info": {
+    "frame_id": "pylon_camera",
+    "width": 1920,
+    "height": 1200,
+    "distortion_model": "plumb_bob",
+    "D": [
+      -0.134313,
+      -0.025905,
+      0.002181,
+      0.00084,
+      0.0
+    ],
+    "K": [
+      2813.643275,
+      0.0,
+      969.285772,
+      0.0,
+      2808.326079,
+      624.049972,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "P": [
+      2766.880127,
+      0.0,
+      970.500272,
+      0.0,
+      0.0,
+      2790.281982,
+      625.218685,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "image": {
+    "frame_id": "pylon_camera",
+    "encoding": "bayer_rggb8",
+    "width": 1920,
+    "height": 1200
+  },
+  "pointcloud": {
+    "frame_id": "ouster1/os1_lidar",
+    "height": 64,
+    "width": 2048,
+    "point_step": 48,
+    "is_dense": true,
+    "fields": [
+      [
+        "x",
+        0,
+        7
+      ],
+      [
+        "y",
+        4,
+        7
+      ],
+      [
+        "z",
+        8,
+        7
+      ],
+      [
+        "intensity",
+        16,
+        7
+      ],
+      [
+        "t",
+        20,
+        6
+      ],
+      [
+        "reflectivity",
+        24,
+        4
+      ],
+      [
+        "ring",
+        26,
+        2
+      ],
+      [
+        "noise",
+        28,
+        4
+      ],
+      [
+        "range",
+        32,
+        6
+      ]
+    ]
+  },
+  "tf_static": [
+    [
+      "ouster1/os1_sensor",
+      "ouster1/os1_imu",
+      [
+        0.00625,
+        -0.01178,
+        0.00764
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "ouster1/os1_sensor",
+      "ouster1/os1_lidar",
+      [
+        0.0,
+        0.0,
+        0.03618
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    ],
+    [
+      "base_link",
+      "chassis_link",
+      [
+        0.0,
+        0.0,
+        0.025
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "chassis_link",
+      "diff_link",
+      [
+        -0.5826,
+        0.0,
+        0.24979
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "top_chassis_link",
+      "imu_link",
+      [
+        -0.26,
+        0.0,
+        0.445
+      ],
+      [
+        1.0,
+        0.0,
+        -0.0,
+        0.0
+      ]
+    ],
+    [
+      "imu_link",
+      "velodyne",
+      [
+        0.6,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        -0.0,
+        0.0
+      ]
+    ],
+    [
+      "ouster1/os1_sensor",
+      "ouster1/os1_imu",
+      [
+        0.00625,
+        -0.01178,
+        0.00764
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "ouster1/os1_sensor",
+      "ouster1/os1_lidar",
+      [
+        0.0,
+        0.0,
+        0.03618
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    ],
+    [
+      "os1_frame",
+      "ouster1/os1_sensor",
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.0
+      ]
+    ],
+    [
+      "imu_link",
+      "os1_frame",
+      [
+        0.45,
+        0.0,
+        -0.07
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      "chassis_link",
+      "top_chassis_link",
+      [
+        0.0,
+        0.0,
+        0.27218
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "base_link",
+      "chassis_link",
+      [
+        0.0,
+        0.0,
+        0.025
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "base_link",
+      "nerian_left",
+      [
+        0.55083,
+        0.12915,
+        0.60933
+      ],
+      [
+        -0.504909,
+        0.509819,
+        -0.491444,
+        0.493593
+      ]
+    ],
+    [
+      "base_link",
+      "nerian_right",
+      [
+        0.53937,
+        -0.12105,
+        0.60597
+      ],
+      [
+        -0.504357,
+        0.51074,
+        -0.490993,
+        0.493654
+      ]
+    ],
+    [
+      "base_link",
+      "pylon_camera",
+      [
+        0.322,
+        -0.039,
+        0.676
+      ],
+      [
+        -0.49,
+        0.512,
+        -0.505,
+        0.492
+      ]
+    ],
+    [
+      "chassis_link",
+      "top_chassis_link",
+      [
+        0.0,
+        0.0,
+        0.27218
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      "imu_link",
+      "os1_frame",
+      [
+        0.45,
+        0.0,
+        -0.07
+      ],
+      [
+        -0.0,
+        1.0,
+        -0.0,
+        0.0
+      ]
+    ],
+    [
+      "imu_link",
+      "velodyne",
+      [
+        0.68366,
+        0.00301,
+        -0.01437
+      ],
+      [
+        0.999838,
+        0.009411,
+        0.014717,
+        -0.004317
+      ]
+    ],
+    [
+      "os1_frame",
+      "ouster1/os1_sensor",
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        0.0,
+        1.0,
+        -0.0
+      ]
+    ],
+    [
+      "ouster1/os1_sensor",
+      "ouster1/os1_lidar",
+      [
+        0.0,
+        0.0,
+        0.03618
+      ],
+      [
+        -0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    ],
+    [
+      "top_chassis_link",
+      "imu_link",
+      [
+        -0.26,
+        0.0,
+        0.445
+      ],
+      [
+        1.0,
+        0.0,
+        -0.0,
+        0.0
+      ]
+    ]
+  ],
+  "tf_dynamic_edges": [
+    [
+      "chassis_link",
+      "left_diff_unit_link"
+    ],
+    [
+      "chassis_link",
+      "right_diff_unit_link"
+    ],
+    [
+      "left_diff_unit_link",
+      "front_left_wheel_link"
+    ],
+    [
+      "left_diff_unit_link",
+      "rear_left_wheel_link"
+    ],
+    [
+      "odom",
+      "base_link"
+    ],
+    [
+      "right_diff_unit_link",
+      "front_right_wheel_link"
+    ],
+    [
+      "right_diff_unit_link",
+      "rear_right_wheel_link"
+    ]
+  ],
+  "camera_minus_lidar_stamp_ms": {
+    "n_lidar_scans": 2320,
+    "median": -41.21,
+    "p05": -44.19,
+    "p95": -37.52,
+    "max_abs": 55.27,
+    "within_50ms_pct": 99.96
+  },
+  "receive_minus_stamp_ms": {
+    "/os1_cloud_node/points": {
+      "median": 123.52,
+      "p95": 127.45
+    },
+    "/pylon_camera_node/image_raw": {
+      "median": 34.91,
+      "p95": 37.43
+    }
+  },
+  "inter_scan_ms": {
+    "lidar_median": 99.99,
+    "camera_median": 100.0,
+    "lidar_max": 100.7,
+    "camera_max": 136.91
+  }
+}

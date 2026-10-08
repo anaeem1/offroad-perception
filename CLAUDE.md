@@ -44,14 +44,14 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 - **Server (this machine):** dataset storage, training, ONNX export, offline evaluation.
   - GPU / scheduler: SLURM, partition `H100` (4 nodes × 1 H100 NVL 94 GB, 32 CPU, 280 GB RAM; QoS
     `h100_normal`: ≤3 GPUs/user, ≤3 days). Submit with `scripts/slurm/*.sbatch` from the repo root.
-    On Oct 6 nodes 1, 3 and 4 were DOWN after an unexpected reboot and need an admin to resume them.
+    Nodes 1, 3 and 4 were down Oct 5–7 after an unexpected reboot; they were back by Oct 7.
   - **Compute nodes have no internet.** Download data, pip packages and HF weights on the login node
     (1 CPU). Jobs run with `HF_HUB_OFFLINE=1`.
   - Env: conda prefix at `<data root>/env` (no Docker/Apptainer access). Always `source env/activate.sh`.
     Pins in `env/requirements-server.txt`, full lock in `env/requirements-server.lock.txt`.
     torch stays on 2.5.x on purpose (TorchScript ONNX exporter, opset 16/17).
   - Data root: `/usace_share/Share_Abdullah/offroad_perception` (repo symlink `data`, gitignored).
-    Shared NFS volume, ~94 % full; this project uses ~100 GB. `/home` is 99 % full: keep data off it.
+    Shared NFS volume, ~95 % full; this project uses ~150 GB. `/home` is 99 % full: keep data off it.
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
   - Model / JetPack: **Orin Nano**; JetPack not yet known. Run `scripts/jetson/jetson_info.sh` and see
     `docs/jetson_setup.md`. SSH access from the server is still being arranged.
@@ -67,7 +67,7 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
-*Updated 2026-10-06 (end of week 1, day 1-2 session).*
+*Updated 2026-10-08.*
 - **Week 1 exit criterion met on the server side.** Both models export to ONNX; projection overlay verified.
 - Done:
   - Repo under git (own repo, branch `main`); env built; RELLIS-3D subset + bag 00004 downloaded.
@@ -86,10 +86,13 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
   - JetPack version, and so the shipping opset (16 vs 17) and ROS 2 distro.
   - Grid extent/resolution: decide in week 2 from the observed-cell fraction per range band.
   - KNN on the Jetson: +4.0 barrier / +2.5 vehicle IoU vs. its latency; decide in week 3.
-- **Evaluation trap:** RELLIS-3D splits are by sequence, and sequence 00004 (our replay bag) is entirely
-  in both models' training splits. IoU measured on its replay is training-set accuracy. Sequence 00001
-  is the only one with no training frames (`docs/measurements/split_by_sequence.json`), so the week 2
-  IoU needs the 00001 bag (16 GB zip). Download not yet approved.
+- **Evaluation trap:** RELLIS-3D splits are by sequence, and sequence 00004 is entirely in both models'
+  training splits. IoU measured on its replay is training-set accuracy. Sequence 00001 is the only one
+  with no training frames (`docs/measurements/split_by_sequence.json`). **Its bag is downloaded and
+  converted (Oct 8):** `data/bags/ros2/20200213_trail_1`, 232 s. Use 00001 for week 2 IoU and 00004
+  for bring-up and the demo.
+- Camera-lidar stamp offset differs per recording (median −22.8 ms on 00004, −41.2 ms on 00001; no
+  hardware sync), so week 2 fusion must motion-compensate each pair. A constant offset is wrong.
 - Week 2 requirements already known: a height-above-ground obstacle check (the lidar model cannot
   output `object`); a debayer colour-order check for the `bayer_rggb8` images.
 

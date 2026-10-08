@@ -50,7 +50,7 @@ Every number links to the measurement file it came from.
 | Sensor fact (bag 00004) | Value | Why it matters |
 |---|---|---|
 | Camera horizontal FOV | 37.7° (10.5 % of lidar azimuth) | Lidar is the primary 360° source ([ADR-0002](docs/adr/0002-late-fusion.md)) |
-| Camera − lidar stamp offset | median −22.8 ms; 99.9 % within ±50 ms | Validates the contract's match window |
+| Camera − lidar stamp offset | median −22.8 ms (00004), −41.2 ms (00001); ≥99.9 % within ±50 ms | Window holds, but the offset varies per recording, so fusion compensates per pair |
 | Lidar scan age on arrival | median 127 ms (stamp = sweep start) | Output-age bound under review ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) |
 
 ## Latency budget (target, Jetson, 10 Hz lidar)
