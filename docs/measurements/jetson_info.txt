@@ -1,0 +1,49 @@
+# Output of scripts/jetson/jetson_info.sh on the deployment Jetson, 2026-10-09 (run by the owner).
+
+== Model
+NVIDIA Jetson Orin NX Engineering Reference Developer Kit
+
+== L4T
+# R36 (release), REVISION: 3.0, GCID: 36191598, BOARD: generic, EABI: aarch64, DATE: Mon May  6 17:34:21 UTC 2024
+# KERNEL_VARIANT: oot
+TARGET_USERSPACE_LIB_DIR=nvidia
+TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
+
+== JetPack
+nvidia-jetpack meta-package not installed
+
+== OS
+Ubuntu 22.04.4 LTS (aarch64), kernel 5.15.136-tegra
+
+== TensorRT
+libnvinfer8 8.6.2.3-1+cuda12.2
+ModuleNotFoundError: No module named 'tensorrt'
+
+== trtexec
+-rwxr-xr-x 1 root root 1457728 Sep 26  2023 /usr/src/tensorrt/bin/trtexec
+
+== CUDA
+/usr/local/cuda-12
+/usr/local/cuda-12.2
+Build cuda_12.2.r12.2/compiler.33191640_0
+
+== cuDNN
+libcudnn8 8.9.4.25-1+cuda12.2
+libcudnn8-samples 8.9.4.25-1+cuda12.2
+
+== Power mode
+NV Power Mode: 20W
+3
+
+== Memory
+               total        used        free      shared  buff/cache   available
+Mem:           7.4Gi       3.4Gi       2.3Gi        25Mi       1.7Gi       3.8Gi
+
+== Disk
+/dev/nvme0n1p1  233G   56G  166G  26% /
+
+== ROS 2
+humble
+
+== Docker
+Docker version 28.3.3, build 980b856

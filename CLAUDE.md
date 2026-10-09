@@ -53,8 +53,11 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
   - Data root: `/usace_share/Share_Abdullah/offroad_perception` (repo symlink `data`, gitignored).
     Shared NFS volume, ~95 % full; this project uses ~150 GB. `/home` is 99 % full: keep data off it.
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
-  - Model / JetPack: **Orin Nano**; JetPack not yet known. Run `scripts/jetson/jetson_info.sh` and see
-    `docs/jetson_setup.md`. SSH access from the server is still being arranged.
+  - **Orin NX 8 GB** (not an Orin Nano, as first assumed), L4T R36.3.0 = **JetPack 6.0**, TensorRT 8.6.2,
+    CUDA 12.2, **ROS 2 Humble already installed**, Docker present. Power mode 20W when measured.
+    **No network and no SSH:** files move by tarball (VS Code download → USB/scp). Its clock was at 1970,
+    so set the date before building, and run `conda deactivate` before any ROS 2 work. See `docs/jetson_setup.md`.
+  - ONNX ships at **opset 17** (ADR-0006).
   - TensorRT engines must be built **on the Jetson**, not on the server.
   - Keep exported ONNX opsets compatible with the Jetson's TensorRT version.
 
@@ -67,8 +70,10 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
-*Updated 2026-10-08.*
-- **Week 1 exit criterion met on the server side.** Both models export to ONNX; projection overlay verified.
+*Updated 2026-10-09.*
+- **Week 1 exit criterion met.** Both models export to ONNX; projection overlay verified; Jetson
+  stack identified and TensorRT verified. Remaining: `perception_msgs` build on the Jetson
+  (`CAT/jetson_bundle2.tar.gz`, which also carries both real models for an early latency read).
 - Done:
   - Repo under git (own repo, branch `main`); env built; RELLIS-3D subset + bag 00004 downloaded.
   - Bag 00004 converted to ROS 2 mcap (topic-filtered, Humble-compatible). Timing, frames and TF
@@ -79,11 +84,10 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
     CNN-only / 42.41 with KNN; reproduces the published 40.2 under its own convention (ADR-0003).
   - ONNX: both models at opset 16 and 17 in `data/onnx/`, parity < 1e-5 vs PyTorch.
   - ADR-0002 (late fusion), ADR-0003, ADR-0004; cost table v0.1; contract reviewed.
-- Not started: everything on the Jetson (needs SSH access); fusion, BEV grid, tracker (week 2).
+- Not started: fusion, BEV grid, tracker (week 2); C++/TensorRT nodes (week 3).
 - Open / needs a decision:
   - **ADR-0005 (proposed):** the 150 ms output-age bound can't hold (lidar arrives 127 ms after its
     sweep-start stamp). The proposal is 250 ms plus contract v1.0. Owner decision needed.
-  - JetPack version, and so the shipping opset (16 vs 17) and ROS 2 distro.
   - Grid extent/resolution: decide in week 2 from the observed-cell fraction per range band.
   - KNN on the Jetson: +4.0 barrier / +2.5 vehicle IoU vs. its latency; decide in week 3.
 - **Evaluation trap:** RELLIS-3D splits are by sequence, and sequence 00004 is entirely in both models'

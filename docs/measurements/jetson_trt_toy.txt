@@ -1,0 +1,9 @@
+# Output of scripts/jetson/check_trt.sh on the deployment Jetson (Orin NX, L4T R36.3.0 / TensorRT 8.6.2,
+# power mode 20W), 2026-10-09. FP16 engines built with trtexec; median GPU compute time.
+# These are op-coverage tests, not latency proxies: the toy camera model uses full (non-reduced)
+# attention over 6,144 tokens, which real SegFormer-B0 does not.
+model                    result   median_gpu_ms
+toy_camera_op16.onnx     PASS     22.0187
+toy_camera_op17.onnx     PASS     22.2235
+toy_lidar_op16.onnx      PASS     3.5061
+toy_lidar_op17.onnx      PASS     3.50415

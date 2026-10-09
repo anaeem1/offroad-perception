@@ -9,13 +9,13 @@
   Most of the BEV grid will only ever have lidar evidence.
 - The contract defines `MODE_LIDAR_ONLY` and `MODE_CAMERA_ONLY`, so each modality must be able to
   produce output on its own when the other fails.
-- Target is an Orin Nano with a ~100 ms end-to-end budget (camera seg 30 ms, lidar seg 20 ms).
+- Target is an Orin NX with a ~100 ms end-to-end budget (camera seg 30 ms, lidar seg 20 ms).
 ## Options considered
 1. **Early / raw fusion**: paint RGB onto points and train one lidar network on the joint input.
    Needs retraining on paired data. The joint input exists for only ~10 % of points, so the network
    sees two input distributions. A camera fault silently corrupts the lidar path.
 2. **Feature-level fusion** (BEVFusion-style): highest accuracy ceiling, but needs heavy training
-   and custom ops that are hard to fit in TensorRT on an Orin Nano. A research detour, out of scope.
+   and custom ops that are hard to fit in TensorRT on an Orin NX. A research detour, out of scope.
 3. **Sequential** (PointPainting): camera seg output is painted onto points before lidar seg.
    Puts camera latency and camera failures in series with the lidar path.
 4. **Late / decision-level**: each modality segments independently. Lidar points that project into

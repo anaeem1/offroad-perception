@@ -1,13 +1,13 @@
 # Week 1 (Oct 5–11): foundation + contract
 
-## Jetson setup (Orin Nano; blocked on SSH access, everything server-side is prepared)
-- [ ] Confirm JetPack version (`cat /etc/nv_tegra_release`) → pick matching ROS 2 distro
-      *Ready: `scripts/jetson/jetson_info.sh` + lookup table in `docs/jetson_setup.md`.*
+## Jetson setup (Orin NX 8 GB; offline, files moved by tarball)
+- [x] Confirm JetPack version (`cat /etc/nv_tegra_release`) → pick matching ROS 2 distro
+      (L4T R36.3.0 = JetPack 6.0, TensorRT 8.6.2 → Humble; `docs/measurements/jetson_info.txt`)
 - [ ] Install ROS 2, build `perception_msgs` with colcon, verify `ros2 interface show`
-      *Ready: steps per JetPack version in `docs/jetson_setup.md`.*
-- [ ] Verify TensorRT + trtexec work with a toy ONNX model
-      *Ready: toy models at opset 16 and 17 in `data/onnx/toy/`, runner `scripts/jetson/check_trt.sh`.
-      The result also settles which opset the real models ship at.*
+      *Humble is already installed. Build: `build_msgs.sh` in `jetson_bundle2.tar.gz`; waiting on the run.*
+- [x] Verify TensorRT + trtexec work with a toy ONNX model
+      (all four toy models PASS at opset 16 and 17 → ship opset 17, ADR-0006;
+      `docs/measurements/jetson_trt_toy.txt`)
 
 ## Data
 - [x] Download: Ouster SemanticKITTI format + annotations, full images + annotations, calibration files
@@ -32,5 +32,4 @@
 - [x] Write the RELLIS class → traversability cost table
 
 **Exit criterion:** both models export to ONNX, and the lidar-on-camera projection overlay looks right.
-**Status (Oct 6):** met on the server side. The Jetson items remain, and their result fixes the
-shipping opset.
+**Status (Oct 9):** met. Remaining: the `perception_msgs` build on the Jetson.

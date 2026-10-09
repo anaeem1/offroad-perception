@@ -1,45 +1,42 @@
-# Jetson setup (Orin Nano)
+# Jetson setup (Orin NX 8 GB)
 
-The JetPack version on the Jetson fixes the TensorRT version, which fixes the ONNX opset we export at
-and the ROS 2 distro we run. Nothing downstream should be pinned until step 1 is done.
+## Identified stack (2026-10-09, `docs/measurements/jetson_info.txt`)
+| Item | Value |
+|---|---|
+| Module | Jetson Orin NX (7.4 GiB RAM → 8 GB variant) on the reference carrier |
+| L4T / JetPack | R36.3.0 → **JetPack 6.0** (the `nvidia-jetpack` meta-package is not installed, but the components below are) |
+| OS | Ubuntu 22.04.4, aarch64 |
+| TensorRT / CUDA / cuDNN | **8.6.2** / 12.2 / 8.9.4 (`trtexec` present; no Python bindings) |
+| ROS 2 | **Humble**, already installed in `/opt/ros/humble` |
+| Power mode | 20W (mode 3) at the time of measurement. Every latency number records its power mode. |
+| Network | **None.** The clock was at 1970 (no NTP), so files copied in look "56 years in the future". |
+| Other | Docker 28.3; 166 GB free disk |
 
-## 1. Identify the stack
-On the Jetson, from a clone of this repo:
-```bash
-scripts/jetson/jetson_info.sh | tee docs/measurements/jetson_info.txt
-```
-Read the L4T line and look it up below. Orin Nano supports JetPack 5.1.x and 6.x.
+**ONNX opset: 17** (ADR-0006). Both 16 and 17 parse and build on TensorRT 8.6.2
+(`docs/measurements/jetson_trt_toy.txt`), and 17 gives TensorRT its native LayerNorm layer.
 
-| L4T (`/etc/nv_tegra_release`) | JetPack | Ubuntu | TensorRT | CUDA | ROS 2 | ONNX opset |
-|---|---|---|---|---|---|---|
-| R35.x (35.2–35.6) | 5.1.x | 20.04 | 8.5.2 | 11.4 | Humble via container (no apt binaries for 20.04) | 16 (confirm with step 2) |
-| R36.2 / R36.3 | 6.0 | 22.04 | 8.6.2 | 12.2 | Humble (apt) | 17 |
-| R36.4.x | 6.1 / 6.2 | 22.04 | 10.3 | 12.6 | Humble (apt) | 17 |
+## Working on this board
+- **Set the clock first** (no internet means no time sync): `sudo date -s "YYYY-MM-DD HH:MM"`
+  with the current time. A 1970 clock makes `make`/colcon warn about clock skew, makes bag and
+  log timestamps meaningless, and breaks TLS and apt once a network is available.
+- **Leave conda before any ROS 2 work:** `conda deactivate` until the prompt loses `(base)`.
+  Conda's Python shadows the system Python 3.10 that ROS 2 Humble and colcon need.
+- Files move from the server via a tarball (VS Code download → USB or `scp`). Extract with
+  `tar xmzf` so file times are taken from the Jetson's clock.
 
-If the board is on JetPack 5, upgrading to 6.2 is worth considering before week 3: native Humble
-packages, TensorRT 10, and the Orin Nano "Super" power mode. That choice gets an ADR.
+## 1. Identify the stack ✔
+`scripts/jetson/jetson_info.sh`. Done; see the table above.
 
-## 2. Verify TensorRT with toy models
-On the server: `python scripts/export_toy_onnx.py --out data/onnx/toy` (inside `env/activate.sh`).
-Copy `data/onnx/toy/` to the Jetson, then:
-```bash
-scripts/jetson/check_trt.sh <copied_toy_dir> | tee docs/measurements/jetson_trt_toy.txt
-```
-The toy models use the same ops as SegFormer (LayerNorm, GELU, attention, Resize) and SalsaNext
-(BatchNorm, AvgPool, PixelShuffle), each with ArgMax output. The lowest opset that passes for both
-is the one we export the real models at.
+## 2. Verify TensorRT ✔ (toy models); real models optional early
+`scripts/jetson/check_trt.sh <dir>` builds an FP16 engine for every `*.onnx` in `<dir>` and reports
+median GPU time. The toy models only checked op coverage. Running the real models gives an early read
+on the 30 ms / 20 ms budgets (formally a week 3 measurement).
 
-## 3. ROS 2 + the contract package
-JetPack 6.x (Ubuntu 22.04):
-```bash
-# ROS 2 Humble apt repo: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
-sudo apt install ros-humble-ros-base ros-dev-tools
-source /opt/ros/humble/setup.bash
-cd <repo> && colcon build --packages-select perception_msgs && source install/setup.bash
-ros2 interface show perception_msgs/msg/TraversabilityGrid
-```
-JetPack 5.x: use a Humble container matched to the L4T release (e.g. from `dusty-nv/jetson-containers`),
-mount the repo, and run the same `colcon build` / `ros2 interface show` inside it.
+## 3. Build the contract package
+`scripts/jetson/build_msgs.sh` (shipped in the bundle next to `ws/src/perception_msgs`): sources
+Humble, runs `colcon build --packages-select perception_msgs`, then `ros2 interface show` for every
+message. It refuses to run inside conda. If `colcon` is missing, it needs
+`python3-colcon-common-extensions`, which means a network or an offline .deb install.
 
 ## Rules
 - TensorRT engines are built on the Jetson only. The server never ships `.engine` files.
