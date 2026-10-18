@@ -56,8 +56,8 @@ def main():
     ap.add_argument("--scans", default=None, help="labelled scan range a:b to process (default: all)")
     ap.add_argument("--tag", required=True)
     ap.add_argument("--alpha", type=float, default=0.5)
-    ap.add_argument("--pool", default="linear", choices=POOLS)
-    ap.add_argument("--pitch", type=float, default=0.0, help="extrinsic pitch offset (deg) for the default variant")
+    ap.add_argument("--pool", default="loglinear", choices=POOLS)  # chosen on the 00001 val block
+    ap.add_argument("--pitch", type=float, default=-0.5, help="extrinsic pitch offset (deg) for the default variant")
     ap.add_argument("--no-motion-comp", action="store_true")
     ap.add_argument("--extent", type=float, default=40.0)
     ap.add_argument("--resolution", type=float, default=0.2)
