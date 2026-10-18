@@ -40,8 +40,8 @@
         "confidence_cells_differing": 0
       },
       "clusters": {
-        "python": 7,
-        "cpp": 7,
+        "python": 5,
+        "cpp": 5,
         "max_abs": 8.840239451579635e-08
       }
     },
@@ -72,8 +72,8 @@
         "confidence_cells_differing": 0
       },
       "clusters": {
-        "python": 6,
-        "cpp": 6,
+        "python": 4,
+        "cpp": 4,
         "max_abs": 1.823200899142563e-07
       }
     },
@@ -104,15 +104,15 @@
         "confidence_cells_differing": 0
       },
       "clusters": {
-        "python": 6,
-        "cpp": 6,
+        "python": 4,
+        "cpp": 4,
         "max_abs": 8.027351905415259e-08
       }
     }
   },
   "tracker": {
-    "rows_python": 464,
-    "rows_cpp": 464,
+    "rows_python": 357,
+    "rows_cpp": 357,
     "id_state_class_identical": true,
     "state_max_abs": 4.440892098500626e-15
   }
