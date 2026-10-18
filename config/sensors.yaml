@@ -8,12 +8,15 @@ lidar:
   timeout_ms: 250
   layout: {height: 64, width: 2048, point_step: 48}   # organized; per-point `t` (ns) enables deskew
   receive_lag_ms_median: 127      # bag receive time - header.stamp: the scan is already this old on arrival
+  remission: intensity / 65535    # lidar model input channel, bit-exact to the training scans
 camera:
   id: pylon_camera
   frame_id: pylon_camera
   topic: /pylon_camera_node/image_raw
   info_topic: /pylon_camera_node/camera_info
   encoding: bayer_rggb8           # raw Bayer: the runtime must debayer to match the RGB training images
+  debayer: cv::COLOR_BayerBG2RGB  # measured: mean abs error 3.0 vs the dataset JPEGs; BayerRG2RGB gives 22
+                                  # (OpenCV names the pattern from the 2nd row; docs/measurements/alignment_*.json)
   width: 1920
   height: 1200
   expected_rate_hz: 10            # measured 9.99; max inter-frame gap 138 ms (dropped frame)

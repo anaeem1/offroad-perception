@@ -1,0 +1,28 @@
+{
+  "seq": "00004",
+  "bag": "20200215_trail_1",
+  "date": "2026-10-18",
+  "lidar": {
+    "bag_messages": 2061,
+    "labelled_scans": 2059,
+    "matched_by_xyz_hash": 2059,
+    "unmatched_labelled_scans": [],
+    "msg_minus_scan_offsets": [
+      2
+    ]
+  },
+  "camera": {
+    "bag_messages": 2060,
+    "dataset_images": 2059,
+    "matched_by_stamp_ms": 2059
+  },
+  "debayer_mean_abs_error_vs_dataset_jpeg": {
+    "BayerRG2RGB": 16.42,
+    "BayerBG2RGB": 3.46,
+    "BayerGR2RGB": 26.42,
+    "BayerGB2RGB": 26.56
+  },
+  "debayer_samples": 8,
+  "debayer_best": "BayerBG2RGB",
+  "full_maps": "/usace_share/Share_Abdullah/offroad_perception/rellis3d/alignment/00004.json"
+}

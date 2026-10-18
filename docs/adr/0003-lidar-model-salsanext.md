@@ -25,6 +25,9 @@ accuracy or Jetson latency fails its budget.
 - **Preprocessing is frozen by the checkpoint.** The spherical projection uses fov ±22.5° (the sensor's
   vertical FOV is narrower) and specific means/stds. The C++ node must reproduce
   `ml/lidar/range_projection.py` exactly; changing the projection means retraining.
+  The remission channel is the PointCloud2 `intensity` field divided by 65535, bit-exact
+  (`pipeline/rellis.py`). The labelled scans have identical xyz in identical point order to the bag
+  clouds (`docs/measurements/alignment_*.json`).
 - **KNN post-processing.** The published number uses a GPU KNN refinement (unfold + top-k) that has
   no TensorRT equivalent. Measured: it adds only +0.6 mIoU overall, but the gain is concentrated in
   the tracked obstacle classes (barrier +4.0, vehicle +2.5, pole +1.6, person +1.3 IoU). So the
