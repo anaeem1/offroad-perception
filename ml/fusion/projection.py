@@ -48,6 +48,8 @@ def project_points(xyz, cam: Camera, T_cam_lidar, min_depth=0.5, fov_margin=0.1)
             & (xn > -cx / fx - fov_margin) & (xn < (cam.width - cx) / fx + fov_margin)
             & (yn > -cy / fy - fov_margin) & (yn < (cam.height - cy) / fy + fov_margin))
     idx = np.flatnonzero(keep)
+    if len(idx) == 0:  # cv2.projectPoints rejects an empty point set
+        return np.zeros((0, 2)), idx, np.zeros(0)
     uv, _ = cv2.projectPoints(pc[idx].reshape(-1, 1, 3), np.zeros(3), np.zeros(3), cam.K, cam.D)
     uv = uv.reshape(-1, 2)
     inside = (uv[:, 0] >= 0) & (uv[:, 0] < cam.width) & (uv[:, 1] >= 0) & (uv[:, 1] < cam.height)
