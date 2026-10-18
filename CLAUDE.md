@@ -55,8 +55,10 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
   - **Orin NX 8 GB** (not an Orin Nano, as first assumed), L4T R36.3.0 = **JetPack 6.0**, TensorRT 8.6.2,
     CUDA 12.2, **ROS 2 Humble already installed**, Docker present. Power mode 20W when measured.
-    **No network and no SSH:** files move by tarball (VS Code download → USB/scp). Its clock was at 1970,
-    so set the date before building, and run `conda deactivate` before any ROS 2 work. See `docs/jetson_setup.md`.
+    **Internet since ~Oct 18** (it was offline before). Files still move by tarball (VS Code download →
+    `~/parklabs/CAT` on the Jetson). A Claude Code session runs there: hand it self-contained prompts with
+    a fixed reply format. Its clock was at 1970, so check NTP sync first, and run `conda deactivate`
+    before any ROS 2 work. See `docs/jetson_setup.md`.
   - ONNX ships at **opset 17** (ADR-0006).
   - TensorRT engines must be built **on the Jetson**, not on the server.
   - Keep exported ONNX opsets compatible with the Jetson's TensorRT version.
