@@ -9,11 +9,16 @@
 ## Timing
 - `header.stamp` is the **measurement time** of the source lidar scan, never the publish time. For the
   Ouster driver used here, that is the start of the 100 ms sweep (measured; per-point `t` spans the sweep).
-- Camera frames are matched to lidar scans within ±50 ms; frames outside the window are dropped and counted
-  as camera DEGRADED. Measured: camera stamps lead lidar stamps by a median 22.8 ms on bag 00004 and
-  41.2 ms on bag 00001 (99.9 % and 99.96 % of scans inside the window). The sensors are not hardware
-  synchronized, so the offset changes between recordings. Fusion must compensate each pair's actual
-  offset with odometry rather than assume a constant, and on 00001 the window has only ~6 ms of margin.
+- Camera frames are matched to the **time the lidar swept the camera's field of view** (t_wedge: median
+  measurement time of the lidar points that project into the image), within ±50 ms. Frames outside the
+  window are dropped and counted as camera DEGRADED. *Clarified 2026-10-18:* v0.1 said "within ±50 ms of
+  the lidar scan", i.e. of `header.stamp`. But the sweep starts behind the machine, so the lidar passes
+  the camera's view ~55–60 ms after the stamp. Measured on bag 00001: the best-matching frame is 6–10 ms
+  (median) from t_wedge and 100 % of scans have one within the window, but **0 %** are within ±50 ms of
+  the stamp. A stamp-based rule would silently fuse ~100 ms stale images
+  (`docs/measurements/camera_matching_00001.json`). The sensors are not hardware synchronized, so the
+  offset changes between recordings. Each pair is motion-compensated with odometry instead of assuming a
+  constant offset.
 - Consumers may assume outputs are no older than 150 ms when `/perception/health.mode == NOMINAL`.
   **Under review (ADR-0005, proposed):** lidar scans arrive a median 127 ms after their stamp, so this
   bound cannot hold. The proposed bound is 250 ms.

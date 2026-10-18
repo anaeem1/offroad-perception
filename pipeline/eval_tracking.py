@@ -22,6 +22,12 @@ from scipy.optimize import linear_sum_assignment
 ONTO_NAMES = {5: "pole", 8: "vehicle", 9: "object", 15: "log", 17: "person", 27: "barrier", 0: "generic"}
 
 
+def ego_xy(seq):
+    from pipeline.extract_odom import load_odom
+    odom = load_odom(seq)
+    return lambda t: odom.at(t)[:2, 3]
+
+
 def read_jsonl(path):
     return [json.loads(line) for line in open(path)]
 
@@ -59,7 +65,9 @@ def link_gt(gt_rows, link_m=1.0, max_gap=5):
     return out
 
 
-def evaluate(gt_by_scan, hyp_rows, scans, match_m, existence_gate, classes=None):
+def evaluate(gt_by_scan, hyp_rows, scans, match_m, existence_gate, classes=None, ignore=None, ego=None, max_range=None):
+    """ignore(scan) -> list of (x, y) don't-care GT positions. Hypotheses that match no evaluated GT but lie
+    within match_m of a don't-care object, or beyond max_range of the machine, are not counted (KITTI-style)."""
     acc = mm.MOTAccumulator(auto_id=True)
     hyp_by_scan = collections.defaultdict(list)
     for r in hyp_rows:
@@ -70,6 +78,20 @@ def evaluate(gt_by_scan, hyp_rows, scans, match_m, existence_gate, classes=None)
         h = hyp_by_scan.get(scan, [])
         gp = np.array([[o[1], o[2]] for o in g]).reshape(-1, 2)
         hp = np.array([[r["x"], r["y"]] for r in h]).reshape(-1, 2)
+        if len(hp) and (ignore is not None or max_range is not None):
+            matched = np.zeros(len(hp), bool)
+            if len(gp):
+                dmat = np.linalg.norm(gp[:, None] - hp[None], axis=2)
+                rr, cc = linear_sum_assignment(np.where(dmat <= match_m, dmat, 1e6))
+                matched[[c for r_, c in zip(rr, cc) if dmat[r_, c] <= match_m]] = True
+            drop = np.zeros(len(hp), bool)
+            dc = np.array(ignore(scan) if ignore else []).reshape(-1, 2)
+            if len(dc):
+                drop |= (np.linalg.norm(dc[:, None] - hp[None], axis=2) <= match_m).any(0)
+            if max_range is not None:
+                drop |= np.linalg.norm(hp - ego(h[0]["t"]), axis=1) > max_range
+            keep = matched | ~drop
+            h, hp = [x for x, k in zip(h, keep) if k], hp[keep]
         d = mm.distances.norm2squared_matrix(gp, hp, max_d2=match_m ** 2)
         acc.update([o[0] for o in g], [r["id"] for r in h], np.sqrt(d))
     names = ["num_frames", "num_unique_objects", "mostly_tracked", "mostly_lost", "num_false_positives",
@@ -78,27 +100,50 @@ def evaluate(gt_by_scan, hyp_rows, scans, match_m, existence_gate, classes=None)
     return {k: (round(float(s[k].iloc[0]), 4) if isinstance(s[k].iloc[0], float) else int(s[k].iloc[0])) for k in names}
 
 
+def split_gt(run, seq, min_gt_points, max_range):
+    """Pseudo-GT objects to evaluate vs don't-care: too few points or beyond max_range of the machine."""
+    rows = read_jsonl(run / "gt_objects.jsonl")
+    ego = ego_xy(seq)
+    for r in rows:
+        r["range"] = r.get("range", float(np.linalg.norm(np.array([r["x"], r["y"]]) - ego(r["t"]))))
+        r["care"] = r["n"] >= min_gt_points and r["range"] <= max_range
+    linked = link_gt(rows)  # link all, so an object keeps its identity while it is briefly sparse
+    care = {(r["scan"], round(r["x"], 6), round(r["y"], 6)): r["care"] for r in rows}
+    gt, dont = {}, collections.defaultdict(list)
+    for scan, objs in linked.items():
+        gt[scan] = [o for o in objs if care[(scan, round(o[1], 6), round(o[2], 6))]]
+        dont[scan] = [(o[1], o[2]) for o in objs if not care[(scan, round(o[1], 6), round(o[2], 6))]]
+    return gt, (lambda scan: dont.get(scan, [])), ego
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", type=Path, required=True)
+    ap.add_argument("--tracks", default="tracks.jsonl", help="tracks file inside the run dir")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--match-m", type=float, default=1.0)
     ap.add_argument("--gates", type=float, nargs="+", default=[0.0, 0.5, 0.8])
+    ap.add_argument("--min-gt-points", type=int, default=30)
+    ap.add_argument("--max-range", type=float, default=20.0)
     args = ap.parse_args()
+    seq = json.loads((args.run / "metrics.json").read_text())["seq"]
     frames = read_jsonl(args.run / "frames.jsonl")
     scans = [f["scan"] for f in frames]
-    gt = link_gt(read_jsonl(args.run / "gt_objects.jsonl"))
-    hyp = read_jsonl(args.run / "tracks.jsonl")
+    gt, ignore, ego = split_gt(args.run, seq, args.min_gt_points, args.max_range)
+    hyp = read_jsonl(args.run / args.tracks)
     gt_classes = collections.Counter(o[3] for objs in gt.values() for o in objs)
     out = {
         "run": str(args.run), "date": datetime.date.today().isoformat(), "match_m": args.match_m,
+        "tracks_file": args.tracks,
+        "evaluated_gt": f">= {args.min_gt_points} points and <= {args.max_range} m from the machine; others are don't-care",
         "pseudo_gt": {"method": "GT-label clusters linked by nearest neighbour, same class, <=1.0 m, gap<=5 frames",
                       "unique_objects": len({o[0] for objs in gt.values() for o in objs}),
                       "detections_per_class": {ONTO_NAMES.get(c, str(c)): n for c, n in gt_classes.items()}},
         "hypotheses": {"generic_class_tracks_excluded": len({r["id"] for r in hyp if r["cls"] == 0}),
                        "tracks": len({r["id"] for r in hyp if r["cls"] != 0})},
-        "by_existence_gate": {str(g): evaluate(gt, hyp, scans, args.match_m, g) for g in args.gates},
-        "by_class_gate_0.5": {ONTO_NAMES[c]: evaluate(gt, hyp, scans, args.match_m, 0.5, {c})
+        "by_existence_gate": {str(g): evaluate(gt, hyp, scans, args.match_m, g, None, ignore, ego, args.max_range)
+                              for g in args.gates},
+        "by_class_gate_0.5": {ONTO_NAMES[c]: evaluate(gt, hyp, scans, args.match_m, 0.5, {c}, ignore, ego, args.max_range)
                               for c in (17, 27, 8, 5) if gt_classes.get(c)},
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

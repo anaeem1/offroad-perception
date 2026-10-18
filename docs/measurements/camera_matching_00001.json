@@ -1,0 +1,43 @@
+{
+  "what": "camera frame matching for late fusion, bag 00001 (20200213_trail_1)",
+  "date": "2026-10-18",
+  "rule": "camera frame nearest to t_wedge = median measurement time of lidar points inside the camera FOV",
+  "source_runs": [
+    "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_val/frames.jsonl",
+    "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_test/frames.jsonl"
+  ],
+  "blocks": {
+    "val": {
+      "scans": 1272,
+      "camera_minus_wedge_ms": {
+        "p5": 8.0,
+        "p50": 10.0,
+        "p95": 12.3,
+        "max_abs": 13.9,
+        "within_50ms": 1.0
+      },
+      "camera_minus_scan_stamp_ms": {
+        "p5": 58.5,
+        "p50": 60.5,
+        "p95": 62.8,
+        "within_50ms": 0.0
+      }
+    },
+    "test": {
+      "scans": 1047,
+      "camera_minus_wedge_ms": {
+        "p5": 4.9,
+        "p50": 6.4,
+        "p95": 7.9,
+        "max_abs": 43.6,
+        "within_50ms": 1.0
+      },
+      "camera_minus_scan_stamp_ms": {
+        "p5": 55.5,
+        "p50": 57.0,
+        "p95": 58.4,
+        "within_50ms": 0.0
+      }
+    }
+  }
+}
