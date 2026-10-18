@@ -19,5 +19,6 @@ matplotlib==3.9.2
 pandas==2.2.3
 tqdm==4.67.1
 tensorboard==2.18.0
+motmetrics==1.4.0
 # tensorrt + polygraphy (server-side ONNX parse check only) are pinned once the
 # Jetson's JetPack/TensorRT version is known. Engines are always built on the Jetson.

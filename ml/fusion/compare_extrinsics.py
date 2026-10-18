@@ -13,26 +13,7 @@ from scipy.spatial.transform import Rotation
 
 from ml.fusion.check_projection import agreement, annotated_frames, load_frame
 from ml.fusion.projection import load_rellis_calib
-
-
-def tf_graph(edges):
-    """Later /tf_static entries override earlier ones, as in tf2."""
-    g = {}
-    for parent, child, t, q in edges:
-        T = np.eye(4)
-        T[:3, :3] = Rotation.from_quat(q).as_matrix()
-        T[:3, 3] = t
-        g[child] = (parent, T)
-    return g
-
-
-def T_root_frame(g, frame, root="base_link"):
-    T = np.eye(4)
-    while frame != root:
-        parent, T_pc = g[frame]
-        T = T_pc @ T
-        frame = parent
-    return T
+from pipeline.geometry import T_root_frame, tf_graph
 
 
 def main():
