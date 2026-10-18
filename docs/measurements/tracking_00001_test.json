@@ -1,0 +1,193 @@
+{
+  "selection": {
+    "criterion": "MOTA on the 00001 val block",
+    "chosen": "min_points=30|gate=0.8",
+    "val_table": {
+      "min_points=5|gate=0.5": {
+        "mota": 0.1172,
+        "idf1": 0.4524,
+        "num_switches": 42,
+        "num_false_positives": 2788,
+        "num_misses": 371,
+        "recall": 0.8977,
+        "precision": 0.5386
+      },
+      "min_points=5|gate=0.8": {
+        "mota": 0.4286,
+        "idf1": 0.5191,
+        "num_switches": 38,
+        "num_false_positives": 1508,
+        "num_misses": 526,
+        "recall": 0.8549,
+        "precision": 0.6727
+      },
+      "min_points=15|gate=0.5": {
+        "mota": 0.516,
+        "idf1": 0.5325,
+        "num_switches": 38,
+        "num_false_positives": 1306,
+        "num_misses": 411,
+        "recall": 0.8867,
+        "precision": 0.7111
+      },
+      "min_points=15|gate=0.8": {
+        "mota": 0.5692,
+        "idf1": 0.5535,
+        "num_switches": 34,
+        "num_false_positives": 963,
+        "num_misses": 565,
+        "recall": 0.8442,
+        "precision": 0.7607
+      },
+      "min_points=30|gate=0.5": {
+        "mota": 0.583,
+        "idf1": 0.5502,
+        "num_switches": 35,
+        "num_false_positives": 1002,
+        "num_misses": 475,
+        "recall": 0.869,
+        "precision": 0.7587
+      },
+      "min_points=30|gate=0.8": {
+        "mota": 0.5833,
+        "idf1": 0.5578,
+        "num_switches": 33,
+        "num_false_positives": 833,
+        "num_misses": 645,
+        "recall": 0.8221,
+        "precision": 0.7816
+      },
+      "min_points=50|gate=0.5": {
+        "mota": 0.5769,
+        "idf1": 0.5478,
+        "num_switches": 35,
+        "num_false_positives": 908,
+        "num_misses": 591,
+        "recall": 0.837,
+        "precision": 0.7697
+      },
+      "min_points=50|gate=0.8": {
+        "mota": 0.5659,
+        "idf1": 0.551,
+        "num_switches": 33,
+        "num_false_positives": 780,
+        "num_misses": 761,
+        "recall": 0.7901,
+        "precision": 0.786
+      }
+    }
+  },
+  "test": {
+    "run": "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_test_final",
+    "date": "2026-10-18",
+    "match_m": 1.0,
+    "tracks_file": "tracks_mp30.jsonl",
+    "evaluated_gt": ">= 30 points, <= 20.0 m from the machine, vertical extent >= 0.5 m (gt_objects_v2.jsonl); others are don't-care",
+    "pseudo_gt": {
+      "method": "GT-label clusters linked by nearest neighbour, same class, <=1.0 m, gap<=5 frames",
+      "unique_objects": 66,
+      "detections_per_class": {
+        "vehicle": 301,
+        "person": 2339
+      }
+    },
+    "hypotheses": {
+      "generic_class_tracks_excluded": 0,
+      "tracks": 66
+    },
+    "by_existence_gate": {
+      "0.0": {
+        "num_frames": 1047,
+        "num_unique_objects": 66,
+        "mostly_tracked": 38,
+        "mostly_lost": 23,
+        "num_false_positives": 909,
+        "num_misses": 328,
+        "num_switches": 43,
+        "num_fragmentations": 42,
+        "mota": 0.5152,
+        "motp": 0.2012,
+        "idf1": 0.5392,
+        "precision": 0.7178,
+        "recall": 0.8758
+      },
+      "0.5": {
+        "num_frames": 1047,
+        "num_unique_objects": 66,
+        "mostly_tracked": 38,
+        "mostly_lost": 23,
+        "num_false_positives": 648,
+        "num_misses": 338,
+        "num_switches": 45,
+        "num_fragmentations": 46,
+        "mota": 0.6095,
+        "motp": 0.2004,
+        "idf1": 0.5631,
+        "precision": 0.7803,
+        "recall": 0.872
+      },
+      "0.8": {
+        "num_frames": 1047,
+        "num_unique_objects": 66,
+        "mostly_tracked": 25,
+        "mostly_lost": 25,
+        "num_false_positives": 568,
+        "num_misses": 477,
+        "num_switches": 41,
+        "num_fragmentations": 48,
+        "mota": 0.5886,
+        "motp": 0.1994,
+        "idf1": 0.5612,
+        "precision": 0.792,
+        "recall": 0.8193
+      }
+    },
+    "by_class_gate_0.5": {
+      "person": {
+        "num_frames": 1047,
+        "num_unique_objects": 57,
+        "mostly_tracked": 37,
+        "mostly_lost": 15,
+        "num_false_positives": 747,
+        "num_misses": 197,
+        "num_switches": 42,
+        "num_fragmentations": 39,
+        "mota": 0.5785,
+        "motp": 0.1726,
+        "idf1": 0.5784,
+        "precision": 0.7414,
+        "recall": 0.9158
+      },
+      "vehicle": {
+        "num_frames": 1047,
+        "num_unique_objects": 9,
+        "mostly_tracked": 0,
+        "mostly_lost": 8,
+        "num_false_positives": 0,
+        "num_misses": 240,
+        "num_switches": 0,
+        "num_fragmentations": 0,
+        "mota": 0.2027,
+        "motp": 0.2864,
+        "idf1": 0.337,
+        "precision": 1.0,
+        "recall": 0.2027
+      }
+    }
+  },
+  "test_at_chosen_gate": {
+    "num_frames": 1047,
+    "num_unique_objects": 66,
+    "mostly_tracked": 25,
+    "mostly_lost": 25,
+    "num_false_positives": 568,
+    "num_misses": 477,
+    "num_switches": 41,
+    "num_fragmentations": 48,
+    "mota": 0.5886,
+    "motp": 0.1994,
+    "idf1": 0.5612,
+    "precision": 0.792,
+    "recall": 0.8193
+  }
+}

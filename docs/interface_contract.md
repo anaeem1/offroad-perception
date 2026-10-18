@@ -1,4 +1,4 @@
-# Perception Interface Contract v0.1
+# Perception Interface Contract v0.2
 
 ## Frames
 - `base_link`: machine body frame (REP-103: x forward, y left, z up). All outputs are in this frame.
@@ -30,18 +30,24 @@
 4. `MODE_SAFE_STOP` overrides all other outputs.
 5. `semantic_class` fields carry **RELLIS-3D ontology ids** (0–34, see `config/class_costs.yaml`),
    never a model's internal class index. The lidar and camera models have different class sets.
-6. The camera covers only a 37.7° forward wedge (ADR-0002). In `MODE_CAMERA_ONLY`, every cell outside
+6. **Grid memory (v0.2, ADR-0008):** cells the current sweep cannot see (notably the lidar's ~3 m blind
+   zone) may carry *static* evidence up to 5 s older than `header.stamp`, with confidence scaled down by age.
+   `source_flags` bit 4 marks that remembered evidence is present. People and vehicles are never remembered.
+   Cells with no observation in the last 5 s are UNKNOWN.
+7. The camera covers only a 37.7° forward wedge (ADR-0002). In `MODE_CAMERA_ONLY`, every cell outside
    that wedge is UNKNOWN (255). The mode means a narrow field of view, not just reduced range.
 
 ## Versioning
 Breaking changes bump the major version and get an ADR. Additive fields bump the minor version.
+- v0.2 (2026-10-18): grid memory semantics and `source_flags` bit 4 (additive, ADR-0008); camera matching
+  rule clarified (match to the lidar's sweep of the camera FOV).
 
 ## Open questions
 | Question | Status |
 |---|---|
-| Grid extent and resolution (initial 40 m × 40 m, 0.2 m) | **Deferred to week 2, with a measurement:** fraction of 0.2 m cells observed per range band in a single scan vs. with odometry accumulation. Ground-ring spacing grows with range, so 0.2 m may be mostly UNKNOWN beyond ~15 m without accumulation. |
+| Grid extent and resolution | **Resolved:** 40 m × 40 m @ 0.2 m (ADR-0007), with 5 s static memory (ADR-0008). |
 | RELLIS-3D class → traversability cost | **Resolved (v0.1):** `config/class_costs.yaml`, explained in `docs/traversability_cost_table.md`. Costs are judgment-based and get revisited with week 2 data. |
 | Output age guarantee | **Open:** ADR-0005 (proposed), needs an owner decision. |
-| Generic obstacles outside the camera wedge | **Requirement for week 2:** the lidar model cannot output `object` (ADR-0003), so the BEV stage needs a height-above-ground check. |
-| ~0.5° pitch residual in the camera-lidar extrinsic | **Week 2 A/B:** fused IoU with and without a −0.5° correction (`docs/measurements/projection_check.json`). |
-| Camera debayering (`bayer_rggb8`) | **Week 3 check:** the runtime debayer must reproduce the training images' colour order (compare a bag frame to its dataset JPEG). |
+| Generic obstacles outside the camera wedge | **Resolved:** height-above-ground check raises cells to lethal (ADR-0003, ADR-0007). |
+| ~0.5° pitch residual in the camera-lidar extrinsic | **Resolved:** −0.5° correction adopted; +2.2 wedge mIoU on held-out test (`docs/measurements/fusion_00001.json`). |
+| Camera debayering (`bayer_rggb8`) | **Resolved:** OpenCV `BayerBG2RGB` (mean error 3 vs the dataset JPEGs; `BayerRG2RGB` gives 22). |

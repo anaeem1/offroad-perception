@@ -53,6 +53,26 @@ Every number links to the measurement file it came from.
 | Camera − lidar stamp offset | median −22.8 ms (00004), −41.2 ms (00001); ≥99.9 % within ±50 ms | Window holds, but the offset varies per recording, so fusion compensates per pair |
 | Lidar scan age on arrival | median 127 ms (stamp = sweep start) | Output-age bound under review ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) |
 
+## Measured so far (week 2): fusion, grid, tracking on held-out data
+Replay of RELLIS-3D sequence 00001 through the reference pipeline. Settings were chosen on its val block
+and are reported on its test block (105 s, 1,047 scans), which neither model trained on.
+
+![Traversability grid: prediction with 5 s memory, this sweep's ground truth, predicted classes](docs/figures/bev_grid.png)
+
+| Result (00001 test) | Value | Source |
+|---|---|---|
+| Point mIoU inside the camera wedge, lidar only → fused | 30.9 → **34.5** (classes ≥10k pts: 53.7 → **59.1**) | [fusion_00001.json](docs/measurements/fusion_00001.json) |
+| Truly lethal cells marked lethal / marked free | **88.8 %** / 1.7 % | [replay_00001_summary.json](docs/measurements/replay_00001_summary.json) |
+| Free cells marked lethal | 0.8 % | same |
+| Forward corridor UNKNOWN 0.9–2 m ahead: single sweep → 5 s memory | 100 % → **9 %** | same, [ADR-0008](docs/adr/0008-grid-memory.md) |
+| Tracking: MOTA / IDF1 / ID switches (66 objects) | **0.59 / 0.56 / 41** | [tracking_00001_test.json](docs/measurements/tracking_00001_test.json) |
+| C++ runtime core vs Python reference | identical in all 9 stages | [cpp_parity.json](docs/measurements/cpp_parity.json) |
+
+Findings that shaped the design: the camera frame must be matched to the lidar's sweep of the camera's view,
+not the scan stamp; the lidar sees the machine's own antennas (ego filter); a single-sweep grid leaves the
+near field permanently UNKNOWN, so a contract-following planner could never move (grid memory); and
+RELLIS-3D's lidar labels mark ground where people walked as `person` (ADR-0009).
+
 ## Latency budget (target, Jetson Orin NX, 10 Hz lidar)
 | Stage | Budget (ms) | Measured (ms) |
 |---|---|---|

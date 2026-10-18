@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-18",
+  "val": {
+    "run": "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_val_final",
+    "scans": "1047:2319",
+    "memory_max_age_s": 5.0,
+    "corridor_unknown_fraction": {
+      "single|0.9-2m": 1.0,
+      "single|2-3m": 0.994,
+      "single|3-4m": 0.821,
+      "single|4-6m": 0.059,
+      "single|6-10m": 0.242,
+      "single|10-15m": 0.62,
+      "memory_2s|0.9-2m": 0.466,
+      "memory_2s|2-3m": 0.13,
+      "memory_2s|3-4m": 0.076,
+      "memory_2s|4-6m": 0.0,
+      "memory_2s|6-10m": 0.01,
+      "memory_2s|10-15m": 0.06,
+      "memory_3s|0.9-2m": 0.165,
+      "memory_3s|2-3m": 0.117,
+      "memory_3s|3-4m": 0.07,
+      "memory_3s|4-6m": 0.0,
+      "memory_3s|6-10m": 0.008,
+      "memory_3s|10-15m": 0.05,
+      "memory_5s|0.9-2m": 0.132,
+      "memory_5s|2-3m": 0.099,
+      "memory_5s|3-4m": 0.058,
+      "memory_5s|4-6m": 0.0,
+      "memory_5s|6-10m": 0.005,
+      "memory_5s|10-15m": 0.036,
+      "memory_8s|0.9-2m": 0.107,
+      "memory_8s|2-3m": 0.076,
+      "memory_8s|3-4m": 0.041,
+      "memory_8s|4-6m": 0.0,
+      "memory_8s|6-10m": 0.002,
+      "memory_8s|10-15m": 0.022
+    },
+    "bev_cell_iou_single_sweep": {
+      "miou_all_present": 46.04,
+      "miou_support_ge_10000": 46.04,
+      "per_class_iou": {
+        "grass": 39.18,
+        "tree": 83.34,
+        "log": 19.24,
+        "person": 35.62,
+        "bush": 55.38,
+        "concrete": 60.25,
+        "barrier": 42.47,
+        "puddle": 23.46,
+        "mud": 33.04,
+        "rubble": 68.43
+      }
+    },
+    "traversability_vs_this_sweeps_labels": {
+      "buckets": [
+        "free<50",
+        "low<128",
+        "high<254",
+        "lethal"
+      ],
+      "gt_lethal_predicted_lethal": 0.8639,
+      "gt_lethal_predicted_free": 0.0505,
+      "gt_free_predicted_lethal": 0.0098,
+      "predicted_lethal_precision": 0.8139,
+      "counts": [
+        [
+          2957932,
+          18167,
+          168675,
+          31174
+        ],
+        [
+          1711,
+          9451,
+          1605,
+          61
+        ],
+        [
+          4005956,
+          9204,
+          5331440,
+          120111
+        ],
+        [
+          38693,
+          70,
+          65471,
+          661855
+        ]
+      ]
+    },
+    "camera_match": {
+      "used_fraction": 1.0,
+      "cam_minus_wedge_ms_p5_p50_p95": [
+        8.0,
+        10.0,
+        12.3
+      ]
+    },
+    "remembered_cells_median": 21725.0
+  },
+  "test": {
+    "run": "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_test_final",
+    "scans": "0:1047",
+    "memory_max_age_s": 5.0,
+    "corridor_unknown_fraction": {
+      "single|0.9-2m": 1.0,
+      "single|2-3m": 1.0,
+      "single|3-4m": 0.853,
+      "single|4-6m": 0.053,
+      "single|6-10m": 0.201,
+      "single|10-15m": 0.588,
+      "memory_2s|0.9-2m": 0.529,
+      "memory_2s|2-3m": 0.147,
+      "memory_2s|3-4m": 0.066,
+      "memory_2s|4-6m": 0.005,
+      "memory_2s|6-10m": 0.008,
+      "memory_2s|10-15m": 0.03,
+      "memory_3s|0.9-2m": 0.178,
+      "memory_3s|2-3m": 0.087,
+      "memory_3s|3-4m": 0.064,
+      "memory_3s|4-6m": 0.005,
+      "memory_3s|6-10m": 0.008,
+      "memory_3s|10-15m": 0.025,
+      "memory_5s|0.9-2m": 0.093,
+      "memory_5s|2-3m": 0.081,
+      "memory_5s|3-4m": 0.064,
+      "memory_5s|4-6m": 0.005,
+      "memory_5s|6-10m": 0.007,
+      "memory_5s|10-15m": 0.024,
+      "memory_8s|0.9-2m": 0.093,
+      "memory_8s|2-3m": 0.081,
+      "memory_8s|3-4m": 0.064,
+      "memory_8s|4-6m": 0.005,
+      "memory_8s|6-10m": 0.007,
+      "memory_8s|10-15m": 0.024
+    },
+    "bev_cell_iou_single_sweep": {
+      "miou_all_present": 25.56,
+      "miou_support_ge_10000": 35.14,
+      "per_class_iou": {
+        "grass": 50.66,
+        "tree": 78.99,
+        "water": 0.0,
+        "vehicle": 16.41,
+        "person": 35.67,
+        "bush": 51.62,
+        "concrete": 22.83,
+        "barrier": 0.0,
+        "puddle": 12.07,
+        "mud": 12.87,
+        "rubble": 0.0
+      }
+    },
+    "traversability_vs_this_sweeps_labels": {
+      "buckets": [
+        "free<50",
+        "low<128",
+        "high<254",
+        "lethal"
+      ],
+      "gt_lethal_predicted_lethal": 0.8881,
+      "gt_lethal_predicted_free": 0.0167,
+      "gt_free_predicted_lethal": 0.008,
+      "predicted_lethal_precision": 0.8429,
+      "counts": [
+        [
+          3635616,
+          67619,
+          464285,
+          33500
+        ],
+        [
+          975,
+          9740,
+          1243,
+          5
+        ],
+        [
+          2425240,
+          1013,
+          3275677,
+          224251
+        ],
+        [
+          26008,
+          84,
+          148087,
+          1382968
+        ]
+      ]
+    },
+    "camera_match": {
+      "used_fraction": 1.0,
+      "cam_minus_wedge_ms_p5_p50_p95": [
+        4.9,
+        6.4,
+        7.9
+      ]
+    },
+    "remembered_cells_median": 20975.0
+  }
+}

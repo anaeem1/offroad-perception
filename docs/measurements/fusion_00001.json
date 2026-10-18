@@ -1,0 +1,303 @@
+{
+  "date": "2026-10-18",
+  "val_run": "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_val_final",
+  "test_run": "/usace_share/Share_Abdullah/offroad_perception/runs/replay_00001_test_final",
+  "selection": {
+    "criterion": "wedge mIoU on the 00001 val block (scans 1047-2318)",
+    "val_argmax": "alpha=0.5|loglinear|mc=off|pitch=-0.5",
+    "shipped": "alpha=0.5|loglinear|mc=on|pitch=-0.5",
+    "val_wedge_miou_top10": {
+      "alpha=0.5|loglinear|mc=off|pitch=-0.5": 52.46,
+      "alpha=0.5|loglinear|mc=on|pitch=-0.5": 52.43,
+      "alpha=0.5|linear|mc=off|pitch=-0.5": 52.38,
+      "alpha=0.5|linear|mc=on|pitch=-0.5": 52.34,
+      "alpha=0.25|loglinear|mc=off|pitch=-0.5": 52.28,
+      "alpha=0.25|loglinear|mc=on|pitch=-0.5": 52.24,
+      "alpha=0.25|linear|mc=off|pitch=-0.5": 51.75,
+      "alpha=0.25|linear|mc=on|pitch=-0.5": 51.69,
+      "alpha=0.0|linear|mc=off|pitch=-0.5": 51.19,
+      "alpha=0.0|loglinear|mc=off|pitch=-0.5": 51.19
+    },
+    "val_wedge_miou_lidar_only": 45.19
+  },
+  "test": {
+    "wedge": {
+      "lidar_only": {
+        "miou_all_present": 30.88,
+        "miou_support_ge_10000": 53.74,
+        "classes_counted": 5,
+        "per_class_iou": {
+          "grass": 79.57,
+          "tree": 88.39,
+          "water": 0.0,
+          "log": 19.51,
+          "person": 0.03,
+          "bush": 59.07,
+          "barrier": 0.63,
+          "puddle": 23.18,
+          "mud": 18.5,
+          "rubble": 19.93
+        },
+        "support": {
+          "grass": 4475443,
+          "tree": 639089,
+          "pole": 0,
+          "water": 943,
+          "vehicle": 0,
+          "log": 2168,
+          "person": 4948,
+          "fence": 0,
+          "bush": 1040639,
+          "concrete": 0,
+          "barrier": 22,
+          "puddle": 68080,
+          "mud": 211391,
+          "rubble": 3147
+        }
+      },
+      "shipped_fusion": {
+        "miou_all_present": 34.46,
+        "miou_support_ge_10000": 59.1,
+        "classes_counted": 5,
+        "per_class_iou": {
+          "grass": 83.3,
+          "tree": 89.75,
+          "water": 0.0,
+          "log": 5.46,
+          "person": 0.0,
+          "bush": 66.65,
+          "barrier": 0.0,
+          "puddle": 31.23,
+          "mud": 24.57,
+          "rubble": 43.63
+        },
+        "support": {
+          "grass": 4475443,
+          "tree": 639089,
+          "pole": 0,
+          "water": 943,
+          "vehicle": 0,
+          "log": 2168,
+          "person": 4948,
+          "fence": 0,
+          "bush": 1040639,
+          "concrete": 0,
+          "barrier": 22,
+          "puddle": 68080,
+          "mud": 211391,
+          "rubble": 3147
+        }
+      },
+      "camera_only_same_extrinsic": {
+        "miou_all_present": 33.83,
+        "miou_support_ge_10000": 59.39,
+        "classes_counted": 5,
+        "per_class_iou": {
+          "grass": 82.77,
+          "tree": 86.27,
+          "water": 0.0,
+          "log": 3.47,
+          "person": 0.0,
+          "bush": 65.74,
+          "barrier": 0.0,
+          "puddle": 36.81,
+          "mud": 25.35,
+          "rubble": 37.91
+        },
+        "support": {
+          "grass": 4475443,
+          "tree": 639089,
+          "pole": 0,
+          "water": 943,
+          "vehicle": 0,
+          "log": 2168,
+          "person": 4948,
+          "fence": 0,
+          "bush": 1040639,
+          "concrete": 0,
+          "barrier": 22,
+          "puddle": 68080,
+          "mud": 211391,
+          "rubble": 3147
+        }
+      }
+    },
+    "all": {
+      "lidar_only": {
+        "miou_all_present": 29.02,
+        "miou_support_ge_10000": 38.91,
+        "classes_counted": 8,
+        "per_class_iou": {
+          "grass": 50.28,
+          "tree": 84.68,
+          "water": 0.0,
+          "vehicle": 18.16,
+          "log": 19.04,
+          "person": 68.72,
+          "bush": 44.96,
+          "concrete": 21.44,
+          "barrier": 0.13,
+          "puddle": 10.2,
+          "mud": 12.83,
+          "rubble": 17.75
+        },
+        "support": {
+          "grass": 24749521,
+          "tree": 13315333,
+          "pole": 0,
+          "water": 944,
+          "vehicle": 184854,
+          "log": 2168,
+          "person": 940654,
+          "fence": 0,
+          "bush": 33946597,
+          "concrete": 1633490,
+          "barrier": 22,
+          "puddle": 87710,
+          "mud": 413458,
+          "rubble": 3147
+        }
+      },
+      "shipped_fusion": {
+        "miou_all_present": 29.85,
+        "miou_support_ge_10000": 39.3,
+        "classes_counted": 8,
+        "per_class_iou": {
+          "grass": 50.61,
+          "tree": 84.74,
+          "water": 0.0,
+          "vehicle": 18.16,
+          "log": 5.1,
+          "person": 68.8,
+          "bush": 45.24,
+          "concrete": 21.45,
+          "barrier": 0.0,
+          "puddle": 11.07,
+          "mud": 14.35,
+          "rubble": 38.65
+        },
+        "support": {
+          "grass": 24749521,
+          "tree": 13315333,
+          "pole": 0,
+          "water": 944,
+          "vehicle": 184854,
+          "log": 2168,
+          "person": 940654,
+          "fence": 0,
+          "bush": 33946597,
+          "concrete": 1633490,
+          "barrier": 22,
+          "puddle": 87710,
+          "mud": 413458,
+          "rubble": 3147
+        }
+      },
+      "camera_only_same_extrinsic": {
+        "miou_all_present": 29.24,
+        "miou_support_ge_10000": 39.27,
+        "classes_counted": 8,
+        "per_class_iou": {
+          "grass": 50.52,
+          "tree": 84.58,
+          "water": 0.0,
+          "vehicle": 18.16,
+          "log": 3.24,
+          "person": 68.8,
+          "bush": 45.25,
+          "concrete": 21.45,
+          "barrier": 0.0,
+          "puddle": 10.55,
+          "mud": 14.85,
+          "rubble": 33.47
+        },
+        "support": {
+          "grass": 24749521,
+          "tree": 13315333,
+          "pole": 0,
+          "water": 944,
+          "vehicle": 184854,
+          "log": 2168,
+          "person": 940654,
+          "fence": 0,
+          "bush": 33946597,
+          "concrete": 1633490,
+          "barrier": 22,
+          "puddle": 87710,
+          "mud": 413458,
+          "rubble": 3147
+        }
+      }
+    }
+  },
+  "ablations_test_wedge": {
+    "alpha=0.5|loglinear|mc=on|pitch=-0.5": 34.46,
+    "alpha=0.5|loglinear|mc=on|pitch=0.0": 32.29,
+    "alpha=0.5|loglinear|mc=off|pitch=-0.5": 34.47,
+    "alpha=0.5|linear|mc=on|pitch=-0.5": 34.07
+  },
+  "bev_cell_iou_test": {
+    "miou_all_present": 25.56,
+    "miou_support_ge_10000": 35.14,
+    "classes_counted": 8,
+    "per_class_iou": {
+      "grass": 50.66,
+      "tree": 78.99,
+      "water": 0.0,
+      "vehicle": 16.41,
+      "person": 35.67,
+      "bush": 51.62,
+      "concrete": 22.83,
+      "barrier": 0.0,
+      "puddle": 12.07,
+      "mud": 12.87,
+      "rubble": 0.0
+    }
+  },
+  "traversability_confusion_test": {
+    "buckets": [
+      "free<50",
+      "low<128",
+      "high<254",
+      "lethal",
+      "unknown"
+    ],
+    "counts": [
+      [
+        3635616,
+        67619,
+        464285,
+        33500,
+        0
+      ],
+      [
+        975,
+        9740,
+        1243,
+        5,
+        0
+      ],
+      [
+        2425240,
+        1013,
+        3275677,
+        224251,
+        0
+      ],
+      [
+        26008,
+        84,
+        148087,
+        1382968,
+        0
+      ],
+      [
+        9837683,
+        126085,
+        9352578,
+        2074650,
+        8792693
+      ]
+    ]
+  }
+}

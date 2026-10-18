@@ -1,5 +1,5 @@
 # ADR-0007: BEV grid is 40 m × 40 m at 0.2 m, built from one lidar sweep
-- **Status:** accepted
+- **Status:** accepted; single-sweep choice superseded by ADR-0008 (grid memory). Extent and resolution stand.
 - **Date:** 2026-10-18
 ## Context
 - The contract left grid extent and resolution open (initial guess 40 m × 40 m @ 0.2 m).

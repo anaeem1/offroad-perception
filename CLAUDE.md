@@ -78,38 +78,31 @@ bringing both models under budget. The Oct 26 feature stop is unchanged.
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
-*Updated 2026-10-18.*
-- **Week 1 complete** (all checklist items, incl. `perception_msgs` built on the Jetson).
-- **Schedule:** re-planned Oct 18 with no cuts (see Timeline). Week 2 in progress: `docs/week2_checklist.md`.
-- **Latency risk (preliminary, loaded board):** SegFormer 35.0 ms vs 30 budget; SalsaNext **44.2 ms vs
-  20** (`docs/measurements/jetson_trt_models.txt`). Quiet-board re-measure (jetson_clocks, other
-  workloads stopped) still to do. Levers: SegFormer at 480×768 (ADR-0004); INT8 or a narrower range
-  image for SalsaNext. FP16 subnormal-weight warnings on both, so check FP16 accuracy against FP32.
-- Done:
-  - Repo under git (own repo, branch `main`); env built; RELLIS-3D subset + bag 00004 downloaded.
-  - Bag 00004 converted to ROS 2 mcap (topic-filtered, Humble-compatible). Timing, frames and TF
-    measured; `config/sensors.yaml` filled.
-  - Projection check: overlay in `docs/figures/`. Label agreement 74–89 %. Yaw is correct; pitch peaks
-    0.5° below nominal in all sequences (not corrected; week 2 A/B).
-  - Camera: SegFormer-B0 640×1024, test mIoU 42.7 (ADR-0004). Lidar: released SalsaNext, 41.79
-    CNN-only / 42.41 with KNN; reproduces the published 40.2 under its own convention (ADR-0003).
-  - ONNX: both models at opset 16 and 17 in `data/onnx/`, parity < 1e-5 vs PyTorch.
-  - ADR-0002 (late fusion), ADR-0003, ADR-0004; cost table v0.1; contract reviewed.
-- Not started: fusion, BEV grid, tracker (week 2); C++/TensorRT nodes (week 3).
+*Updated 2026-10-18 (late).*
+- **Week 1 complete. Week 2 exit criterion met (Oct 18):** reference pipeline runs on the replayed 00001 bag;
+  per-class IoU + tracking recorded. Re-plan with no cuts: week 3 (C++/TensorRT on the Jetson) Oct 19–26.
+- Week 2 results (00001 test, settings chosen on val): wedge mIoU lidar 30.9 → fused 34.5 (≥10k-pt classes
+  53.7 → 59.1); lethal cells 88.8 % lethal / 1.7 % free; tracking MOTA 0.59, IDF1 0.56, 41 ID switches.
+  All in `docs/measurements/` (`fusion_00001.json`, `replay_00001_summary.json`, `tracking_00001_test.json`).
+- Design changes from week 2 evidence (all ADR'd): camera matched to the lidar's sweep of its FOV (contract
+  clarified); −0.5° pitch correction; ego filter (antennas were tracked as people); 5 s static grid memory
+  (ADR-0008; single-sweep near field was 100 % UNKNOWN); tracking eval with don't-care rules (ADR-0009);
+  contract v0.2 (`source_flags` bit 4).
+- C++: `src/offroad_perception` core (ROS-free) passes parity with the Python reference in all 9 stages
+  (`cpp_parity.json`). ROS 2 nodes written (segmentation_fusion, bev_tracker, health_monitor,
+  planner_consumer) + launch + generated params; **not yet compiled on the Jetson**.
+- **Waiting on the Jetson (owner runs prompts with the Jetson Claude agent):**
+  `CAT/jetson_bundle4.tar.gz` + `CAT/clip_00001_30s.tar` → first build + replay + latency CSVs;
+  optional `CAT/jetson_bundle3.tar.gz` latency sweep (FP16/INT8 bound/DLA/480×768/concurrency).
 - Open / needs a decision:
-  - **ADR-0005 (proposed):** the 150 ms output-age bound can't hold (lidar arrives 127 ms after its
-    sweep-start stamp). The proposal is 250 ms plus contract v1.0. Owner decision needed.
-  - Grid extent/resolution: decide in week 2 from the observed-cell fraction per range band.
-  - KNN on the Jetson: +4.0 barrier / +2.5 vehicle IoU vs. its latency; decide in week 3.
-- **Evaluation trap:** RELLIS-3D splits are by sequence, and sequence 00004 is entirely in both models'
-  training splits. IoU measured on its replay is training-set accuracy. Sequence 00001 is the only one
-  with no training frames (`docs/measurements/split_by_sequence.json`). **Its bag is downloaded and
-  converted (Oct 8):** `data/bags/ros2/20200213_trail_1`, 232 s. Use 00001 for week 2 IoU and 00004
-  for bring-up and the demo.
-- Camera-lidar stamp offset differs per recording (median −22.8 ms on 00004, −41.2 ms on 00001; no
-  hardware sync), so week 2 fusion must motion-compensate each pair. A constant offset is wrong.
-- Week 2 requirements already known: a height-above-ground obstacle check (the lidar model cannot
-  output `object`); a debayer colour-order check for the `bayer_rggb8` images.
+  - **ADR-0005 (proposed):** output-age bound 150 → 250 ms. Owner decision needed.
+  - Latency: SegFormer 35.0 ms (budget 30), SalsaNext 44.2 ms (budget 20), first measurement on a loaded
+    board. SegFormer 480×768 costs 1.7 mIoU (`camera_onnx_*_test.json`). Decide with the sweep results.
+  - KNN on the Jetson (ADR-0003); GitHub remote for code sync (owner to create a private repo).
+  - Vehicles are poorly tracked (recall 0.20; lidar vehicle IoU 18). Standstill blind-zone hazard (ADR-0008)
+    for the week 4 hazard analysis.
+- Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
+  "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
 ## Working conventions
 - Python for training and evaluation; C++ for the runtime tracker and inference nodes.

@@ -52,10 +52,12 @@ def main():
     grids = np.load(args.run / "grids.npz")
     key = min(grids.files, key=lambda k: abs(int(k) - args.scan))
     cost, sem, flags, cost_gt, _ = grids[key]
-    extent = json.loads((args.run / "metrics.json").read_text())["grid"]["extent_m"]
+    metrics = json.loads((args.run / "metrics.json").read_text())
+    extent, mem = metrics["grid"]["extent_m"], metrics.get("memory_max_age_s", 0)
     scale = max(1, 600 // cost.shape[0])
-    row = np.hstack([panel(cost_rgb(cost), "predicted cost", scale), np.full((44 + cost.shape[0] * scale, 8, 3), 255, np.uint8),
-                     panel(cost_rgb(cost_gt), "ground-truth cost", scale), np.full((44 + cost.shape[0] * scale, 8, 3), 255, np.uint8),
+    pred_title = f"predicted cost ({mem:g} s memory)" if mem else "predicted cost"
+    row = np.hstack([panel(cost_rgb(cost), pred_title, scale), np.full((44 + cost.shape[0] * scale, 8, 3), 255, np.uint8),
+                     panel(cost_rgb(cost_gt), "ground truth (this sweep only)", scale), np.full((44 + cost.shape[0] * scale, 8, 3), 255, np.uint8),
                      panel(class_rgb(sem, flags), "predicted class", scale)])
     foot = np.full((40, row.shape[1], 3), 255, np.uint8)
     cv2.putText(foot, f"scan {key}, {extent:.0f} m x {extent:.0f} m, forward = up. green free -> red lethal, grey unknown",
