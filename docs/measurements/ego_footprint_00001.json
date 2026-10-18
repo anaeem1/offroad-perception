@@ -1,0 +1,26 @@
+{
+  "seq": "00001",
+  "scans": "1047:2319",
+  "moving_scans_used": 212,
+  "date": "2026-10-18",
+  "cell_m": 0.1,
+  "persistence_threshold": 0.5,
+  "self_cells": 78,
+  "self_box_base_link": {
+    "x_min": -3.0,
+    "x_max": 3.0,
+    "y_min": -3.0,
+    "y_max": 3.0,
+    "z_max": 1.73
+  },
+  "gt_labels_near_vehicle_points": {
+    "0": 311202,
+    "3": 53671,
+    "19": 172111,
+    "17": 62129,
+    "34": 3610,
+    "33": 29,
+    "27": 29172,
+    "4": 2353
+  }
+}

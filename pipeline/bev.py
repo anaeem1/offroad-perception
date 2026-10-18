@@ -27,6 +27,17 @@ def load_costs(path=COSTS):
     return cost, obstacle
 
 
+EGO_BOX = {"x": (-0.9, 0.9), "y": (-0.8, 0.8), "z": (-0.5, 2.0)}  # config/sensors.yaml ego_box_base_link
+
+
+def outside_ego(xyz_base, box=EGO_BOX):
+    """Mask of points that are not the machine itself (self-returns from mast/antennas)."""
+    inside = np.ones(len(xyz_base), bool)
+    for k, axis in enumerate("xyz"):
+        inside &= (xyz_base[:, k] > box[axis][0]) & (xyz_base[:, k] < box[axis][1])
+    return ~inside
+
+
 @dataclass
 class GridParams:
     extent_m: float = 40.0          # square, centred on base_link

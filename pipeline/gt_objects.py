@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from pipeline import fusion as F
-from pipeline.bev import GridParams, load_costs
+from pipeline.bev import GridParams, load_costs, outside_ego
 from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
@@ -44,6 +44,8 @@ def main():
         gt = load_scan_labels(seq, scan)
         vi = np.flatnonzero(np.abs(xyz).sum(1) > 0)
         base = apply(T_bl, deskew(xyz[vi], stamp + col_t[vi], odom, T_bl, stamp))
+        keep = outside_ego(base)
+        vi, base = vi[keep], base[keep]
         onehot = np.zeros((len(vi), len(F.ONTOLOGY_IDS)), np.float32)
         onehot[np.arange(len(vi)), onto_lut[gt[vi]]] = 1.0
         T_ob = odom.at(stamp)

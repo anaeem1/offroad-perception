@@ -28,7 +28,7 @@ from ml.fusion.projection import load_rellis_calib, perturb
 from ml.metrics import ConfusionMatrix
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
-from pipeline.bev import GridParams, build_grid, load_costs
+from pipeline.bev import GridParams, build_grid, load_costs, outside_ego
 from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
@@ -159,6 +159,8 @@ def main():
             # Lidar-only points: argmax in the lidar's own space (bucket -> void), as a one-hot-ish distribution.
             vi = np.flatnonzero(valid)
             xyz_base = apply(T_base_lidar, deskew(xyz[vi], point_t[vi], odom, T_base_lidar, stamp))
+            keep = outside_ego(xyz_base)  # drop the machine's own returns before grid + clustering
+            vi, xyz_base = vi[keep], xyz_base[keep]
             grid = build_grid(xyz_base, probs[vi], from_cam[vi], gp, cost_lut)
             dets = cluster(xyz_base, probs[vi], grid.geometric, gp, obstacle_lut)
             t4 = time.perf_counter()

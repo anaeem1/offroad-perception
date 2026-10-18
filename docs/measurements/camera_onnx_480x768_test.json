@@ -1,0 +1,57 @@
+{
+  "onnx": "/usace_share/Share_Abdullah/offroad_perception/onnx/segformer_b0_480x768_op17.onnx",
+  "input_hw": [
+    480,
+    768
+  ],
+  "split": "test",
+  "n_images": 1672,
+  "date": "2026-10-18",
+  "scored_at": "full label resolution, probs upsampled",
+  "test": {
+    "per_class_iou": {
+      "dirt": 0.0,
+      "grass": 86.46,
+      "tree": 77.87,
+      "pole": 1.23,
+      "water": 3.73,
+      "sky": 97.0,
+      "vehicle": 27.72,
+      "object": 29.52,
+      "asphalt": 5.73,
+      "building": 5.32,
+      "log": 0.39,
+      "person": 87.67,
+      "fence": 28.07,
+      "bush": 67.44,
+      "concrete": 81.41,
+      "barrier": 23.08,
+      "puddle": 70.86,
+      "mud": 39.2,
+      "rubble": 47.79
+    },
+    "miou": 41.08,
+    "absent_classes": [],
+    "support_pixels": {
+      "dirt": 9690,
+      "grass": 1364538849,
+      "tree": 421358453,
+      "pole": 1820068,
+      "water": 959662,
+      "sky": 1169367710,
+      "vehicle": 2184284,
+      "object": 2696747,
+      "asphalt": 3850438,
+      "building": 620290,
+      "log": 29728,
+      "person": 3216634,
+      "fence": 2067483,
+      "bush": 662926185,
+      "concrete": 126705811,
+      "barrier": 4598056,
+      "puddle": 53611796,
+      "mud": 29818401,
+      "rubble": 1907260
+    }
+  }
+}

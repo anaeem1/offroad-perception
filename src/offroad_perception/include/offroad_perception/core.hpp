@@ -40,6 +40,14 @@ Dist lidar_to_ontology(const float* p_train, int n_train, const std::vector<int>
 Dist camera_to_ontology(const float* p_cam, const std::vector<int>& class_ids);
 Dist fuse(const Dist& lidar, const Dist& camera, float alpha, bool loglinear);
 
+// ---- ego filter --------------------------------------------------------------------------------------
+struct EgoBox {  // the machine's own returns in base_link (config/sensors.yaml ego_box_base_link)
+  double x_min{-0.9}, x_max{0.9}, y_min{-0.8}, y_max{0.8}, z_min{-0.5}, z_max{2.0};
+  bool contains(const Vec3& p) const {
+    return p.x > x_min && p.x < x_max && p.y > y_min && p.y < y_max && p.z > z_min && p.z < z_max;
+  }
+};
+
 // ---- BEV grid ----------------------------------------------------------------------------------------
 struct GridParams {
   double extent_m{40.0}, resolution_m{0.2}, z_min{-3.0}, z_max{3.0};

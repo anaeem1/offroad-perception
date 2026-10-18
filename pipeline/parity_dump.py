@@ -17,7 +17,7 @@ from ml.fusion.projection import load_rellis_calib
 from ml.lidar.range_projection import project
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
-from pipeline.bev import GridParams, build_grid, load_costs
+from pipeline.bev import GridParams, build_grid, load_costs, outside_ego
 from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
@@ -90,8 +90,10 @@ def main():
         from_cam = np.zeros(len(xyz), bool)
         from_cam[hit_idx] = True
         xyz_base = apply(T_bl, deskew(xyz[vi], point_t[vi], odom, T_bl, stamp))
-        grid = build_grid(xyz_base, probs[vi], from_cam[vi], gp, cost_lut)
-        dets = cluster(xyz_base, probs[vi], grid.geometric, gp, obstacle_lut)
+        keep = outside_ego(xyz_base)
+        vb, xyz_base = vi[keep], xyz_base[keep]
+        grid = build_grid(xyz_base, probs[vb], from_cam[vb], gp, cost_lut)
+        dets = cluster(xyz_base, probs[vb], grid.geometric, gp, obstacle_lut)
 
         if n_stage < args.stage_scans:
             d = args.out / f"scan_{scan:06d}"
@@ -103,7 +105,8 @@ def main():
                               "in_plid": p_lid.astype(np.float32), "in_pcam": p_cam.astype(np.float32),
                               "py_range_input": proj, "py_deskew_cam": pts_cam_time.astype(np.float64),
                               "py_hits_uv": uv.astype(np.float64), "py_hits_idx": hit_idx.astype(np.int64),
-                              "py_probs": probs[vi].astype(np.float32), "py_from_cam": from_cam[vi].astype(np.uint8),
+                              "py_probs": probs[vi].astype(np.float32), "py_from_cam": from_cam[vb].astype(np.uint8),
+                              "py_probs_base": probs[vb].astype(np.float32),
                               "py_xyz_base": xyz_base.astype(np.float64), "py_grid_cost": grid.cost,
                               "py_grid_conf": grid.confidence, "py_grid_class": grid.semantic_class,
                               "py_grid_flags": grid.source_flags, "py_grid_geometric": grid.geometric.astype(np.uint8),

@@ -126,14 +126,18 @@ int main(int argc, char** argv) {
     for (uint32_t i : vidx) fused.insert(fused.end(), probs_all[i].begin(), probs_all[i].end());
     npy::save<float>((d / "cpp_probs.npy").string(), {vidx.size(), static_cast<size_t>(kNumClasses)}, fused.data());
 
-    // 5. deskew to the scan stamp, into base_link
-    auto base = deskew(vpts, vt, odom, T_base_lidar, stamp);
-    for (Vec3& p : base) p = apply(T_base_lidar, p);
+    // 5. deskew to the scan stamp, into base_link, minus the machine's own returns
+    std::vector<Vec3> base;
+    const EgoBox ego;
+    for (const Vec3& p : deskew(vpts, vt, odom, T_base_lidar, stamp)) {
+      const Vec3 b = apply(T_base_lidar, p);
+      if (!ego.contains(b)) base.push_back(b);
+    }
     save_vec3s((d / "cpp_xyz_base.npy").string(), base);
 
     // 6. BEV grid on the Python points/probabilities
     const auto py_base = vec3s(L(d, "py_xyz_base.npy"));
-    const auto py_probs_a = npy::load<float>((d / "py_probs.npy").string());
+    const auto py_probs_a = npy::load<float>((d / "py_probs_base.npy").string());
     std::vector<Dist> py_probs(py_base.size());
     for (size_t i = 0; i < py_probs.size(); ++i)
       std::copy_n(&py_probs_a.data[i * kNumClasses], kNumClasses, py_probs[i].begin());
