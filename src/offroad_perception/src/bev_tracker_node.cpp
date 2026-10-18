@@ -22,13 +22,15 @@ class BevTrackerNode : public rclcpp::Node {
     gp_.extent_m = declare_parameter<double>("grid_extent_m", 40.0);
     gp_.resolution_m = declare_parameter<double>("grid_resolution_m", 0.2);
     gp_.obstacle_height_m = declare_parameter<double>("obstacle_height_m", 0.3);
+    memory_ = std::make_unique<GridMemory>(gp_.resolution_m, declare_parameter<double>("memory_max_age_s", 5.0));
     // Cost table in ontology-id order (kOntologyIds), generated from config/class_costs.yaml.
     const auto cost = declare_parameter<std::vector<int64_t>>("cost_lut");
     const auto obst = declare_parameter<std::vector<bool>>("obstacle_lut");
     if (cost.size() != kNumClasses || obst.size() != kNumClasses) throw std::runtime_error("cost/obstacle lut must have 20 entries");
     for (int k = 0; k < kNumClasses; ++k) { cost_lut_[k] = static_cast<int>(cost[k]); obstacle_lut_[k] = obst[k]; }
     timing_.open(declare_parameter<std::string>("timing_csv", ""),
-                 "stamp,receive_delay_ms,grid_ms,cluster_ms,track_ms,publish_ms,total_ms,n_points,n_dets,n_tracks,age_at_publish_ms");
+                 "stamp,receive_delay_ms,grid_cluster_ms,memory_ms,track_ms,publish_ms,total_ms,n_points,n_dets,n_tracks,"
+                 "remembered_cells,age_at_publish_ms");
     grid_pub_ = create_publisher<perception_msgs::msg::TraversabilityGrid>("/perception/traversability", 5);
     obs_pub_ = create_publisher<perception_msgs::msg::ObstacleArray>("/perception/obstacles", 5);
     odom_sub_ = create_subscription<nav_msgs::msg::Odometry>("/odometry/filtered", 100,
@@ -60,17 +62,20 @@ class BevTrackerNode : public rclcpp::Node {
       probs[i][onto_index(p[ol])] = read_at<float>(p + oc);
       cam[i] = p[ocam];
     }
-    auto t1 = Clock::now();
-    const Grid g = build_grid(pts, probs, cam, gp_, cost_lut_);
-    const double t_grid = ms_since(t1);
-    t1 = Clock::now();
-    const auto dets = cluster(pts, probs, g.geometric, gp_, obstacle_lut_);
-    const double t_cluster = ms_since(t1);
-    t1 = Clock::now();
     PoseTrack odom;
     { std::lock_guard<std::mutex> lk(mutex_); odom = odom_; }
     if (odom.empty()) { RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "no odometry yet"); return; }
     const Mat4 T_ob = odom.at(stamp), T_bo = inverse_rigid(T_ob);
+    auto t1 = Clock::now();
+    Grid g = build_grid(pts, probs, cam, gp_, cost_lut_);
+    const auto dets = cluster(pts, probs, g.geometric, gp_, obstacle_lut_);  // current sweep only
+    const double t_grid = ms_since(t1);
+    t1 = Clock::now();
+    const int n_remembered = memory_->fill(g, gp_, T_ob, stamp);  // ADR-0008: blind cells from earlier sweeps
+    memory_->update(g, gp_, T_ob, stamp);
+    if (++frames_ % 50 == 0) memory_->prune(stamp);
+    const double t_memory = ms_since(t1);
+    t1 = Clock::now();
     std::vector<TrackInput> in;
     for (const auto& d : dets) in.push_back({apply(T_ob, d.xyz), d.dims, d.semantic_class, d.class_confidence});
     const auto& tracks = tracker_.step(stamp, in);
@@ -86,7 +91,7 @@ class BevTrackerNode : public rclcpp::Node {
     grid.cost = g.cost;
     grid.confidence = g.confidence;
     grid.semantic_class = g.semantic_class;
-    uint32_t flags = 0;
+    uint32_t flags = 0;  // 1 lidar, 2 camera, 4 remembered (ADR-0008)
     for (uint8_t f : g.source_flags) flags |= f;
     grid.source_flags = flags;
     grid_pub_->publish(grid);
@@ -117,14 +122,16 @@ class BevTrackerNode : public rclcpp::Node {
     }
     obs_pub_->publish(arr);
     const double t_pub = ms_since(t1);
-    timing_.row(std::to_string(stamp), receive_delay, t_grid, t_cluster, t_track, t_pub, ms_since(t0), N, dets.size(),
-                tracks.size(), (now().seconds() - stamp) * 1e3);
+    timing_.row(std::to_string(stamp), receive_delay, t_grid, t_memory, t_track, t_pub, ms_since(t0), N, dets.size(),
+                tracks.size(), n_remembered, (now().seconds() - stamp) * 1e3);
   }
 
   GridParams gp_;
   std::array<int, kNumClasses> cost_lut_{};
   std::array<bool, kNumClasses> obstacle_lut_{};
   Tracker tracker_;
+  std::unique_ptr<GridMemory> memory_;
+  uint64_t frames_{0};
   PoseTrack odom_;
   std::mutex mutex_;
   CsvLog timing_;

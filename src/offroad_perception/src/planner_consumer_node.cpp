@@ -27,6 +27,7 @@ class PlannerConsumerNode : public rclcpp::Node {
     lidar_only_factor_ = declare_parameter<double>("lidar_only_speed_factor", 0.5);
     half_width_ = declare_parameter<double>("corridor_half_width_m", 0.9);
     lookahead_ = declare_parameter<double>("lookahead_m", 15.0);
+    corridor_start_ = declare_parameter<double>("corridor_start_m", 0.9);  // vehicle front (ego box x_max)
     stop_dist_ = declare_parameter<double>("stop_distance_m", 2.0);
     gain_ = declare_parameter<double>("speed_gain", 0.5);
     existence_gate_ = declare_parameter<double>("existence_gate", 0.5);
@@ -57,7 +58,7 @@ class PlannerConsumerNode : public rclcpp::Node {
     for (uint32_t r = 0; r < g->height; ++r)
       for (uint32_t c = 0; c < g->width; ++c) {
         const double x = ox + (c + 0.5) * res, y = oy + (r + 0.5) * res;
-        if (x < 0 || x > lookahead_ || std::abs(y) > half_width_) continue;
+        if (x < corridor_start_ || x > lookahead_ || std::abs(y) > half_width_) continue;
         const uint8_t cost = g->cost[static_cast<size_t>(r) * g->width + c];
         if (cost >= 254) d_blocked = std::min(d_blocked, x);  // 254 lethal, 255 UNKNOWN: both block
         else worst_cost = std::max(worst_cost, static_cast<double>(cost));
@@ -88,7 +89,7 @@ class PlannerConsumerNode : public rclcpp::Node {
     log_.row(std::to_string(stamp), age_ms, static_cast<int>(mode), d_blocked, d_obstacle, factor, v, reason);
   }
 
-  double v_max_, lidar_only_factor_, half_width_, lookahead_, stop_dist_, gain_, existence_gate_, max_age_;
+  double v_max_, lidar_only_factor_, half_width_, lookahead_, corridor_start_, stop_dist_, gain_, existence_gate_, max_age_;
   uint8_t mode_{PerceptionHealth::MODE_SAFE_STOP};
   bool have_health_{false};
   perception_msgs::msg::ObstacleArray::ConstSharedPtr obstacles_;

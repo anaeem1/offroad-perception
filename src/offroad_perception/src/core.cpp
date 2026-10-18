@@ -159,6 +159,49 @@ Grid build_grid(const std::vector<Vec3>& xyz, const std::vector<Dist>& probs, co
   return out;
 }
 
+// ---- grid memory -------------------------------------------------------------------------------------
+int64_t GridMemory::key(const GridParams& p, const Mat4& T, int i, int j) const {
+  const Vec3 c{(i + 0.5) * p.resolution_m - p.extent_m / 2, (j + 0.5) * p.resolution_m - p.extent_m / 2, 0.0};
+  const Vec3 o = apply(T, c);
+  const int64_t kx = static_cast<int64_t>(std::floor(o.x / r_)), ky = static_cast<int64_t>(std::floor(o.y / r_));
+  return (ky << 32) ^ (kx & 0xffffffffLL);
+}
+
+int GridMemory::fill(Grid& g, const GridParams& p, const Mat4& T, double t) const {
+  int n_filled = 0;
+  for (int j = 0; j < g.n; ++j)
+    for (int i = 0; i < g.n; ++i) {
+      const size_t c = static_cast<size_t>(j) * g.n + i;
+      if (g.source_flags[c] != 0) continue;
+      const auto it = cells_.find(key(p, T, i, j));
+      if (it == cells_.end()) continue;
+      const double age = t - it->second.t_seen;
+      if (!(age <= max_age_)) continue;
+      const double decay = std::clamp(1.0 - age / max_age_, 0.0, 1.0);
+      g.cost[c] = it->second.cost;
+      g.semantic_class[c] = it->second.cls;
+      g.confidence[c] = static_cast<uint8_t>(std::nearbyint(it->second.conf * decay));
+      g.source_flags[c] = kRemembered;
+      ++n_filled;
+    }
+  return n_filled;
+}
+
+void GridMemory::update(const Grid& g, const GridParams& p, const Mat4& T, double t) {
+  for (int j = 0; j < g.n; ++j)
+    for (int i = 0; i < g.n; ++i) {
+      const size_t c = static_cast<size_t>(j) * g.n + i;
+      if ((g.source_flags[c] & 3) == 0) continue;
+      if (std::find(dynamic_.begin(), dynamic_.end(), g.semantic_class[c]) != dynamic_.end()) continue;
+      cells_[key(p, T, i, j)] = {g.cost[c], g.confidence[c], g.semantic_class[c], t};
+    }
+}
+
+void GridMemory::prune(double t) {
+  for (auto it = cells_.begin(); it != cells_.end();)
+    it = (t - it->second.t_seen > max_age_) ? cells_.erase(it) : std::next(it);
+}
+
 // ---- clustering --------------------------------------------------------------------------------------
 std::vector<Detection> cluster(const std::vector<Vec3>& xyz, const std::vector<Dist>& probs,
                                const std::vector<uint8_t>& geometric, const GridParams& g,

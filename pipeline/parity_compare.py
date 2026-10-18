@@ -63,6 +63,13 @@ def main():
     args = ap.parse_args()
     scans = {p.name: compare_scan(p) for p in sorted(args.dump.glob("scan_*"))}
     trk = compare_tracker(args.dump / "tracker")
+    mem = None
+    if (args.dump / "memory/cpp_grids.npy").exists():
+        py, cpp = np.load(args.dump / "memory/py_grids.npy"), np.load(args.dump / "memory/cpp_grids.npy")
+        filled = int((py[:, 3] == 4).sum())
+        mem = {"steps": int(py.shape[0]), "remembered_cells_python": filled,
+               "remembered_cells_cpp": int((cpp[:, 3] == 4).sum()),
+               "cells_differing": int((py != cpp).any(1).sum()), "cells_total": int(py[:, 0].size)}
     worst = lambda f: max(f(s) for s in scans.values())
     passed = {
         "range_input": worst(lambda s: s["range_input"]["pixels_differing"] / s["range_input"]["pixels"]) <= 1e-3,
@@ -77,12 +84,13 @@ def main():
         "clustering": all(s["clusters"]["python"] == s["clusters"]["cpp"] and (s["clusters"]["max_abs"] or 0) < 1e-6
                           for s in scans.values()),
         "tracker": trk.get("id_state_class_identical", False) and trk.get("state_max_abs", 1) < 1e-6,
+        "grid_memory": mem is not None and mem["cells_differing"] <= 1e-3 * mem["cells_total"],
     }
     out = {"date": datetime.date.today().isoformat(), "dump": str(args.dump), "passed": passed,
-           "all_passed": all(passed.values()), "per_scan": scans, "tracker": trk}
+           "all_passed": all(passed.values()), "per_scan": scans, "tracker": trk, "grid_memory": mem}
     args.json.parent.mkdir(parents=True, exist_ok=True)
     args.json.write_text(json.dumps(out, indent=2) + "\n")
-    print(json.dumps({"passed": passed, "tracker": trk}, indent=1))
+    print(json.dumps({"passed": passed, "tracker": trk, "grid_memory": mem}, indent=1))
     for name, s in scans.items():
         print(name, json.dumps(s))
 

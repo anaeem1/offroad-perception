@@ -182,6 +182,34 @@ int main(int argc, char** argv) {
     (void)n_steps;
     npy::save<double>((root / "tracker" / "cpp_tracks.npy").string(), {out.size() / 9, 9}, out.data());
   }
+  // 9. grid memory over the Python single-sweep grid sequence
+  if (fs::exists(root / "memory")) {
+    const auto in = npy::load<uint8_t>((root / "memory" / "in_grids.npy").string());
+    const auto Ts = L(root / "memory", "T_odom_base.npy");
+    const auto ts = L(root / "memory", "t.npy").data;
+    const size_t S = in.shape[0], n = in.shape[2], nn = n * n;
+    GridMemory mem(gp.resolution_m, 5.0);
+    std::vector<uint8_t> out(in.data.size());
+    for (size_t s = 0; s < S; ++s) {
+      Grid g;
+      g.n = static_cast<int>(n);
+      const uint8_t* base = &in.data[s * 4 * nn];
+      g.cost.assign(base, base + nn);
+      g.confidence.assign(base + nn, base + 2 * nn);
+      g.semantic_class.assign(base + 2 * nn, base + 3 * nn);
+      g.source_flags.assign(base + 3 * nn, base + 4 * nn);
+      Mat4 T;
+      std::copy_n(&Ts.data[s * 16], 16, T.m.begin());
+      mem.fill(g, gp, T, ts[s]);
+      mem.update(g, gp, T, ts[s]);
+      uint8_t* o = &out[s * 4 * nn];
+      std::copy(g.cost.begin(), g.cost.end(), o);
+      std::copy(g.confidence.begin(), g.confidence.end(), o + nn);
+      std::copy(g.semantic_class.begin(), g.semantic_class.end(), o + 2 * nn);
+      std::copy(g.source_flags.begin(), g.source_flags.end(), o + 3 * nn);
+    }
+    npy::save<uint8_t>((root / "memory" / "cpp_grids.npy").string(), in.shape, out.data());
+  }
   std::cout << "parity: processed " << n_scans << " scans\n";
   return 0;
 }

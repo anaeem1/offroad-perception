@@ -3,6 +3,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 #include "offroad_perception/math.hpp"
@@ -65,6 +66,25 @@ struct Grid {
 // cost_lut[k]: cost of ontology class index k (255 unknown, -1 = contributes nothing, e.g. sky).
 Grid build_grid(const std::vector<Vec3>& xyz_base, const std::vector<Dist>& probs, const std::vector<uint8_t>& from_camera,
                 const GridParams& p, const std::array<int, kNumClasses>& cost_lut);
+
+// ---- grid memory (ADR-0008) ---------------------------------------------------------------------------
+// Fills cells the current sweep cannot see with static evidence from earlier sweeps, keyed by odom-frame
+// cells. Port of pipeline/bev_memory.py: fill() before update(), dynamic classes never stored.
+class GridMemory {
+ public:
+  GridMemory(double resolution_m, double max_age_s, std::vector<int> dynamic_classes = {17, 8})
+      : r_(resolution_m), max_age_(max_age_s), dynamic_(std::move(dynamic_classes)) {}
+  int fill(Grid& g, const GridParams& p, const Mat4& T_odom_base, double t) const;  // returns cells filled
+  void update(const Grid& g, const GridParams& p, const Mat4& T_odom_base, double t);
+  void prune(double t);  // forget entries older than max_age (memory management only)
+  static constexpr uint8_t kRemembered = 4;
+ private:
+  struct Cell { uint8_t cost, conf, cls; double t_seen; };
+  int64_t key(const GridParams& p, const Mat4& T, int i, int j) const;
+  double r_, max_age_;
+  std::vector<int> dynamic_;
+  std::unordered_map<int64_t, Cell> cells_;
+};
 
 // ---- clustering --------------------------------------------------------------------------------------
 struct Detection {

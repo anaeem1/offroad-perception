@@ -18,6 +18,7 @@ from ml.lidar.range_projection import project
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
 from pipeline.bev import GridParams, build_grid, load_costs, outside_ego
+from pipeline.bev_memory import GridMemory, MemoryParams
 from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
@@ -67,6 +68,7 @@ def main():
     np.save(common / "fusion.npy", np.array([ALPHA, float(LOGLINEAR), gp.extent_m, gp.resolution_m]))
 
     tracker, det_rows, track_rows, step_t = Tracker(), [], [], []
+    memory, mem_in, mem_out, mem_T = GridMemory(gp.resolution_m, MemoryParams(max_age_s=5.0)), [], [], []
     cams, pending, n_stage = collections.deque(maxlen=10), collections.deque(), 0
 
     def process(scan, msg):
@@ -117,6 +119,11 @@ def main():
             n_stage += 1
 
         T_ob = odom.at(stamp)
+        mem_in.append(np.stack([grid.cost, grid.confidence, grid.semantic_class, grid.source_flags]))
+        memory.fill(grid, T_ob, stamp)
+        memory.update(grid, T_ob, stamp)
+        mem_out.append(np.stack([grid.cost, grid.confidence, grid.semantic_class, grid.source_flags]))
+        mem_T.append(T_ob)
         step = len(step_t)
         step_t.append(stamp)
         inputs = []
@@ -150,6 +157,11 @@ def main():
     np.save(args.out / "tracker/det_seq.npy", np.array(det_rows, np.float64).reshape(-1, 10))
     np.save(args.out / "tracker/step_t.npy", np.array(step_t, np.float64))
     np.save(args.out / "tracker/py_tracks.npy", np.array(track_rows, np.float64).reshape(-1, 9))
+    (args.out / "memory").mkdir(exist_ok=True)
+    np.save(args.out / "memory/in_grids.npy", np.stack(mem_in).astype(np.uint8))      # (S, 4, n, n) pre-fill
+    np.save(args.out / "memory/py_grids.npy", np.stack(mem_out).astype(np.uint8))     # (S, 4, n, n) post-fill
+    np.save(args.out / "memory/T_odom_base.npy", np.stack(mem_T).astype(np.float64))  # (S, 4, 4)
+    np.save(args.out / "memory/t.npy", np.array(step_t, np.float64))
     print("dumped to", args.out)
 
 
