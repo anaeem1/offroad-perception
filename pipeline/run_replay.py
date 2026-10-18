@@ -90,6 +90,7 @@ def main():
     frames_f = open(out_dir / "frames.jsonl", "w")
     tracks_f = open(out_dir / "tracks.jsonl", "w")
     gt_f = open(out_dir / "gt_objects.jsonl", "w")
+    det_f = open(out_dir / "detections.jsonl", "w")  # for offline tracker tuning
     saved_grids = {}
     cams = collections.deque(maxlen=10)
     timing = collections.defaultdict(list)
@@ -163,8 +164,13 @@ def main():
             t4 = time.perf_counter()
 
             T_odom_base = odom.at(stamp)
-            live = tracker.step(stamp, [(apply(T_odom_base, d.xyz[None])[0], d.dims, d.semantic_class,
-                                         d.class_confidence) for d in dets])
+            dets_odom = [(apply(T_odom_base, d.xyz[None])[0], d.dims, d.semantic_class, d.class_confidence) for d in dets]
+            live = tracker.step(stamp, dets_odom)
+            for d, (xo, *_rest) in zip(dets, dets_odom):
+                det_f.write(json.dumps({"scan": scan, "t": stamp, "x": float(xo[0]), "y": float(xo[1]), "z": float(xo[2]),
+                                        "dims": [float(v) for v in d.dims], "cls": d.semantic_class,
+                                        "conf": round(d.class_confidence, 4), "n": d.n_points,
+                                        "range": float(np.hypot(*d.xyz[:2]))}) + "\n")
             t5 = time.perf_counter()
 
             # Ground truth: BEV grid and obstacle clusters from the labels, same code path.
@@ -188,7 +194,8 @@ def main():
             for d in dets_gt:
                 xo = apply(T_odom_base, d.xyz[None])[0]
                 gt_f.write(json.dumps({"scan": scan, "t": stamp, "x": float(xo[0]), "y": float(xo[1]),
-                                       "cls": d.semantic_class, "n": d.n_points}) + "\n")
+                                       "cls": d.semantic_class, "n": d.n_points,
+                                       "range": float(np.hypot(*d.xyz[:2]))}) + "\n")
             frames_f.write(json.dumps({
                 "scan": scan, "t": stamp, "camera_used": bool(have_cam),
                 "cam_minus_scan_ms": None if t_c is None else round(1e3 * (t_c - stamp), 1),
