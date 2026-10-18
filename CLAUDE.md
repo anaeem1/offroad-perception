@@ -68,16 +68,19 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 | Week | Dates | Exit criterion |
 |---|---|---|
 | 1 | Oct 5–11 | Both seg models export to ONNX; lidar-on-camera projection overlay verified |
-| 2 | Oct 12–18 | Fusion → BEV grid + tracking run on replayed bag; per-class IoU and ID-switch counts recorded |
-| 3 | Oct 19–25 | C++/TensorRT nodes on Jetson; README latency table filled with measured numbers; planner consumes the contract |
+| 2 | Oct 12–18 → **Oct 18–21** | Fusion → BEV grid + tracking run on replayed bag; per-class IoU and ID-switch counts recorded |
+| 3 | Oct 19–25 → **Oct 22–26** | C++/TensorRT nodes on Jetson; README latency table filled with measured numbers; planner consumes the contract |
+
+**Re-plan (Oct 18):** week 2 started a week late. The owner chose **no scope cuts** and extra hours instead.
+Week 2 is a Python reference pipeline on the server (also the golden reference for C++ parity tests);
+week 3 is the C++/TensorRT runtime on the Jetson, including the C++ tracker, the planner consumer, and
+bringing both models under budget. The Oct 26 feature stop is unchanged.
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
 *Updated 2026-10-18.*
 - **Week 1 complete** (all checklist items, incl. `perception_msgs` built on the Jetson).
-- **Schedule: week 2 (Oct 12–18) work has not started.** Fusion, BEV grid and tracker are all still
-  ahead, with the feature stop on Oct 26. A re-plan with recorded scope cuts is needed (see the
-  guardrails).
+- **Schedule:** re-planned Oct 18 with no cuts (see Timeline). Week 2 in progress: `docs/week2_checklist.md`.
 - **Latency risk (preliminary, loaded board):** SegFormer 35.0 ms vs 30 budget; SalsaNext **44.2 ms vs
   20** (`docs/measurements/jetson_trt_models.txt`). Quiet-board re-measure (jetson_clocks, other
   workloads stopped) still to do. Levers: SegFormer at 480×768 (ADR-0004); INT8 or a narrower range
