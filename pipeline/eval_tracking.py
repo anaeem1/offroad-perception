@@ -100,13 +100,14 @@ def evaluate(gt_by_scan, hyp_rows, scans, match_m, existence_gate, classes=None,
     return {k: (round(float(s[k].iloc[0]), 4) if isinstance(s[k].iloc[0], float) else int(s[k].iloc[0])) for k in names}
 
 
-def split_gt(run, seq, min_gt_points, max_range):
-    """Pseudo-GT objects to evaluate vs don't-care: too few points or beyond max_range of the machine."""
-    rows = read_jsonl(run / "gt_objects.jsonl")
+def split_gt(run, seq, min_gt_points, max_range, gt_file="gt_objects.jsonl", min_height=0.0):
+    """Pseudo-GT objects to evaluate vs don't-care: too few points, beyond max_range of the machine, or
+    flatter than min_height (label trails on the ground, not objects)."""
+    rows = read_jsonl(run / gt_file)
     ego = ego_xy(seq)
     for r in rows:
         r["range"] = r.get("range", float(np.linalg.norm(np.array([r["x"], r["y"]]) - ego(r["t"]))))
-        r["care"] = r["n"] >= min_gt_points and r["range"] <= max_range
+        r["care"] = r["n"] >= min_gt_points and r["range"] <= max_range and r.get("dims", [0, 0, 1e9])[2] >= min_height
     linked = link_gt(rows)  # link all, so an object keeps its identity while it is briefly sparse
     care = {(r["scan"], round(r["x"], 6), round(r["y"], 6)): r["care"] for r in rows}
     gt, dont = {}, collections.defaultdict(list)
@@ -125,17 +126,20 @@ def main():
     ap.add_argument("--gates", type=float, nargs="+", default=[0.0, 0.5, 0.8])
     ap.add_argument("--min-gt-points", type=int, default=30)
     ap.add_argument("--max-range", type=float, default=20.0)
+    ap.add_argument("--gt-file", default="gt_objects.jsonl")
+    ap.add_argument("--min-gt-height", type=float, default=0.0, help="vertical extent (m) an evaluated GT object needs")
     args = ap.parse_args()
     seq = json.loads((args.run / "metrics.json").read_text())["seq"]
     frames = read_jsonl(args.run / "frames.jsonl")
     scans = [f["scan"] for f in frames]
-    gt, ignore, ego = split_gt(args.run, seq, args.min_gt_points, args.max_range)
+    gt, ignore, ego = split_gt(args.run, seq, args.min_gt_points, args.max_range, args.gt_file, args.min_gt_height)
     hyp = read_jsonl(args.run / args.tracks)
     gt_classes = collections.Counter(o[3] for objs in gt.values() for o in objs)
     out = {
         "run": str(args.run), "date": datetime.date.today().isoformat(), "match_m": args.match_m,
         "tracks_file": args.tracks,
-        "evaluated_gt": f">= {args.min_gt_points} points and <= {args.max_range} m from the machine; others are don't-care",
+        "evaluated_gt": (f">= {args.min_gt_points} points, <= {args.max_range} m from the machine, vertical extent >= "
+                         f"{args.min_gt_height} m ({args.gt_file}); others are don't-care"),
         "pseudo_gt": {"method": "GT-label clusters linked by nearest neighbour, same class, <=1.0 m, gap<=5 frames",
                       "unique_objects": len({o[0] for objs in gt.values() for o in objs}),
                       "detections_per_class": {ONTO_NAMES.get(c, str(c)): n for c, n in gt_classes.items()}},

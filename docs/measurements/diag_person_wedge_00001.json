@@ -1,0 +1,219 @@
+{
+  "seq": "00001",
+  "scans": "0:1047",
+  "date": "2026-10-18",
+  "scans_with_person_in_wedge": 79,
+  "person_points_in_wedge_total": 4666,
+  "top_scans": [
+    {
+      "scan": 177,
+      "person_points_in_wedge": 500,
+      "range_m_median": 7.1,
+      "lidar_says": {
+        "grass": 482,
+        "mud": 18
+      },
+      "camera_says": {
+        "grass": 447,
+        "mud": 53
+      },
+      "fused_says": {
+        "grass": 495,
+        "mud": 5
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 120,
+      "person_points_in_wedge": 264,
+      "range_m_median": 5.2,
+      "lidar_says": {
+        "grass": 256,
+        "mud": 8
+      },
+      "camera_says": {
+        "grass": 262,
+        "mud": 2
+      },
+      "fused_says": {
+        "grass": 264
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 194,
+      "person_points_in_wedge": 226,
+      "range_m_median": 5.2,
+      "lidar_says": {
+        "grass": 207,
+        "mud": 19
+      },
+      "camera_says": {
+        "grass": 217,
+        "mud": 9
+      },
+      "fused_says": {
+        "grass": 220,
+        "mud": 6
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 123,
+      "person_points_in_wedge": 221,
+      "range_m_median": 4.9,
+      "lidar_says": {
+        "grass": 213,
+        "mud": 8
+      },
+      "camera_says": {
+        "grass": 220,
+        "mud": 1
+      },
+      "fused_says": {
+        "grass": 221
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 183,
+      "person_points_in_wedge": 191,
+      "range_m_median": 4.9,
+      "lidar_says": {
+        "grass": 191
+      },
+      "camera_says": {
+        "grass": 191
+      },
+      "fused_says": {
+        "grass": 191
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 113,
+      "person_points_in_wedge": 178,
+      "range_m_median": 5.9,
+      "lidar_says": {
+        "grass": 167,
+        "mud": 11
+      },
+      "camera_says": {
+        "grass": 175,
+        "mud": 3
+      },
+      "fused_says": {
+        "grass": 174,
+        "mud": 4
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 126,
+      "person_points_in_wedge": 173,
+      "range_m_median": 4.7,
+      "lidar_says": {
+        "grass": 157,
+        "mud": 16
+      },
+      "camera_says": {
+        "grass": 173
+      },
+      "fused_says": {
+        "grass": 169,
+        "mud": 4
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 164,
+      "person_points_in_wedge": 161,
+      "range_m_median": 8.6,
+      "lidar_says": {
+        "grass": 147,
+        "mud": 14
+      },
+      "camera_says": {
+        "grass": 156,
+        "mud": 5
+      },
+      "fused_says": {
+        "grass": 159,
+        "mud": 2
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 144,
+      "person_points_in_wedge": 156,
+      "range_m_median": 10.9,
+      "lidar_says": {
+        "grass": 149,
+        "mud": 7
+      },
+      "camera_says": {
+        "grass": 146,
+        "mud": 10
+      },
+      "fused_says": {
+        "grass": 156
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 185,
+      "person_points_in_wedge": 154,
+      "range_m_median": 5.7,
+      "lidar_says": {
+        "grass": 152,
+        "mud": 2
+      },
+      "camera_says": {
+        "grass": 154
+      },
+      "fused_says": {
+        "grass": 154
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 187,
+      "person_points_in_wedge": 151,
+      "range_m_median": 6.0,
+      "lidar_says": {
+        "grass": 135,
+        "mud": 16
+      },
+      "camera_says": {
+        "grass": 150,
+        "mud": 1
+      },
+      "fused_says": {
+        "grass": 149,
+        "mud": 2
+      },
+      "camera_person_within_22px": 0.0
+    },
+    {
+      "scan": 100,
+      "person_points_in_wedge": 145,
+      "range_m_median": 7.2,
+      "lidar_says": {
+        "grass": 145
+      },
+      "camera_says": {
+        "grass": 145
+      },
+      "fused_says": {
+        "grass": 145
+      },
+      "camera_person_within_22px": 0.0
+    }
+  ],
+  "top_scans_rates": {
+    "lidar_person": 0.0,
+    "camera_person": 0.0,
+    "fused_person": 0.0,
+    "camera_person_nearby": 0.0
+  }
+}
