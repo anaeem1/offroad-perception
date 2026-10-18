@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from rosbags.highlevel import AnyReader
 
-from ml.fusion.projection import load_rellis_calib
+from ml.fusion.projection import load_rellis_calib, perturb
 from ml.lidar.range_projection import project
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
@@ -25,7 +25,7 @@ from pipeline.models import CameraSeg, LidarSeg
 from pipeline.rellis import ALIGN_DIR, BAGS, CAMERA_TOPIC, LIDAR_TOPIC, decode_bayer, decode_cloud, stamp_of
 from pipeline.tracker import Tracker
 
-ALPHA, LOGLINEAR = 0.5, False
+ALPHA, LOGLINEAR, PITCH_DEG = 0.5, True, -0.5  # the shipped fusion config (selected on 00001 val)
 
 
 def main():
@@ -47,6 +47,7 @@ def main():
     insp = json.loads(Path(f"docs/measurements/bag_{args.seq}_inspection.json").read_text())
     T_bl = T_root_frame(tf_graph(insp["tf_static"]), insp["pointcloud"]["frame_id"])
     cam, T_cl = load_rellis_calib(args.seq)
+    T_cl = perturb(T_cl, pitch_deg=PITCH_DEG)  # shipped extrinsic includes the measured pitch correction
     lidar, camera = LidarSeg(args.device), CameraSeg(args.device)
     cost_lut, obstacle_lut = load_costs()
     gp = GridParams()
