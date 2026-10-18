@@ -29,6 +29,7 @@ from ml.metrics import ConfusionMatrix
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
 from pipeline.bev import GridParams, build_grid, load_costs, outside_ego
+from pipeline.bev_memory import GridMemory, MemoryParams
 from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
@@ -64,6 +65,7 @@ def main():
     ap.add_argument("--debayer", default="BayerBG2RGB", choices=sorted(BAYER_CODES))
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--save-grids", type=int, default=20, help="save every Nth grid (0: none)")
+    ap.add_argument("--memory-s", type=float, default=3.0, help="grid memory max age (0 disables), ADR-0008")
     args = ap.parse_args()
     lo, hi = (int(v) for v in args.scans.split(":")) if args.scans else (0, 10 ** 9)
     out_dir = DATA_ROOT / f"runs/replay_{args.seq}_{args.tag}"
@@ -80,6 +82,16 @@ def main():
     cost_lut, obstacle_lut = load_costs()
     gp = GridParams(extent_m=args.extent, resolution_m=args.resolution)
     tracker = Tracker()
+    memory = GridMemory(gp.resolution_m, MemoryParams(max_age_s=args.memory_s)) if args.memory_s > 0 else None
+    cm_bev_single = ConfusionMatrix(len(SCORED) + 1, ignore=(len(SCORED),), device="cpu")
+    c_ = (np.arange(gp.n) + 0.5) * gp.resolution_m - gp.extent_m / 2
+    CX, CY = np.meshgrid(c_, c_)
+    # Forward corridor from the vehicle front (ego box x_max): the ground under the machine is never visible.
+    CORRIDOR = [(lo_, hi_, (np.abs(CY) < 0.9) & (CX >= lo_) & (CX < hi_)) for lo_, hi_ in
+                ((0.9, 2), (2, 3), (3, 4), (4, 6), (6, 10), (10, 15))]
+    AGES = [2.0, 3.0, 5.0, 8.0]  # memory ages scored in the same pass (selection on val)
+    corridor_unknown = {(mode, lo_, hi_): [] for mode in ["single"] + [f"memory_{a:g}s" for a in AGES]
+                        for lo_, hi_, _ in CORRIDOR}
 
     n_sc = len(SCORED) + 1
     variants = [(a, pool, mc, pitch) for a, pool, mc, pitch in itertools.product(ALPHAS, POOLS, (True, False), PITCHES)]
@@ -163,9 +175,22 @@ def main():
             vi, xyz_base = vi[keep], xyz_base[keep]
             grid = build_grid(xyz_base, probs[vi], from_cam[vi], gp, cost_lut)
             dets = cluster(xyz_base, probs[vi], grid.geometric, gp, obstacle_lut)
+            T_odom_base = odom.at(stamp)
+            single_cost, single_cls, single_flags = grid.cost.copy(), grid.semantic_class.copy(), grid.source_flags.copy()
+            n_remembered = 0
+            if memory is not None:
+                rows_, cols_ = memory._keys(grid, T_odom_base)
+                age_ = (stamp - memory.t_seen[rows_, cols_]).reshape(grid.cost.shape)
+                for a in AGES:  # what each candidate age would leave UNKNOWN
+                    unk = (single_flags == 0) & ~(age_ <= a)
+                    for lo_, hi_, m_ in CORRIDOR:
+                        corridor_unknown[(f"memory_{a:g}s", lo_, hi_)].append(float(unk[m_].mean()))
+                n_remembered = memory.fill(grid, T_odom_base, stamp)  # old static evidence where this sweep is blind
+                memory.update(grid, T_odom_base, stamp)
+            for lo_, hi_, m_ in CORRIDOR:
+                corridor_unknown[("single", lo_, hi_)].append(float((single_cost[m_] == 255).mean()))
             t4 = time.perf_counter()
 
-            T_odom_base = odom.at(stamp)
             dets_odom = [(apply(T_odom_base, d.xyz[None])[0], d.dims, d.semantic_class, d.class_confidence) for d in dets]
             live = tracker.step(stamp, dets_odom)
             for d, (xo, *_rest) in zip(dets, dets_odom):
@@ -181,6 +206,10 @@ def main():
             onehot[np.arange(len(vi)), gt_idx] = 1.0
             grid_gt = build_grid(xyz_base, onehot, np.zeros(len(vi), bool), gp, cost_lut)
             dets_gt = cluster(xyz_base, onehot, np.zeros_like(grid_gt.geometric), gp, obstacle_lut)
+            # BEV IoU: GT is this sweep's labels, so it can only score cells this sweep observed.
+            both = (single_flags > 0) & (grid_gt.source_flags > 0)
+            cm_bev_single.update(torch.from_numpy(scored_index(single_cls[both])),
+                                 torch.from_numpy(scored_index(grid_gt.semantic_class[both])))
             both = (grid.source_flags > 0) & (grid_gt.source_flags > 0)
             cm_bev.update(torch.from_numpy(scored_index(grid.semantic_class[both])),
                           torch.from_numpy(scored_index(grid_gt.semantic_class[both])))
@@ -205,7 +234,7 @@ def main():
                 "n_valid": int(valid.sum()), "n_wedge": int(wedge.sum()), "n_dets": len(dets),
                 "n_dets_gt": len(dets_gt), "n_tracks": sum(t.state != 0 for t in live),
                 "observed_cells": int((grid.source_flags > 0).sum()), "lethal_cells": int((grid.cost == 254).sum()),
-                "geometric_cells": int(grid.geometric.sum())}) + "\n")
+                "geometric_cells": int(grid.geometric.sum()), "remembered_cells": n_remembered}) + "\n")
             if args.save_grids and n_done % args.save_grids == 0:
                 saved_grids[scan] = np.stack([grid.cost, grid.semantic_class, grid.source_flags, grid_gt.cost,
                                               grid_gt.semantic_class])
@@ -254,7 +283,11 @@ def main():
         "grid": {"extent_m": gp.extent_m, "resolution_m": gp.resolution_m,
                  "obstacle_height_m": gp.obstacle_height_m},
         "point_iou": {region: {key(v): summary(cm[(region, v)]) for v in variants} for region in ("all", "wedge")},
-        "bev_cell_iou_default": summary(cm_bev),
+        "bev_cell_iou_default": summary(cm_bev_single),
+        "bev_cell_iou_with_memory_on_currently_observed_gt": summary(cm_bev),
+        "memory_max_age_s": args.memory_s,
+        "corridor_unknown_fraction": {f"{mode}|{lo_}-{hi_}m": round(float(np.mean(v)), 3)
+                                      for (mode, lo_, hi_), v in corridor_unknown.items()},
         "traversability_confusion_gt_rows_pred_cols": {"buckets": ["free<50", "low<128", "high<254", "lethal", "unknown"],
                                                        "counts": trav.tolist()},
         "timing_ms_median_server": {k: round(float(np.median(v)), 2) for k, v in timing.items()},

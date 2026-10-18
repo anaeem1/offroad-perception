@@ -22,6 +22,14 @@ void PoseTrack::add(double t, const Vec3& p, const Quat& q) {
   q_.push_back(q);
 }
 
+void PoseTrack::trim_before(double t) {
+  size_t k = 0;
+  while (k + 2 < t_.size() && t_[k + 1] < t) ++k;
+  t_.erase(t_.begin(), t_.begin() + k);
+  p_.erase(p_.begin(), p_.begin() + k);
+  q_.erase(q_.begin(), q_.begin() + k);
+}
+
 Mat4 PoseTrack::at(double t) const {
   t = std::min(std::max(t, t_.front()), t_.back());
   size_t i = std::upper_bound(t_.begin(), t_.end(), t) - t_.begin();

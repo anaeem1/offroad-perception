@@ -19,6 +19,7 @@ class PoseTrack {  // T_world_body over time; linear position, slerp rotation, c
   void add(double t, const Vec3& p, const Quat& q);  // must be called in increasing time
   Mat4 at(double t) const;
   bool empty() const { return t_.empty(); }
+  void trim_before(double t);  // drop poses older than t, keeping at least two
   double t_front() const { return t_.front(); }
   double t_back() const { return t_.back(); }
  private:
