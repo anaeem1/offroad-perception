@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-18",
+  "dump": "/usace_share/Share_Abdullah/offroad_perception/parity/00001",
+  "passed": {
+    "range_input": true,
+    "deskew": true,
+    "camera_projection": true,
+    "fusion": true,
+    "base_transform": true,
+    "grid": true,
+    "clustering": true,
+    "tracker": true
+  },
+  "all_passed": true,
+  "per_scan": {
+    "scan_000300": {
+      "range_input": {
+        "max_abs": 0.9647010564804077,
+        "pixels_differing": 11,
+        "pixels": 131072
+      },
+      "deskew_cam_max_abs_m": 1.898960055868315e-08,
+      "camera_hits": {
+        "python": 5218,
+        "cpp": 5218,
+        "only_one_side": 0,
+        "max_abs_px": 4.547473508864641e-13
+      },
+      "fusion": {
+        "max_abs": 0.0,
+        "argmax_agree": 1.0
+      },
+      "xyz_base_max_abs_m": 3.079936305994124e-08,
+      "grid": {
+        "cost_cells_differing": 0,
+        "class_cells_differing": 0,
+        "flags_cells_differing": 0,
+        "geometric_cells_differing": 0,
+        "confidence_max_abs": 0,
+        "confidence_cells_differing": 0
+      },
+      "clusters": {
+        "python": 7,
+        "cpp": 7,
+        "max_abs": 8.840239451579635e-08
+      }
+    },
+    "scan_000301": {
+      "range_input": {
+        "max_abs": 0.8782258033752441,
+        "pixels_differing": 8,
+        "pixels": 131072
+      },
+      "deskew_cam_max_abs_m": 2.7399561730589994e-08,
+      "camera_hits": {
+        "python": 5318,
+        "cpp": 5318,
+        "only_one_side": 0,
+        "max_abs_px": 4.547473508864641e-13
+      },
+      "fusion": {
+        "max_abs": 0.0,
+        "argmax_agree": 1.0
+      },
+      "xyz_base_max_abs_m": 4.2932974508858024e-08,
+      "grid": {
+        "cost_cells_differing": 0,
+        "class_cells_differing": 0,
+        "flags_cells_differing": 0,
+        "geometric_cells_differing": 0,
+        "confidence_max_abs": 0,
+        "confidence_cells_differing": 0
+      },
+      "clusters": {
+        "python": 6,
+        "cpp": 6,
+        "max_abs": 1.823200899142563e-07
+      }
+    },
+    "scan_000302": {
+      "range_input": {
+        "max_abs": 0.8782258033752441,
+        "pixels_differing": 5,
+        "pixels": 131072
+      },
+      "deskew_cam_max_abs_m": 4.117421470439808e-08,
+      "camera_hits": {
+        "python": 5688,
+        "cpp": 5688,
+        "only_one_side": 0,
+        "max_abs_px": 4.547473508864641e-13
+      },
+      "fusion": {
+        "max_abs": 0.0,
+        "argmax_agree": 1.0
+      },
+      "xyz_base_max_abs_m": 6.241845929011447e-08,
+      "grid": {
+        "cost_cells_differing": 0,
+        "class_cells_differing": 0,
+        "flags_cells_differing": 0,
+        "geometric_cells_differing": 0,
+        "confidence_max_abs": 0,
+        "confidence_cells_differing": 0
+      },
+      "clusters": {
+        "python": 6,
+        "cpp": 6,
+        "max_abs": 8.027351905415259e-08
+      }
+    }
+  },
+  "tracker": {
+    "rows_python": 464,
+    "rows_cpp": 464,
+    "id_state_class_identical": true,
+    "state_max_abs": 4.440892098500626e-15
+  }
+}
