@@ -1,0 +1,27 @@
+# Real-model TensorRT build + timing on the deployment Jetson, 2026-10-17 22:05 CDT.
+# Run by the Claude Code agent on the Jetson with scripts/jetson/check_trt.sh (trtexec --fp16, defaults).
+# Board: Orin NX 8 GB, JetPack 6.0, TensorRT 8.6.2, power mode MAXN (not jetson_clocks-locked).
+# CONDITIONS - NOT A CLEAN BASELINE: other GPU/CPU work was running (Isaac ROS occupancy_grid_localizer
+# container, nomad_node.py, a restarting tf2_echo loop); swap was full (3.7/3.7 GB); available RAM
+# ~1.4 GB. trtexec flagged GPU time as unstable (CoV 2.6 % / 3.5 %). An earlier overlapping run gave
+# 43.73 ms (SalsaNext) and 37.52 ms (SegFormer). Re-measure on a quiet board with locked clocks.
+
+model                              result   median_gpu_ms
+salsanext_rellis_op17.onnx         PASS     44.1676
+segformer_b0_640x1024_op17.onnx    PASS     35.0441
+
+## salsanext_rellis_op17 (input 1x5x64x2048)
+Throughput: 22.2196 qps
+Latency: min = 44.0278 ms, max = 50.1985 ms, mean = 45.0001 ms, median = 44.7924 ms, p90 = 46.8401 ms, p95 = 47.6439 ms, p99 = 50.1985 ms
+GPU Compute Time: min = 43.4463 ms, max = 49.5713 ms, mean = 44.3499 ms, median = 44.1676 ms, p90 = 46.0102 ms, p95 = 46.7753 ms, p99 = 49.5713 ms
+H2D median 0.156 ms, D2H median 0.469 ms
+Warnings: 58 weights subnormal in FP16; 8 weights below the FP16 minimum subnormal (clamped).
+Engine: 16.4 MB
+
+## segformer_b0_640x1024_op17 (input 1x3x640x1024)
+Throughput: 27.7445 qps
+Latency: min = 35.7515 ms, max = 43.2771 ms, mean = 36.4197 ms, median = 35.8685 ms, p90 = 37.8792 ms, p95 = 39.4807 ms, p99 = 43.2771 ms
+GPU Compute Time: min = 34.915 ms, max = 42.4495 ms, mean = 35.5902 ms, median = 35.0441 ms, p90 = 37.0354 ms, p95 = 38.5897 ms, p99 = 42.4495 ms
+H2D median 0.587 ms, D2H median 0.229 ms
+Warnings: INT64 weights cast to INT32; 71 weights subnormal in FP16; 5 below the FP16 minimum subnormal.
+Engine: 11.1 MB

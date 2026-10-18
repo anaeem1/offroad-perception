@@ -1,0 +1,11 @@
+# scripts/jetson/build_msgs.sh on the deployment Jetson, 2026-10-17 (run by the Jetson Claude agent).
+# Result: colcon build of perception_msgs finished (13 min 54 s; slow because swap was full), and
+# `ros2 interface show` resolves all five messages. A first attempt failed because CMake cached conda's
+# Python 3.13 (conda bin still on PATH while CONDA_PREFIX was unset); fixed by a clean build dir.
+# build_msgs.sh now refuses to run unless python3 resolves to /usr/bin/python3.
+Summary: 1 package finished [13min 55s]
+perception_msgs/msg/TraversabilityGrid  OK
+perception_msgs/msg/Obstacle            OK
+perception_msgs/msg/ObstacleArray       OK
+perception_msgs/msg/SensorStatus        OK
+perception_msgs/msg/PerceptionHealth    OK

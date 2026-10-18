@@ -53,15 +53,19 @@ Every number links to the measurement file it came from.
 | Camera − lidar stamp offset | median −22.8 ms (00004), −41.2 ms (00001); ≥99.9 % within ±50 ms | Window holds, but the offset varies per recording, so fusion compensates per pair |
 | Lidar scan age on arrival | median 127 ms (stamp = sweep start) | Output-age bound under review ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) |
 
-## Latency budget (target, Jetson, 10 Hz lidar)
+## Latency budget (target, Jetson Orin NX, 10 Hz lidar)
 | Stage | Budget (ms) | Measured (ms) |
 |---|---|---|
-| Camera seg | 30 | — |
-| Lidar seg | 20 | — |
+| Camera seg | 30 | 35.0 * |
+| Lidar seg | 20 | **44.2** * |
 | Fusion + BEV | 15 | — |
 | Clustering + tracking | 10 | — |
 | Transport + slack | 25 | — |
 | **End-to-end** | **100** | — |
+
+\* Preliminary: TensorRT FP16 GPU compute median, MAXN, with other workloads running on the board
+([jetson_trt_models.txt](docs/measurements/jetson_trt_models.txt)). Both models are over budget, and
+lidar seg by 2.2×. A quiet-board re-measure is pending.
 
 ## Repo layout
 - `src/perception_msgs/` — the contract (ROS 2 interfaces)

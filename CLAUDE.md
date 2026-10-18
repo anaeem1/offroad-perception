@@ -54,7 +54,8 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
     Shared NFS volume, ~95 % full; this project uses ~150 GB. `/home` is 99 % full: keep data off it.
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
   - **Orin NX 8 GB** (not an Orin Nano, as first assumed), L4T R36.3.0 = **JetPack 6.0**, TensorRT 8.6.2,
-    CUDA 12.2, **ROS 2 Humble already installed**, Docker present. Power mode 20W when measured.
+    CUDA 12.2, **ROS 2 Humble already installed** (colcon present), Docker present. Power mode
+    MAXN on Oct 17. The board also runs other people's work (Isaac ROS, nomad_node), so stop it before timing.
     **Internet since ~Oct 18** (it was offline before). Files still move by tarball (VS Code download →
     `~/parklabs/CAT` on the Jetson). A Claude Code session runs there: hand it self-contained prompts with
     a fixed reply format. Its clock was at 1970, so check NTP sync first, and run `conda deactivate`
@@ -72,10 +73,15 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
 | 4 | Oct 26–29 | ODD, hazard analysis/FMEA, ADRs complete; README reads as an architecture document; demo video |
 
 ## Current state
-*Updated 2026-10-09.*
-- **Week 1 exit criterion met.** Both models export to ONNX; projection overlay verified; Jetson
-  stack identified and TensorRT verified. Remaining: `perception_msgs` build on the Jetson
-  (`CAT/jetson_bundle2.tar.gz`, which also carries both real models for an early latency read).
+*Updated 2026-10-18.*
+- **Week 1 complete** (all checklist items, incl. `perception_msgs` built on the Jetson).
+- **Schedule: week 2 (Oct 12–18) work has not started.** Fusion, BEV grid and tracker are all still
+  ahead, with the feature stop on Oct 26. A re-plan with recorded scope cuts is needed (see the
+  guardrails).
+- **Latency risk (preliminary, loaded board):** SegFormer 35.0 ms vs 30 budget; SalsaNext **44.2 ms vs
+  20** (`docs/measurements/jetson_trt_models.txt`). Quiet-board re-measure (jetson_clocks, other
+  workloads stopped) still to do. Levers: SegFormer at 480×768 (ADR-0004); INT8 or a narrower range
+  image for SalsaNext. FP16 subnormal-weight warnings on both, so check FP16 accuracy against FP32.
 - Done:
   - Repo under git (own repo, branch `main`); env built; RELLIS-3D subset + bag 00004 downloaded.
   - Bag 00004 converted to ROS 2 mcap (topic-filtered, Humble-compatible). Timing, frames and TF

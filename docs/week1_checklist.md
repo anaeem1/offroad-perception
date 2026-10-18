@@ -3,8 +3,8 @@
 ## Jetson setup (Orin NX 8 GB; offline, files moved by tarball)
 - [x] Confirm JetPack version (`cat /etc/nv_tegra_release`) → pick matching ROS 2 distro
       (L4T R36.3.0 = JetPack 6.0, TensorRT 8.6.2 → Humble; `docs/measurements/jetson_info.txt`)
-- [ ] Install ROS 2, build `perception_msgs` with colcon, verify `ros2 interface show`
-      *Humble is already installed. Build: `build_msgs.sh` in `jetson_bundle2.tar.gz`; waiting on the run.*
+- [x] Install ROS 2, build `perception_msgs` with colcon, verify `ros2 interface show`
+      (Humble was preinstalled; all five messages resolve; `docs/measurements/jetson_build_msgs.txt`)
 - [x] Verify TensorRT + trtexec work with a toy ONNX model
       (all four toy models PASS at opset 16 and 17 → ship opset 17, ADR-0006;
       `docs/measurements/jetson_trt_toy.txt`)
@@ -32,4 +32,5 @@
 - [x] Write the RELLIS class → traversability cost table
 
 **Exit criterion:** both models export to ONNX, and the lidar-on-camera projection overlay looks right.
-**Status (Oct 9):** met. Remaining: the `perception_msgs` build on the Jetson.
+**Status:** met and complete (last item closed Oct 17). Extra: first real-model latency on the Jetson,
+`docs/measurements/jetson_trt_models.txt`; both models are over budget.
