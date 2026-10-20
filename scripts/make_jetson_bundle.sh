@@ -9,7 +9,7 @@ STAGE="$(mktemp -d)"; B="$STAGE/$NAME"
 mkdir -p "$B/ws/src" "$B/onnx"
 cp -r src/perception_msgs src/offroad_perception "$B/ws/src/"
 cp scripts/jetson/replay_on_jetson.sh "$B/"
-for f in salsanext_rellis_op17_int8qdq.onnx salsanext_rellis_op17.onnx segformer_b0_480x768_op17.onnx; do
+for f in salsanext_rellis_op17.onnx segformer_b0_480x768_op17.onnx; do  # ADR-0010 deployment models
   cp "$ONNX/$f" "$B/onnx/"
 done
 git rev-parse --short HEAD > "$B/COMMIT"

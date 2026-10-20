@@ -46,8 +46,8 @@ def generate_launch_description():
         DeclareLaunchArgument("bag"), DeclareLaunchArgument("seq", default_value="00001"),
         DeclareLaunchArgument("engines"), DeclareLaunchArgument("logs"),
         DeclareLaunchArgument("rate", default_value="1.0"),
-        # Deployment configuration from the Jetson latency sweep (ADR-0010): INT8 lidar, 480x768 camera.
-        DeclareLaunchArgument("lidar_engine_file", default_value="salsanext_int8.engine"),
+        # Deployment configuration (ADR-0010): FP16 lidar (INT8 failed its accuracy check), 480x768 camera.
+        DeclareLaunchArgument("lidar_engine_file", default_value="salsanext_fp16.engine"),
         DeclareLaunchArgument("camera_engine_file", default_value="segformer480_fp16.engine"),
         container,
         TimerAction(period=8.0, actions=[play]),  # let engines load and subscriptions come up first

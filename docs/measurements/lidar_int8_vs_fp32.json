@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-20",
+  "split": "pt_test.lst",
+  "scans": 836,
+  "every": 4,
+  "path": "CNN only (no KNN), upstream IoU convention, 14 classes",
+  "models": {
+    "salsanext_rellis_op17.onnx": {
+      "miou": 41.68,
+      "per_class_iou": {
+        "grass": 64.89,
+        "tree": 78.89,
+        "pole": 47.09,
+        "water": 0.0,
+        "vehicle": 22.69,
+        "log": 15.39,
+        "person": 81.53,
+        "fence": 12.43,
+        "bush": 73.62,
+        "concrete": 67.91,
+        "barrier": 69.62,
+        "puddle": 21.88,
+        "mud": 11.21,
+        "rubble": 16.3
+      },
+      "point_label_agreement_with_salsanext_rellis_op17.onnx": 1.0
+    },
+    "salsanext_rellis_op17_int8qdq.onnx": {
+      "miou": 16.39,
+      "per_class_iou": {
+        "grass": 42.62,
+        "tree": 41.9,
+        "pole": 2.3,
+        "water": 0.0,
+        "vehicle": 22.18,
+        "log": 0.0,
+        "person": 24.43,
+        "fence": 5.22,
+        "bush": 54.0,
+        "concrete": 30.88,
+        "barrier": 2.18,
+        "puddle": 2.28,
+        "mud": 1.41,
+        "rubble": 0.0
+      },
+      "point_label_agreement_with_salsanext_rellis_op17.onnx": 0.5993
+    }
+  }
+}

@@ -31,7 +31,7 @@ build_engine() {  # onnx engine [extra trtexec flags]
 build_engine salsanext_rellis_op17_int8qdq.onnx salsanext_int8.engine --int8   # QDQ model: explicit INT8
 build_engine salsanext_rellis_op17.onnx salsanext_fp16.engine                  # fallback
 build_engine segformer_b0_480x768_op17.onnx segformer480_fp16.engine
-LIDAR_ENGINE="${LIDAR_ENGINE:-salsanext_int8.engine}"; CAMERA_ENGINE="${CAMERA_ENGINE:-segformer480_fp16.engine}"
+LIDAR_ENGINE="${LIDAR_ENGINE:-salsanext_fp16.engine}"; CAMERA_ENGINE="${CAMERA_ENGINE:-segformer480_fp16.engine}"
 echo "using lidar=$LIDAR_ENGINE camera=$CAMERA_ENGINE" | tee "$OUT/engines_used.txt"
 
 echo "== replay"
