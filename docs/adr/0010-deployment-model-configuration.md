@@ -25,10 +25,10 @@
    precision). Not worth the calibration and accuracy risk. Rejected.
 3. **SegFormer at 480×768 FP16.** 2.0× faster; costs 1.7 test mIoU (42.75 → 41.08,
    `camera_onnx_*_test.json`). Inside the camera wedge, every lidar point still samples a camera cell.
-4. **SalsaNext INT8 via explicit quantization (QDQ ONNX).** 1.9× faster. Calibrated on 128 val scans with
-   ONNX Runtime (entropy, symmetric, per-channel, Conv only). TensorRT builds the QDQ model directly as
-   INT8, so no calibrator is needed on the Jetson, and ONNX Runtime runs the same file on the server to
-   measure the accuracy cost before deployment.
+4. **SalsaNext INT8 via explicit quantization (QDQ ONNX).** 1.9× faster (speed bound). Calibrated on
+   129 val scans with ONNX Runtime (MinMax, symmetric, per-channel, Conv only, float biases). Entropy
+   calibration ran out of memory at 96 and 180 GB. TensorRT builds a QDQ model directly as INT8, and
+   ONNX Runtime runs the same file on the server, so the accuracy cost is measured before deployment.
 5. Higher TensorRT builder optimization level: killed out of memory on the 8 GB board.
 ## Decision
 Option 3: SegFormer 480×768 FP16. SalsaNext stays **FP16**: option 4 failed its accuracy check. With
@@ -42,7 +42,7 @@ CUDA stream (critical path). GPU work per frame drops from ~89 ms to ~69 ms. Whe
   decide whether this is acceptable. Recorded as a known budget overrun, not hidden.
 - INT8 is still the only lever left for the lidar model. Calibration variants are being tested: moving-
   average MinMax, the first/last conv kept in FP16, and percentile. Adopting one needs ≤ 2 mIoU loss on test.
-- Accuracy cost is explicit: −1.7 camera mIoU, plus the INT8 lidar delta below. Fusion and grid metrics
+- Accuracy cost is explicit: −1.7 camera mIoU (lidar unchanged at FP16). Fusion and grid metrics
   should be re-measured with the deployed engines' outputs (Jetson-vs-reference comparison).
 - DLA stays unused. A different lidar network designed for DLA would change that, but that is a research
   detour outside this project's scope.
