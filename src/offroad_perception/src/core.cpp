@@ -45,12 +45,14 @@ Mat4 PoseTrack::at(double t) const {
 std::vector<Vec3> deskew(const std::vector<Vec3>& pts, const std::vector<double>& point_t, const PoseTrack& odom,
                          const Mat4& T_base_sensor, double t_target) {
   const Mat4 T_target = inverse_rigid(mul(odom.at(t_target), T_base_sensor));
-  std::map<double, Mat4> cache;  // Ouster columns share one firing time
+  // Ouster points arrive column by column and a column shares one firing time, so the transform is
+  // recomputed only when the time changes (2048 interpolations per sweep instead of one per point).
   std::vector<Vec3> out(pts.size());
+  Mat4 T;
+  double last = std::numeric_limits<double>::quiet_NaN();
   for (size_t i = 0; i < pts.size(); ++i) {
-    auto it = cache.find(point_t[i]);
-    if (it == cache.end()) it = cache.emplace(point_t[i], mul(T_target, mul(odom.at(point_t[i]), T_base_sensor))).first;
-    out[i] = apply(it->second, pts[i]);
+    if (!(point_t[i] == last)) { T = mul(T_target, mul(odom.at(point_t[i]), T_base_sensor)); last = point_t[i]; }
+    out[i] = apply(T, pts[i]);
   }
   return out;
 }
@@ -113,23 +115,38 @@ Grid build_grid(const std::vector<Vec3>& xyz, const std::vector<Dist>& probs, co
                     *std::max_element(probs[k].begin(), probs[k].end()), from_camera[k] != 0});
   }
   const double inf = std::numeric_limits<double>::infinity();
-  std::vector<double> zmin(nn, inf), ground(nn, inf), hmax(nn, -inf), meanp(nn, 0.0), cnt(nn, 0.0);
+  std::vector<double> zmin(nn, inf), tmp(nn, inf), ground(nn, inf), hmax(nn, -inf), meanp(nn, 0.0), cnt(nn, 0.0);
   for (const P& q : kept) zmin[q.cell] = std::min(zmin[q.cell], q.z);
+  // Local ground = minimum over a win x win window (scipy minimum_filter placement). Separable: row pass,
+  // then column pass; the minimum over a rectangle is the minimum of row minima, so this is exact.
   const int win = std::max(1, static_cast<int>(std::lround(g.ground_window_m / g.resolution_m)));
-  const int lo = win / 2, hi = win - 1 - lo;  // scipy minimum_filter window placement
+  const int lo = win / 2, hi = win - 1 - lo;
   for (int r = 0; r < n; ++r)
     for (int c = 0; c < n; ++c) {
       double m = inf;
-      for (int rr = std::max(0, r - lo); rr <= std::min(n - 1, r + hi); ++rr)
-        for (int cc = std::max(0, c - lo); cc <= std::min(n - 1, c + hi); ++cc) m = std::min(m, zmin[rr * n + cc]);
+      for (int cc = std::max(0, c - lo); cc <= std::min(n - 1, c + hi); ++cc) m = std::min(m, zmin[r * n + cc]);
+      tmp[r * n + c] = m;
+    }
+  for (int r = 0; r < n; ++r)
+    for (int c = 0; c < n; ++c) {
+      double m = inf;
+      for (int rr = std::max(0, r - lo); rr <= std::min(n - 1, r + hi); ++rr) m = std::min(m, tmp[rr * n + c]);
       ground[r * n + c] = m;
     }
-  std::vector<std::array<float, kNumClasses>> votes(nn, std::array<float, kNumClasses>{});
+  // Votes only for occupied cells (compact slots), accumulated in point order as in the reference.
+  std::vector<int32_t> slot(nn, -1);
+  std::vector<std::array<float, kNumClasses>> votes;
+  std::vector<size_t> cell_of_slot;
   std::vector<uint8_t> cam_any(nn, 0);
   for (const P& q : kept) {
     const double h = q.z - ground[q.cell];
     if (h < g.clearance_m) hmax[q.cell] = std::max(hmax[q.cell], h);
-    votes[q.cell][q.cls] += q.pc;
+    if (slot[q.cell] < 0) {
+      slot[q.cell] = static_cast<int32_t>(votes.size());
+      votes.push_back({});
+      cell_of_slot.push_back(q.cell);
+    }
+    votes[slot[q.cell]][q.cls] += q.pc;
     meanp[q.cell] += q.pmax;
     cnt[q.cell] += 1;
     if (q.cam) cam_any[q.cell] = 1;
@@ -141,12 +158,14 @@ Grid build_grid(const std::vector<Vec3>& xyz, const std::vector<Dist>& probs, co
   out.semantic_class.assign(nn, 0);
   out.source_flags.assign(nn, 0);
   out.geometric.assign(nn, 0);
-  for (size_t c = 0; c < nn; ++c) {
+  for (size_t s_ = 0; s_ < votes.size(); ++s_) {
+    const size_t c = cell_of_slot[s_];
+    const auto& v = votes[s_];
     float total = 0;
-    for (float v : votes[c]) total += v;
+    for (float x : v) total += x;
     if (!(total > 0)) continue;
-    const int dom = static_cast<int>(std::max_element(votes[c].begin(), votes[c].end()) - votes[c].begin());
-    const double share = votes[c][dom] / std::max(total, 1e-9f);
+    const int dom = static_cast<int>(std::max_element(v.begin(), v.end()) - v.begin());
+    const double share = v[dom] / std::max(total, 1e-9f);
     const double mp = cnt[c] > 0 ? meanp[c] / cnt[c] : 0.0;
     const int sem = cost_lut[dom];
     out.cost[c] = static_cast<uint8_t>(sem < 0 ? 255 : sem);

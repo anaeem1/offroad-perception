@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numeric>
 
 namespace offroad {
 
@@ -18,6 +17,7 @@ RangeImage project_range(const float* xyz, const float* remission, size_t n, con
   out.px.resize(n);
   out.py.resize(n);
   std::vector<float> depth(n);
+#pragma omp parallel for schedule(static)
   for (size_t i = 0; i < n; ++i) {
     const float x = xyz[3 * i], y = xyz[3 * i + 1], z = xyz[3 * i + 2];
     float d = std::sqrt((x * x + y * y) + z * z);
@@ -32,31 +32,32 @@ RangeImage project_range(const float* xyz, const float* remission, size_t n, con
     out.px[i] = static_cast<int32_t>(fx);
     out.py[i] = static_cast<int32_t>(fy);
   }
-  // Far-to-near write order so the nearest point wins each pixel.
-  std::vector<uint32_t> order(n);
-  std::iota(order.begin(), order.end(), 0u);
-  std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return depth[a] > depth[b]; });
-
+  // The nearest point wins each pixel. The reference writes far-to-near after a sort; a single
+  // pass keeping the minimum depth per pixel gives the same image except for exact depth ties
+  // (whose order the reference's unstable sort leaves undefined anyway), at O(N) instead of O(N log N).
   const size_t HW = static_cast<size_t>(H) * W;
-  out.range.assign(HW, -1.0f);
-  std::vector<float> chx(HW, -1.0f), chy(HW, -1.0f), chz(HW, -1.0f), chr(HW, -1.0f);
   std::vector<int32_t> idx(HW, -1);
-  for (uint32_t i : order) {
+  for (size_t i = 0; i < n; ++i) {
     const size_t p = static_cast<size_t>(out.py[i]) * W + out.px[i];
-    out.range[p] = depth[i];
-    chx[p] = xyz[3 * i];
-    chy[p] = xyz[3 * i + 1];
-    chz[p] = xyz[3 * i + 2];
-    chr[p] = remission[i];
-    idx[p] = static_cast<int32_t>(i);
+    const int32_t cur = idx[p];
+    if (cur < 0 || depth[i] < depth[cur]) idx[p] = static_cast<int32_t>(i);
   }
+  // One pass from the winning point straight to the normalized input (empty pixels read -1, as in the
+  // reference, and are then masked). Memory-bound, so deliberately single-threaded.
+  out.range.assign(HW, -1.0f);
   out.input.resize(5 * HW);
-  const std::vector<float>* ch[5] = {&out.range, &chx, &chy, &chz, &chr};
-  for (int c = 0; c < 5; ++c)
-    for (size_t p = 0; p < HW; ++p) {
-      const float mask = idx[p] > 0 ? 1.0f : 0.0f;  // upstream quirk: index 0 counts as empty
-      out.input[c * HW + p] = ((*ch[c])[p] - cfg.means[c]) / cfg.stds[c] * mask;
+  float* in = out.input.data();
+  for (size_t p = 0; p < HW; ++p) {
+    const int32_t i = idx[p];
+    const float mask = i > 0 ? 1.0f : 0.0f;  // upstream quirk: index 0 counts as empty
+    float v[5] = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
+    if (i >= 0) {
+      v[0] = out.range[p] = depth[i];
+      v[1] = xyz[3 * i]; v[2] = xyz[3 * i + 1]; v[3] = xyz[3 * i + 2];
+      v[4] = remission[i];
     }
+    for (int c = 0; c < 5; ++c) in[c * HW + p] = (v[c] - cfg.means[c]) / cfg.stds[c] * mask;
+  }
   return out;
 }
 

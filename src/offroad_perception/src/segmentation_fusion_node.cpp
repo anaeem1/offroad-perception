@@ -4,6 +4,7 @@
 // All algorithms come from the parity-tested core (pipeline/*.py is the reference).
 #include <algorithm>
 #include <deque>
+#include <memory>
 #include <mutex>
 
 #include <nav_msgs/msg/odometry.hpp>
@@ -119,9 +120,10 @@ class SegmentationFusionNode : public rclcpp::Node {
     }
     const double t_resize = ms_since(t0) - t_debayer;
     const auto t1 = Clock::now();
-    CamFrame f{to_sec(m->header.stamp), {}};
+    auto f = std::make_shared<CamFrame>();
+    f->stamp = to_sec(m->header.stamp);
     std::vector<int32_t> labels;
-    const float gpu = camera_->infer(chw.data(), f.probs, labels);
+    const float gpu = camera_->infer(chw.data(), f->probs, labels);
     const double t_infer = ms_since(t1);
     {
       std::lock_guard<std::mutex> lk(cam_mutex_);
@@ -196,7 +198,7 @@ class SegmentationFusionNode : public rclcpp::Node {
     std::vector<uint8_t> from_cam(vidx.size(), 0);
     Camera cam;
     bool have_info;
-    std::vector<CamFrame> frames;
+    std::vector<std::shared_ptr<const CamFrame>> frames;
     {
       std::lock_guard<std::mutex> lk(cam_mutex_);
       cam = cam_;
@@ -215,7 +217,7 @@ class SegmentationFusionNode : public rclcpp::Node {
         const double t_wedge = th[th.size() / 2];
         const CamFrame* best = nullptr;
         for (const auto& f : frames)
-          if (!best || std::abs(f.stamp - t_wedge) < std::abs(best->stamp - t_wedge)) best = &f;
+          if (!best || std::abs(f->stamp - t_wedge) < std::abs(best->stamp - t_wedge)) best = f.get();
         cam_minus_wedge = (best->stamp - t_wedge) * 1e3;
         t_match = ms_since(t1);
         if (std::abs(best->stamp - t_wedge) <= window_) {
@@ -285,7 +287,7 @@ class SegmentationFusionNode : public rclcpp::Node {
   std::vector<int> train_to_onto_, bucket_, cam_ids_;
   EgoBox ego_;
   Camera cam_{};
-  std::deque<CamFrame> frames_;
+  std::deque<std::shared_ptr<const CamFrame>> frames_;
   PoseTrack odom_;
   std::mutex cam_mutex_, odom_mutex_;
   CsvLog lidar_log_, camera_log_;

@@ -14,9 +14,15 @@ add_library(offroad_core STATIC src/projection.cpp src/core.cpp src/tracker.cpp)
 target_include_directories(offroad_core PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_compile_options(offroad_core PUBLIC -ffp-contract=off -Wall -Wextra)
+find_package(OpenMP)  # parallel per-point loops; results are identical with or without it
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(offroad_core PUBLIC OpenMP::OpenMP_CXX)
+endif()
 set_target_properties(offroad_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(parity test/parity.cpp)
+add_executable(bench test/bench.cpp)
+target_link_libraries(bench offroad_core)
 target_link_libraries(parity offroad_core)
 
 # ROS 2 nodes are only built where ament is available (the Jetson).
