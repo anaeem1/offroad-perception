@@ -35,15 +35,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=ONNX_DIR / "salsanext_rellis_op17.onnx")
     ap.add_argument("--out", type=Path, default=ONNX_DIR / "salsanext_rellis_op17_int8qdq.onnx")
-    ap.add_argument("--calib-scans", type=int, default=200)
+    ap.add_argument("--calib-scans", type=int, default=128)
     ap.add_argument("--method", default="Entropy", choices=["Entropy", "Percentile", "MinMax"])
+    ap.add_argument("--flush-every", type=int, default=4)
     args = ap.parse_args()
     pre = args.out.with_suffix(".pre.onnx")
     quant_pre_process(str(args.src), str(pre), skip_symbolic_shape=True)
     quantize_static(str(pre), str(args.out), ValScans(args.calib_scans), quant_format=QuantFormat.QDQ,
                     op_types_to_quantize=["Conv"], per_channel=True, activation_type=QuantType.QInt8,
                     weight_type=QuantType.QInt8, calibrate_method=getattr(CalibrationMethod, args.method),
-                    extra_options={"ActivationSymmetric": True, "WeightSymmetric": True})
+                    extra_options={"ActivationSymmetric": True, "WeightSymmetric": True,
+                                   # SalsaNext keeps ~1-2 GB of full-resolution activations per scan; flush the
+                                   # calibration statistics every few scans instead of holding all of them.
+                                   "CalibMaxIntermediateOutputs": args.flush_every})
     pre.unlink(missing_ok=True)
     print("wrote", args.out)
 
