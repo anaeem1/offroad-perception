@@ -35,7 +35,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=ONNX_DIR / "salsanext_rellis_op17.onnx")
     ap.add_argument("--out", type=Path, default=ONNX_DIR / "salsanext_rellis_op17_int8qdq.onnx")
-    ap.add_argument("--calib-scans", type=int, default=128)
+    ap.add_argument("--calib-scans", type=int, default=129)  # not a multiple of --flush-every: ORT 1.20 raises "No data is collected" otherwise
     ap.add_argument("--method", default="Entropy", choices=["Entropy", "Percentile", "MinMax"])
     ap.add_argument("--flush-every", type=int, default=4)
     args = ap.parse_args()
