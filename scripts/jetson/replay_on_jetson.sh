@@ -21,18 +21,25 @@ source install/setup.bash
 
 echo "== engines"
 ENG="$OUT/engines"; mkdir -p "$ENG"
-build_engine() {  # onnx engine
-  [ -f "$ENG/$2" ] && { echo "have $2"; return; }
-  "$TRTEXEC" --onnx="$ONNX/$1" --fp16 --saveEngine="$ENG/$2" > "$ENG/$2.build.log" 2>&1 && echo "built $2" || { echo "FAILED $2 (see $ENG/$2.build.log)"; exit 1; }
+build_engine() {  # onnx engine [extra trtexec flags]
+  local onnx="$1" eng="$2"; shift 2
+  [ -f "$ENG/$eng" ] && { echo "have $eng"; return; }
+  [ -f "$ONNX/$onnx" ] || { echo "skip $eng ($onnx not in bundle)"; return; }
+  "$TRTEXEC" --onnx="$ONNX/$onnx" --fp16 "$@" --saveEngine="$ENG/$eng" > "$ENG/$eng.build.log" 2>&1 \
+    && echo "built $eng" || { echo "FAILED $eng (see $ENG/$eng.build.log)"; exit 1; }
 }
-build_engine salsanext_rellis_op17.onnx salsanext_fp16.engine
-build_engine segformer_b0_640x1024_op17.onnx segformer640_fp16.engine
+build_engine salsanext_rellis_op17_int8qdq.onnx salsanext_int8.engine --int8   # QDQ model: explicit INT8
+build_engine salsanext_rellis_op17.onnx salsanext_fp16.engine                  # fallback
+build_engine segformer_b0_480x768_op17.onnx segformer480_fp16.engine
+LIDAR_ENGINE="${LIDAR_ENGINE:-salsanext_int8.engine}"; CAMERA_ENGINE="${CAMERA_ENGINE:-segformer480_fp16.engine}"
+echo "using lidar=$LIDAR_ENGINE camera=$CAMERA_ENGINE" | tee "$OUT/engines_used.txt"
 
 echo "== replay"
 nvpmodel -q 2>/dev/null | head -1 | tee "$OUT/power_mode.txt"
 DUR=$(ros2 bag info "$CLIP" | awk '/Duration/ {print int($2)+1}')
 (tegrastats --interval 500 > "$OUT/tegrastats.log" 2>&1 &) ; TS=$!
-ros2 launch offroad_perception replay.launch.py bag:="$CLIP" seq:="$SEQ" engines:="$ENG" logs:="$OUT" > "$OUT/launch.log" 2>&1 &
+ros2 launch offroad_perception replay.launch.py bag:="$CLIP" seq:="$SEQ" engines:="$ENG" logs:="$OUT" \
+  lidar_engine_file:="$LIDAR_ENGINE" camera_engine_file:="$CAMERA_ENGINE" > "$OUT/launch.log" 2>&1 &
 LAUNCH=$!
 sleep 6
 ros2 bag record -s mcap -o "$OUT/outputs" /perception/traversability /perception/obstacles /perception/health /planner/cmd_vel \

@@ -13,7 +13,8 @@ namespace offroad {
 
 class TrtEngine {
  public:
-  explicit TrtEngine(const std::string& engine_path);
+  // high_priority: run on the device's highest-priority CUDA stream (the lidar path is the critical path).
+  explicit TrtEngine(const std::string& engine_path, bool high_priority = false);
   ~TrtEngine();
   TrtEngine(const TrtEngine&) = delete;
   TrtEngine& operator=(const TrtEngine&) = delete;

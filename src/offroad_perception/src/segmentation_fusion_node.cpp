@@ -36,8 +36,8 @@ Mat4 rot_x_deg(double deg) {
 class SegmentationFusionNode : public rclcpp::Node {
  public:
   explicit SegmentationFusionNode(const rclcpp::NodeOptions& opts) : Node("segmentation_fusion", opts) {
-    lidar_ = std::make_unique<TrtEngine>(declare_parameter<std::string>("lidar_engine"));
-    camera_ = std::make_unique<TrtEngine>(declare_parameter<std::string>("camera_engine"));
+    lidar_ = std::make_unique<TrtEngine>(declare_parameter<std::string>("lidar_engine"), /*high_priority=*/true);
+    camera_ = std::make_unique<TrtEngine>(declare_parameter<std::string>("camera_engine"), /*high_priority=*/false);
     alpha_ = declare_parameter<double>("fusion_alpha", 0.5);
     loglinear_ = declare_parameter<bool>("fusion_loglinear", true);
     window_ = declare_parameter<double>("camera_match_window_s", 0.05);

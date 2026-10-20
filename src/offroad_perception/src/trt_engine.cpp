@@ -24,7 +24,7 @@ size_t count(const std::vector<int64_t>& s) { return std::accumulate(s.begin(), 
 
 }  // namespace
 
-TrtEngine::TrtEngine(const std::string& path) {
+TrtEngine::TrtEngine(const std::string& path, bool high_priority) {
   std::ifstream f(path, std::ios::binary | std::ios::ate);
   if (!f) throw std::runtime_error("cannot open engine " + path);
   std::vector<char> blob(static_cast<size_t>(f.tellg()));
@@ -40,7 +40,9 @@ TrtEngine::TrtEngine(const std::string& path) {
   in_n_ = count(in_shape_);
   probs_n_ = count(probs_shape_);
   labels_n_ = count(labels_shape_);
-  check(cudaStreamCreate(&stream_), "stream");
+  int lo = 0, hi = 0;  // numerically lower = higher priority
+  check(cudaDeviceGetStreamPriorityRange(&lo, &hi), "priority range");
+  check(cudaStreamCreateWithPriority(&stream_, cudaStreamNonBlocking, high_priority ? hi : lo), "stream");
   check(cudaEventCreate(&start_), "event");
   check(cudaEventCreate(&stop_), "event");
   check(cudaMalloc(&d_in_, in_n_ * sizeof(float)), "malloc input");
