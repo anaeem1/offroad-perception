@@ -1,0 +1,21 @@
+# scripts/jetson/latency_sweep.sh on the deployment Jetson (Orin NX 8 GB, JetPack 6.0, TensorRT 8.6.2,
+# MAXN, jetson_clocks locked, other workloads stopped), run by the Jetson Claude agent, 2026-10-19.
+# trtexec --useSpinWait --warmUp=2000 --duration=15; GPU compute time. INT8 rows are uncalibrated speed
+# bounds (accuracy measured separately). Concurrent rows: two trtexec processes at the same time.
+
+== single model, sequential
+salsanext_fp16             PASS     median  49.0847 ms  p99  53.2148 ms
+salsanext_fp16_opt5        FAIL     (trtexec killed: out of memory at builderOptimizationLevel=5)
+salsanext_int8_bound       PASS     median  25.7583 ms  p99  28.3301 ms
+salsanext_dla_fp16         PASS     median   143.73 ms  p99  145.438 ms
+segformer640_fp16          PASS     median  40.4888 ms  p99  44.0186 ms
+segformer480_fp16          PASS     median  19.9717 ms  p99  21.8164 ms
+segformer640_int8_bound    PASS     median  36.2656 ms  p99  40.7988 ms
+
+== concurrent: both models at once (as in the runtime)
+gpu_gpu_640                lidar   median  111.518 ms  p99  127.052 ms
+gpu_gpu_640                camera  median  91.6134 ms  p99  100.795 ms
+dla_gpu_640                lidar   median  205.344 ms  p99  220.516 ms
+dla_gpu_640                camera  median  73.3365 ms  p99  82.3477 ms
+dla_gpu_480                lidar   median  201.852 ms  p99  229.928 ms
+dla_gpu_480                camera  median  36.0199 ms  p99  42.7832 ms
