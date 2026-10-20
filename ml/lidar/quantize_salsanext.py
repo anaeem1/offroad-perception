@@ -45,6 +45,7 @@ def main():
                     op_types_to_quantize=["Conv"], per_channel=True, activation_type=QuantType.QInt8,
                     weight_type=QuantType.QInt8, calibrate_method=getattr(CalibrationMethod, args.method),
                     extra_options={"ActivationSymmetric": True, "WeightSymmetric": True,
+                                   "QuantizeBias": False,  # TensorRT 8.6 parses INT8 Q/DQ only, not INT32 bias
                                    # SalsaNext keeps ~1-2 GB of full-resolution activations per scan; flush the
                                    # calibration statistics every few scans instead of holding all of them.
                                    "CalibMaxIntermediateOutputs": args.flush_every})
