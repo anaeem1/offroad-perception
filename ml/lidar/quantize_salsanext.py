@@ -38,17 +38,23 @@ def main():
     ap.add_argument("--calib-scans", type=int, default=129)  # not a multiple of --flush-every: ORT 1.20 raises "No data is collected" otherwise
     ap.add_argument("--method", default="Entropy", choices=["Entropy", "Percentile", "MinMax"])
     ap.add_argument("--flush-every", type=int, default=4)
+    ap.add_argument("--exclude", nargs="*", default=[], help="Conv node names kept in FP16 (sensitive layers)")
+    ap.add_argument("--moving-average", action="store_true", help="MinMax: moving-average ranges, damping outliers")
+    ap.add_argument("--percentile", type=float, default=99.999)
     args = ap.parse_args()
     pre = args.out.with_suffix(".pre.onnx")
     quant_pre_process(str(args.src), str(pre), skip_symbolic_shape=True)
     quantize_static(str(pre), str(args.out), ValScans(args.calib_scans), quant_format=QuantFormat.QDQ,
-                    op_types_to_quantize=["Conv"], per_channel=True, activation_type=QuantType.QInt8,
+                    op_types_to_quantize=["Conv"], nodes_to_exclude=args.exclude, per_channel=True,
+                    activation_type=QuantType.QInt8,
                     weight_type=QuantType.QInt8, calibrate_method=getattr(CalibrationMethod, args.method),
                     extra_options={"ActivationSymmetric": True, "WeightSymmetric": True,
                                    "QuantizeBias": False,  # TensorRT 8.6 parses INT8 Q/DQ only, not INT32 bias
                                    # SalsaNext keeps ~1-2 GB of full-resolution activations per scan; flush the
                                    # calibration statistics every few scans instead of holding all of them.
-                                   "CalibMaxIntermediateOutputs": args.flush_every})
+                                   "CalibMaxIntermediateOutputs": args.flush_every,
+                                   "CalibMovingAverage": args.moving_average,
+                                   "CalibPercentile": args.percentile})
     pre.unlink(missing_ok=True)
     print("wrote", args.out)
 
