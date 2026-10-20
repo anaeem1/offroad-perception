@@ -1,0 +1,41 @@
+# First on-device replay of the C++ stack (bundle 4), 2026-10-19 ~21:07 CDT, run by the Jetson Claude agent.
+# Orin NX 8 GB, JetPack 6.0, TensorRT 8.6.2 FP16 engines, power mode MAXN, clocks dynamic (no jetson_clocks).
+# Board quieted: Isaac ROS find_me_loc container and nomad.service stopped; tf2_echo loop + desktop still running.
+# Input: 00001 clip, scans 100-400 (31.9 s), ros2 bag play --clock, rate 1.0. GPU mean 40 %, max 99 %; peak RAM 4.1 GB.
+# Result: builds (1 compile fix), runs without crashes, but the lidar path is slower than the 10 Hz sensor:
+# 203 of 319 clouds processed, output ~720 ms old, health = SAFE_STOP throughout, planner never moves.
+
+segmentation_camera.csv: 317 rows          median      p95      max   (ms)
+  debayer_ms                                1.34     3.11    22.62
+  resize_ms                                 6.69    11.48    31.23
+  camera_gpu_ms                            40.70    78.11   500.59
+  camera_infer_ms                          45.85    89.32   506.91
+  total_ms                                 55.82    98.89   541.19
+
+segmentation_lidar.csv: 203 rows
+  receive_delay_ms                        570.04   619.55   719.27   (bag replay adds ~124 ms inherent sensor lag)
+  decode_ms                                 1.40     2.58     6.64
+  range_proj_ms                            23.20    45.48    53.57
+  lidar_gpu_ms                             47.33    75.78   480.13
+  lidar_infer_ms                           57.72    87.79   486.17
+  match_ms                                 15.94    23.53    35.46
+  fuse_ms                                   9.84    13.15    15.95
+  base_ms                                   7.11     8.97    12.47
+  publish_ms                                0.03     0.05     0.23
+  total_ms                                149.90   204.46   582.38
+  camera_used                               1.00     1.00     1.00
+  cam_minus_wedge_ms                        5.50     6.18   104.88
+  age_at_publish_ms                       720.37   771.49  1019.22
+
+bev_tracker.csv: 203 rows
+  grid_cluster_ms                          14.68    29.90    37.37
+  memory_ms                                 7.53    12.67    17.44
+  track_ms                                  0.03     0.06     0.18
+  publish_ms                                0.46     1.92     5.11
+  total_ms                                 26.32    43.00    52.34
+  n_points / n_dets / n_tracks           71180 / 5 / 8 (medians)
+  remembered_cells                       21096 (median)
+  age_at_publish_ms                       745.49   819.40  1069.26
+
+planner.csv: 203 rows — mode SAFE_STOP (3) in all rows, cmd_v 0 in all rows (output age > 0.25 s)
+outputs bag: 203 grids, 203 obstacle arrays, 428 health messages, 203 cmd_vel (24 MiB)
