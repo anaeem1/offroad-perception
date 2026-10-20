@@ -38,6 +38,10 @@ Humble, runs `colcon build --packages-select perception_msgs`, then `ros2 interf
 message. It refuses to run inside conda. If `colcon` is missing, install
 `python3-colcon-common-extensions`.
 
+## 4. Replay the stack
+`scripts/jetson/replay_on_jetson.sh` (bundle 4). Needs the mcap storage plugin for `ros2 bag`:
+`sudo apt install ros-humble-rosbag2-storage-mcap` (installed Oct 19).
+
 ## Rules
 - TensorRT engines are built on the Jetson only. The server never ships `.engine` files.
 - Latency numbers in the README come from this device, with the power mode recorded next to them.

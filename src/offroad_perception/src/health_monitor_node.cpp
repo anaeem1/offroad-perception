@@ -45,7 +45,7 @@ class HealthMonitorNode : public rclcpp::Node {
         [this](perception_msgs::msg::TraversabilityGrid::ConstSharedPtr m) {
           std::lock_guard<std::mutex> lk(mu_);
           grid_rx_ = now().seconds();
-          last_age_ms_ = (grid_rx_ - to_sec(m->header.stamp)) * 1e3;
+          last_age_ms_ = (*grid_rx_ - to_sec(m->header.stamp)) * 1e3;
           grid_stamp_ = m->header.stamp;
         });
     timer_ = create_wall_timer(std::chrono::milliseconds(100), [this] { tick(); });

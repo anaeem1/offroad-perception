@@ -4,6 +4,7 @@
 # Usage: scripts/jetson/replay_on_jetson.sh <workspace_root> <clip_bag_dir> <onnx_dir> <out_dir> [seq]
 #   workspace_root: dir containing src/perception_msgs and src/offroad_perception
 set -eo pipefail
+set -m  # job control: background jobs get their own process group and do not ignore SIGINT
 WS="$(realpath "${1:?workspace}")"; CLIP="$(realpath "${2:?clip bag dir}")"; ONNX="$(realpath "${3:?onnx dir}")"
 OUT="$(realpath -m "${4:?output dir}")"; SEQ="${5:-00001}"
 TRTEXEC=/usr/src/tensorrt/bin/trtexec
@@ -38,8 +39,9 @@ ros2 bag record -s mcap -o "$OUT/outputs" /perception/traversability /perception
   > "$OUT/record.log" 2>&1 &
 REC=$!
 sleep $((DUR + 12))
-kill -INT $REC 2>/dev/null || true; sleep 2
-kill -INT $LAUNCH 2>/dev/null || true; sleep 4
+kill -INT -- -$REC 2>/dev/null || true; sleep 2      # whole process group (recorder)
+kill -INT -- -$LAUNCH 2>/dev/null || true; sleep 6   # whole process group (launch + container)
+pgrep -f "node:=perception" >/dev/null && { echo "container still up; sending TERM"; pkill -TERM -f "node:=perception"; } || true
 pkill -f tegrastats 2>/dev/null || true
 grep -iE "error|exception|fail" "$OUT/launch.log" | head -20 || true
 
