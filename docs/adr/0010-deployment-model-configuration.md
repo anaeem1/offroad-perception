@@ -1,5 +1,5 @@
 # ADR-0010: Deploy SegFormer at 480×768 FP16 and SalsaNext FP16; INT8 and DLA rejected for now
-- **Status:** accepted; INT8 lidar re-opened only if a calibration variant passes (see Evidence)
+- **Status:** accepted. INT8 lidar closed after two calibration rounds (2026-10-22): no variant met the bar
 - **Date:** 2026-10-20
 ## Context
 - First on-device replay (`docs/measurements/jetson_replay_run1.txt`): with SalsaNext FP16 and SegFormer
@@ -45,8 +45,32 @@ CUDA stream (critical path). GPU work per frame drops from ~89 ms to ~69 ms. Whe
 - **Lidar seg is over its 20 ms stage budget** (49 ms FP16). Camera seg at 480×768 (20 ms) frees 10 ms of
   the 50 ms model budget, which is not enough. The end-to-end bound (ADR-0005) and the measured replay
   decide whether this is acceptable. Recorded as a known budget overrun, not hidden.
-- INT8 is still the only lever left for the lidar model. Calibration variants are being tested: moving-
-  average MinMax, the first/last conv kept in FP16, and percentile. Adopting one needs ≤ 2 mIoU loss on test.
+- **INT8 for SalsaNext stays rejected.** Adoption needed ≤ 2 mIoU loss on test. Ten post-training variants
+  were scored against FP32 on the same 418 test scans (FP32 41.44; first row: 836 scans, FP32 41.68):
+
+  | Calibration (ORT, symmetric, per-channel, Conv only) | mIoU | Point labels equal to FP32 |
+  |---|---|---|
+  | MinMax, 129 val scans | 16.39 | 60 % |
+  | MinMax moving average | 16.44 | 60 % |
+  | MinMax moving average, first/last conv FP16 | 18.41 | 63 % |
+  | Percentile 99.9 (17 val scans) | 31.45 | 93 % |
+  | **Percentile 99.99** | **38.72** | 94 % |
+  | Percentile 99.999 | 34.80 | 92 % |
+  | Percentile 99.9999 | 37.68 | 93 % |
+  | Percentile 99.999, 4 most sensitive layers FP16 | 35.74 | 94 % |
+  | Percentile 99.999, 8 most sensitive layers FP16 | 36.41 | 95 % |
+  | Percentile 99.99, 4 most sensitive layers FP16 | 35.02 | 92 % |
+
+  The best variant loses 2.7 mIoU, and vehicle IoU falls from 22.0 to 15.2, which worsens the top hazard
+  (H-9). Keeping the most sensitive layers in FP16 did not help consistently: 99.99 with 4 FP16 layers
+  is 3.7 below 99.99 alone. So the result depends on calibration ranges, not on a few layers.
+  The per-layer analysis shows where the error starts. In SalsaNext, BatchNorm follows the activation, so it
+  cannot be folded into the convolution. Its outputs have the lowest INT8 SQNR (20–25 dB), and the error
+  compounds through the encoder: accumulated SQNR is 16 dB after the first block and ~1 dB by `resBlock2`.
+  Closing the gap would need quantization-aware training or a network designed for INT8: a research
+  detour outside this project's scope.
+- The best INT8 variant ships in bundle 6 for **timing only**, so the speed it would have bought is measured,
+  not just bounded (the 25.8 ms bound assumes every layer in INT8).
 - Accuracy cost is explicit: −1.7 camera mIoU (lidar unchanged at FP16). Fusion and grid metrics
   should be re-measured with the deployed engines' outputs (Jetson-vs-reference comparison).
 - DLA stays unused. A different lidar network designed for DLA would change that, but that is a research
@@ -54,3 +78,6 @@ CUDA stream (critical path). GPU work per frame drops from ~89 ms to ~69 ms. Whe
 ## Evidence
 - `docs/measurements/jetson_latency_sweep.txt`, `jetson_replay_run1.txt`, `camera_onnx_640x1024_test.json`,
   `camera_onnx_480x768_test.json`, `lidar_int8_vs_fp32.json` (INT8 vs FP32 on the same test scans).
+- `lidar_int8_{mm_avg,mm_avg_excl,pct999,pct9999,pct,pct999999,pct_w4,pct_w8,pct9999_w4}.json` (variants),
+  `lidar_int8_sensitivity.json` (per-layer SQNR); produced by `scripts/slurm/quant_variant.sbatch` and
+  `ml/lidar/quant_sensitivity.py`.

@@ -12,6 +12,10 @@ cp scripts/jetson/replay_on_jetson.sh scripts/jetson/make_dropout_clip.py "$B/"
 for f in salsanext_rellis_op17.onnx segformer_b0_480x768_op17.onnx; do  # ADR-0010 deployment models
   cp "$ONNX/$f" "$B/onnx/"
 done
+# Optional INT8 QDQ lidar model (INT8_ONNX=<path>): the replay script builds it as salsanext_int8.engine.
+if [ -n "${INT8_ONNX:-}" ]; then
+  cp "$INT8_ONNX" "$B/onnx/salsanext_rellis_op17_int8qdq.onnx"; basename "$INT8_ONNX" > "$B/onnx/INT8_SOURCE"
+fi
 git rev-parse --short HEAD > "$B/COMMIT"
 tar czf "$OUTDIR/$NAME.tar.gz" -C "$STAGE" "$NAME"
 rm -rf "$STAGE"

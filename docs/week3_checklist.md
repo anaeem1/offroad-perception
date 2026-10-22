@@ -22,8 +22,8 @@ planner consumes the contract. The Jetson is reached through its own Claude agen
 - [x] Latency sweep: FP16, INT8 speed bound, DLA, 480×768, concurrency (`jetson_latency_sweep.txt`)
 - [x] SegFormer 480×768 FP16: 20.0 ms, −1.7 test mIoU (`camera_onnx_480x768_test.json`)
 - [x] DLA rejected (3× slower), SegFormer INT8 rejected (10 % faster)
-- [ ] SalsaNext INT8: round 1 failed (best 34.80 vs 41.44 FP32, bar is ≤ 2 mIoU loss); round 2 (layer
-      sensitivity → worst layers kept in FP16, other percentiles) running. Last round: INT8 closes after it.
+- [x] SalsaNext INT8 closed: 10 calibration variants, best 38.72 vs 41.44 FP32 (bar: ≤ 2 mIoU loss), vehicle
+      IoU 22.0 → 15.2. Rejected (ADR-0010); best variant timed on the board in run 2 for the record
 
 ## Real-time behaviour
 - [x] Sensor queues hold one message, newest wins (ADR-0011); odometry in its own callback group
