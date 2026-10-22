@@ -90,8 +90,8 @@ bringing both models under budget. The Oct 26 feature stop is unchanged.
   planner watchdog (contract rule 8: stop when grids stop; found while designing the H-6 test).
 - **INT8 lidar closed:** 10 calibration variants, best 38.72 vs 41.44 FP32 (bar ≤ 2 mIoU loss), vehicle IoU
   22.0 → 15.2 (ADR-0010). DLA and SegFormer INT8 rejected too. No model lever left; accept the overrun.
-- **Waiting on the Jetson:** `CAT/jetson_bundle6.tar.gz` (commit b3d93f0; replaces bundle 5, which was never
-  run): run 2 with the deployed config, timing of the best INT8 engine, run 3 = lidar dropped for 3 s (H-6).
+- **Waiting on the Jetson:** `CAT/jetson_bundle6.tar.gz` (commit b3d93f0; supersedes bundle 5; no bundle 5
+  results reported): run 2 with the deployed config, timing of the best INT8 engine, run 3 = lidar dropped for 3 s (H-6).
   Results come back as a tarball. Then: `split_receive_delay.py`, `compare_jetson_outputs.py`, README latency
   table, `jetson_replay_run2.txt`, H-6 evidence.
 - Records corrected 2026-10-22 after the board agent's review: the latency sweep ran with nomad_node and Isaac
