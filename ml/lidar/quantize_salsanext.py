@@ -8,6 +8,7 @@ per-channel weights: the form TensorRT fuses; everything else stays FP16.
   -> <data root>/onnx/salsanext_rellis_op17_int8qdq.onnx
 """
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
@@ -39,13 +40,21 @@ def main():
     ap.add_argument("--method", default="Entropy", choices=["Entropy", "Percentile", "MinMax"])
     ap.add_argument("--flush-every", type=int, default=4)
     ap.add_argument("--exclude", nargs="*", default=[], help="Conv node names kept in FP16 (sensitive layers)")
+    ap.add_argument("--exclude-worst", type=int, default=0,
+                    help="also keep in FP16 the Convs reading the K lowest-SQNR activations (quant_sensitivity.py)")
+    ap.add_argument("--sensitivity", type=Path, default=Path("docs/measurements/lidar_int8_sensitivity.json"))
     ap.add_argument("--moving-average", action="store_true", help="MinMax: moving-average ranges, damping outliers")
     ap.add_argument("--percentile", type=float, default=99.999)
     args = ap.parse_args()
+    exclude = list(args.exclude)
+    if args.exclude_worst:
+        ranked = json.loads(args.sensitivity.read_text())["activations"]
+        exclude += [n for r in ranked[:args.exclude_worst] for n in r["conv_nodes"] if n not in exclude]
+        print("FP16 (excluded):", exclude)
     pre = args.out.with_suffix(".pre.onnx")
     quant_pre_process(str(args.src), str(pre), skip_symbolic_shape=True)
     quantize_static(str(pre), str(args.out), ValScans(args.calib_scans), quant_format=QuantFormat.QDQ,
-                    op_types_to_quantize=["Conv"], nodes_to_exclude=args.exclude, per_channel=True,
+                    op_types_to_quantize=["Conv"], nodes_to_exclude=exclude, per_channel=True,
                     activation_type=QuantType.QInt8,
                     weight_type=QuantType.QInt8, calibrate_method=getattr(CalibrationMethod, args.method),
                     extra_options={"ActivationSymmetric": True, "WeightSymmetric": True,
