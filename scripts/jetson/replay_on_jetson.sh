@@ -53,9 +53,10 @@ pkill -f tegrastats 2>/dev/null || true
 grep -iE "error|exception|fail" "$OUT/launch.log" | head -20 || true
 
 echo "== latency summary (ms)"
-python3 - "$OUT" <<'PY' | tee "$OUT/latency_summary.txt"
-import csv, statistics, sys, os
-out = sys.argv[1]
+python3 - "$OUT" "$CLIP" <<'PY' | tee "$OUT/latency_summary.txt"
+import csv, statistics, struct, sys, os
+from collections import Counter
+out, clip = sys.argv[1], sys.argv[2]
 def q(v, p):
     v = sorted(v); return v[min(len(v) - 1, int(round(p / 100 * (len(v) - 1))))]
 for name in ("segmentation_camera.csv", "segmentation_lidar.csv", "bev_tracker.csv", "planner.csv"):
@@ -72,5 +73,33 @@ for name in ("segmentation_camera.csv", "segmentation_lidar.csv", "bev_tracker.c
             continue
         if v:
             print(f"  {col:22s} median {statistics.median(v):9.2f}  p95 {q(v, 95):9.2f}  max {max(v):9.2f}")
+
+# Nodes run on the bag's /clock, so receive_delay = sensor lag recorded in the bag (log time - header.stamp)
+# + time the scan waited for our node. Split them per scan with the clip's log times (ADR-0011).
+try:
+    import rosbag2_py
+    r = rosbag2_py.SequentialReader()
+    r.open(rosbag2_py.StorageOptions(uri=clip, storage_id="mcap"), rosbag2_py.ConverterOptions("cdr", "cdr"))
+    r.set_filter(rosbag2_py.StorageFilter(topics=["/os1_cloud_node/points"]))
+    lag = {}
+    while r.has_next():
+        _, data, t = r.read_next()
+        sec, nsec = struct.unpack_from("<iI", data, 4)  # CDR: 4-byte encapsulation, then header.stamp
+        lag[round(sec * 1e3 + nsec * 1e-6)] = t * 1e-6 - (sec * 1e3 + nsec * 1e-6)
+    rows = list(csv.DictReader(open(os.path.join(out, "segmentation_lidar.csv"))))
+    pairs = [(lag[k], float(x["receive_delay_ms"]) - lag[k]) for x in rows if (k := round(float(x["stamp"]) * 1e3)) in lag]
+    print(f"\nlidar scans: {len(rows)} processed of {len(lag)} in the clip ({len(rows) / len(lag):.0%}); {len(rows) - len(pairs)} unmatched")
+    for name, v in (("recorded_lag_ms", [p[0] for p in pairs]), ("queueing_ms", [p[1] for p in pairs])):
+        print(f"  {name:22s} median {statistics.median(v):9.2f}  p95 {q(v, 95):9.2f}  max {max(v):9.2f}")
+except Exception as e:
+    print(f"\nreceive delay split unavailable: {e!r}")
+
+path = os.path.join(out, "planner.csv")
+if os.path.exists(path):
+    rows = list(csv.DictReader(open(path)))
+    if rows:
+        print(f"\nplanner: cmd_v > 0 in {sum(float(x['cmd_v']) > 0 for x in rows) / len(rows):.0%} of {len(rows)} decisions")
+        for reason, n in Counter(x["reason"] for x in rows).most_common():
+            print(f"  {reason:22s} {n}")
 PY
 echo "outputs in $OUT"

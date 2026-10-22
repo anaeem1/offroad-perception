@@ -41,7 +41,7 @@ class BevTrackerNode : public rclcpp::Node {
           odom_.add(t, {p.position.x, p.position.y, p.position.z}, {p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w});
           odom_.trim_before(t - 5.0);
         });
-    pts_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>("/perception/fused_points", 5,
+    pts_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>("/perception/fused_points", 1,  // newest wins (ADR-0011)
         [this](sensor_msgs::msg::PointCloud2::ConstSharedPtr m) { on_points(m); });
   }
 

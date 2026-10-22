@@ -21,7 +21,11 @@
   constant offset.
 - Consumers may assume outputs are no older than 150 ms when `/perception/health.mode == NOMINAL`.
   **Under review (ADR-0005, proposed):** lidar scans arrive a median 127 ms after their stamp, so this
-  bound cannot hold. The proposed bound is 250 ms.
+  bound cannot hold. The proposed bound is 250 ms, and the deployed parameters already enforce it (output
+  older than the bound forces `MODE_SAFE_STOP`).
+- Output rate: one output per processed scan, nominally 10 Hz. *Clarified 2026-10-22 (ADR-0011):* when
+  processing is slower than the sensor, the stack skips scans instead of queueing them, so outputs stay as
+  fresh as possible and the rate drops. Consumers must not assume a fixed rate; they use `header.stamp`.
 
 ## Semantics consumers must respect
 1. `cost == 255` means UNKNOWN. It must never be treated as free space.
@@ -36,6 +40,7 @@
    Cells with no observation in the last 5 s are UNKNOWN.
 7. The camera covers only a 37.7° forward wedge (ADR-0002). In `MODE_CAMERA_ONLY`, every cell outside
    that wedge is UNKNOWN (255). The mode means a narrow field of view, not just reduced range.
+   The current implementation never enters it: without lidar it reports `MODE_SAFE_STOP` (`docs/odd.md`).
 
 ## Versioning
 Breaking changes bump the major version and get an ADR. Additive fields bump the minor version.

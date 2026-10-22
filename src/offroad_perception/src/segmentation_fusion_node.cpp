@@ -67,18 +67,22 @@ class SegmentationFusionNode : public rclcpp::Node {
     tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_);
     cam_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     lidar_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions cam_opts, lidar_opts;
+    odom_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);  // never waits behind a scan
+    rclcpp::SubscriptionOptions cam_opts, lidar_opts, odom_opts;
     cam_opts.callback_group = cam_group_;
     lidar_opts.callback_group = lidar_group_;
+    odom_opts.callback_group = odom_group_;
     pub_ = create_publisher<sensor_msgs::msg::PointCloud2>("/perception/fused_points", 5);
     odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-        "/odometry/filtered", 100, [this](nav_msgs::msg::Odometry::ConstSharedPtr m) { on_odom(m); }, lidar_opts);
+        "/odometry/filtered", 100, [this](nav_msgs::msg::Odometry::ConstSharedPtr m) { on_odom(m); }, odom_opts);
     info_sub_ = create_subscription<sensor_msgs::msg::CameraInfo>(
         "/pylon_camera_node/camera_info", 5, [this](sensor_msgs::msg::CameraInfo::ConstSharedPtr m) { on_info(m); }, cam_opts);
+    // Sensor queues hold one message: a node that falls behind processes the newest frame and drops stale
+    // ones, instead of working through a backlog (ADR-0011).
     img_sub_ = create_subscription<sensor_msgs::msg::Image>(
-        "/pylon_camera_node/image_raw", 5, [this](sensor_msgs::msg::Image::ConstSharedPtr m) { on_image(m); }, cam_opts);
+        "/pylon_camera_node/image_raw", 1, [this](sensor_msgs::msg::Image::ConstSharedPtr m) { on_image(m); }, cam_opts);
     cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-        "/os1_cloud_node/points", 5, [this](sensor_msgs::msg::PointCloud2::ConstSharedPtr m) { on_cloud(m); }, lidar_opts);
+        "/os1_cloud_node/points", 1, [this](sensor_msgs::msg::PointCloud2::ConstSharedPtr m) { on_cloud(m); }, lidar_opts);
     RCLCPP_INFO(get_logger(), "engines loaded: lidar in %ldx%ldx%ld, camera in %ldx%ldx%ld", lidar_->input_shape()[1],
                 lidar_->input_shape()[2], lidar_->input_shape()[3], camera_->input_shape()[1],
                 camera_->input_shape()[2], camera_->input_shape()[3]);
@@ -293,7 +297,7 @@ class SegmentationFusionNode : public rclcpp::Node {
   CsvLog lidar_log_, camera_log_;
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
-  rclcpp::CallbackGroup::SharedPtr cam_group_, lidar_group_;
+  rclcpp::CallbackGroup::SharedPtr cam_group_, lidar_group_, odom_group_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr info_sub_;
