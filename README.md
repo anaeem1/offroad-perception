@@ -85,8 +85,8 @@ RELLIS-3D's lidar labels mark ground where people walked as `person` (ADR-0009).
 
 \* TensorRT GPU compute median per model, measured alone (MAXN, clocks locked;
 [jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)). The deployment configuration is
-ADR-0010. Lidar seg is 2.5× over its stage budget: INT8 is the remaining lever and has not yet passed its
-accuracy check. The other rows are filled from the second on-device replay. The first replay, with a
+ADR-0010. Lidar seg is 2.5× over its stage budget, a recorded overrun: INT8 was rejected after ten
+calibration variants (the best loses 2.7 mIoU and a third of vehicle IoU). The other rows are filled from the second on-device replay. The first replay, with a
 640×1024 camera model, took 150 ms per scan and could not keep up with the sensor
 ([jetson_replay_run1.txt](docs/measurements/jetson_replay_run1.txt)).
 
