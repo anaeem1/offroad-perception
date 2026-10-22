@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-22",
+  "clip": "00001_s100-400",
+  "topic": "/os1_cloud_node/points",
+  "recorded_lag_ms": {
+    "n": 319,
+    "median": 123.45,
+    "p95": 126.55,
+    "max": 130.41
+  }
+}

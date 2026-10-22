@@ -13,7 +13,7 @@ segmentation_camera.csv: 317 rows          median      p95      max   (ms)
   total_ms                                 55.82    98.89   541.19
 
 segmentation_lidar.csv: 203 rows
-  receive_delay_ms                        570.04   619.55   719.27   (bag replay adds ~124 ms inherent sensor lag)
+  receive_delay_ms                        570.04   619.55   719.27   (~123 ms sensor lag recorded in the bag + ~447 ms queueing; see end)
   decode_ms                                 1.40     2.58     6.64
   range_proj_ms                            23.20    45.48    53.57
   lidar_gpu_ms                             47.33    75.78   480.13
@@ -39,3 +39,12 @@ bev_tracker.csv: 203 rows
 
 planner.csv: 203 rows — mode SAFE_STOP (3) in all rows, cmd_v 0 in all rows (output age > 0.25 s)
 outputs bag: 203 grids, 203 obstacle arrays, 428 health messages, 203 cmd_vel (24 MiB)
+
+# Bound in force: max_output_age_s = 0.25 in the generated params (the value ADR-0005 proposes), not the 150 ms
+# of contract v0.2. At ~720 ms age the planner would have stopped under either bound.
+# receive_delay split (added 2026-10-22): the nodes run on the bag's /clock, so receive_delay = recorded lag
+# (bag log time - header.stamp) + time the scan waited for our node. Recorded lag over the clip's 319 scans:
+# median 123.45 ms, p95 126.55, max 130.41 (clip_00001_s100-400_lidar_lag.json). It varies by < 8 ms, so the
+# median queueing is ~570 - 123 = ~447 ms: processing (150 ms per scan) is slower than the 100 ms input period.
+# /clock runs at 40 Hz, so sim time under-reads by up to 25 ms. A per-scan split needs this run's CSV
+# (pipeline/split_receive_delay.py --csv).

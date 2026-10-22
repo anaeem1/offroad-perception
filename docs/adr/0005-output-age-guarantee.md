@@ -19,12 +19,25 @@
 ## Decision (proposed)
 Option 1. Contract v1.0 states: `header.stamp` is the sweep-start time of the source scan, and outputs are
 no older than 250 ms after `header.stamp` in NOMINAL. `PerceptionHealth.end_to_end_latency_ms`
-reports publish time minus `header.stamp`, and exceeding 250 ms counts as DEGRADED.
+reports publish time minus `header.stamp`. Exceeding 250 ms forces MODE_SAFE_STOP, as implemented in
+`health_monitor_node.cpp` and assumed by hazard H-2. (The first draft said "DEGRADED", which the health
+message has no mode for.)
 ## Consequences
 - Consumers (planner) must forward-predict obstacles by the observed age; at 5 m/s, 250 ms is 1.25 m.
   The planner's safety margins must be sized for this. That is the point of making it explicit.
 - Latency reporting splits into sensor/driver latency (~127 ms, outside our control on replay) and
   our pipeline latency (the 100 ms budget). Both get measured on the Jetson in week 3.
 - Changing a guarantee is breaking under the contract's versioning rule: the version goes from 0.1 to 1.0.
+## Jetson run 1 (2026-10-19)
+- The deployed params already run the proposed 250 ms bound (health monitor and planner); the contract text
+  still says 150 ms until this ADR is decided.
+- The bound was not what stopped the planner. Output age was ~720 ms, so it held SAFE_STOP for all 203
+  decisions under either bound. Of the 570 ms median receive delay, 123 ms is sensor lag recorded in the
+  bag and ~447 ms is the scan waiting for our node, which processed a scan in 150 ms against a 100 ms period.
+  The bound only matters once the lidar path keeps up with 10 Hz (ADR-0010).
+- The sensor lag on the replayed clip is stable: median 123.45 ms, max 130.41 ms. So under a 150 ms bound,
+  the whole pipeline (receive to publish) would have ~25 ms, which is less than the lidar model alone (49 ms).
 ## Evidence
 - `docs/measurements/bag_00004_inspection.json` → `receive_minus_stamp_ms`, `pointcloud.fields` (per-point `t`).
+- `docs/measurements/clip_00001_s100-400_lidar_lag.json` (lag on the replayed clip),
+  `docs/measurements/jetson_replay_run1.txt` (on-device ages).

@@ -6,7 +6,10 @@
   640×1024 FP16, the lidar path took 150 ms per scan against a 100 ms frame period. 203 of 319 scans were
   processed, output was ~720 ms old, and health stayed SAFE_STOP. The two engines share the GPU at
   ~88 % duty (lidar 47 ms + camera 41 ms per 100 ms) and slow each other down.
-- Latency sweep on the same board (`docs/measurements/jetson_latency_sweep.txt`, MAXN, clocks locked):
+- Latency sweep on the same board (`docs/measurements/jetson_latency_sweep.txt`, MAXN, clocks locked; other
+  people's workloads were still running, but single-model times match run 1's in-pipeline GPU times with
+  them stopped). The concurrent rows run two processes, which the GPU time-slices; the runtime uses one
+  process with two streams, so those rows show contention, not runtime numbers:
 
   | Engine | Median GPU time |
   |---|---|
@@ -20,7 +23,8 @@
   | Both at once, DLA + GPU, 480 | lidar 201.9 / camera 36.0 ms |
 ## Options considered
 1. **DLA for SalsaNext** so it runs beside SegFormer. Measured 3× slower alone and ~4× slower concurrently.
-   Several SalsaNext layers fall back to the GPU, and the transitions dominate. Rejected.
+   11 layers are unsupported on DLA (DepthToSpace, Shuffle, ArgMax/TopK, Cast), 20 convs fail DLA
+   validation, and the 16-subgraph-per-core limit is hit. The DLA↔GPU transitions dominate. Rejected.
 2. **INT8 for SegFormer.** Only 10 % faster (transformer: attention and LayerNorm stay in higher
    precision). Not worth the calibration and accuracy risk. Rejected.
 3. **SegFormer at 480×768 FP16.** 2.0× faster; costs 1.7 test mIoU (42.75 → 41.08,
@@ -29,7 +33,8 @@
    129 val scans with ONNX Runtime (MinMax, symmetric, per-channel, Conv only, float biases). Entropy
    calibration ran out of memory at 96 and 180 GB. TensorRT builds a QDQ model directly as INT8, and
    ONNX Runtime runs the same file on the server, so the accuracy cost is measured before deployment.
-5. Higher TensorRT builder optimization level: killed out of memory on the 8 GB board.
+5. Higher TensorRT builder optimization level (5): the build was killed by the out-of-memory killer on the
+   8 GB board.
 ## Decision
 Option 3: SegFormer 480×768 FP16. SalsaNext stays **FP16**: option 4 failed its accuracy check. With
 MinMax calibration over all Conv layers, lidar test mIoU fell from 41.68 to **16.39**, and only 60 % of

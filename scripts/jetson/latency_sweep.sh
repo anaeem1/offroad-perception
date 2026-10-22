@@ -38,7 +38,7 @@ run segformer640_int8_bound segformer_b0_640x1024_op17.onnx --fp16 --int8
 echo "-- DLA placement (layers that fell back to GPU)"
 grep -E "Layer\(|falling back|not supported on DLA|DLA Layers|GPU Layers" "$M/sweep_salsanext_dla_fp16.log" | head -15
 
-echo; echo "== concurrent: both models at once (as in the runtime)"
+echo; echo "== concurrent: both models at once (two processes = two CUDA contexts)"
 conc() {  # name lidar_engine camera_engine
   local name="$1"
   "$TRTEXEC" --loadEngine="$M/$2" $TIMING ${4:-} > "$M/conc_${name}_lidar.log" 2>&1 &
