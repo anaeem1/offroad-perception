@@ -3,7 +3,10 @@
 //   1. cost 255 (UNKNOWN) is never free: it blocks the corridor like a lethal cell
 //   2. obstacles count only above an existence_probability gate; COASTING tracks get a wider margin
 //   3. MODE_SAFE_STOP (or stale / missing output) => zero speed; MODE_LIDAR_ONLY => speed cap
+//   4. Watchdog: with no grid for grid_timeout_s (e.g. lidar loss: no grids at all) or in SAFE_STOP, command
+//      zero at 10 Hz. Without it, the last command would stand, since decisions are made per grid.
 // Output: a speed command along +x in base_link (/planner/cmd_vel) and a CSV of every decision.
+#include <cmath>
 #include <mutex>
 
 #include <geometry_msgs/msg/twist.hpp>
@@ -32,6 +35,7 @@ class PlannerConsumerNode : public rclcpp::Node {
     gain_ = declare_parameter<double>("speed_gain", 0.5);
     existence_gate_ = declare_parameter<double>("existence_gate", 0.5);
     max_age_ = declare_parameter<double>("max_output_age_s", 0.25);
+    grid_timeout_ = declare_parameter<double>("grid_timeout_s", 0.25);
     log_.open(declare_parameter<std::string>("decision_csv", ""),
               "stamp,age_at_consume_ms,mode,d_blocked_m,d_obstacle_m,speed_factor,cmd_v,reason");
     cmd_pub_ = create_publisher<geometry_msgs::msg::Twist>("/planner/cmd_vel", 10);
@@ -41,6 +45,7 @@ class PlannerConsumerNode : public rclcpp::Node {
         [this](perception_msgs::msg::ObstacleArray::ConstSharedPtr m) { std::lock_guard<std::mutex> lk(mu_); obstacles_ = m; });
     grid_sub_ = create_subscription<perception_msgs::msg::TraversabilityGrid>("/perception/traversability", 5,
         [this](perception_msgs::msg::TraversabilityGrid::ConstSharedPtr m) { on_grid(m); });
+    timer_ = create_wall_timer(std::chrono::milliseconds(100), [this] { watchdog(); });
   }
 
  private:
@@ -87,9 +92,28 @@ class PlannerConsumerNode : public rclcpp::Node {
     cmd.linear.x = v;
     cmd_pub_->publish(cmd);
     log_.row(std::to_string(stamp), age_ms, static_cast<int>(mode), d_blocked, d_obstacle, factor, v, reason);
+    last_grid_rx_ = now().seconds();
+    last_stamp_ = stamp;
+    last_v_ = v;
   }
 
-  double v_max_, lidar_only_factor_, half_width_, lookahead_, corridor_start_, stop_dist_, gain_, existence_gate_, max_age_;
+  // Same (default) callback group as on_grid, so the two never run concurrently.
+  void watchdog() {
+    const double t = now().seconds();
+    uint8_t mode;
+    { std::lock_guard<std::mutex> lk(mu_); mode = mode_; }
+    const bool no_output = last_grid_rx_ < 0 || t - last_grid_rx_ > grid_timeout_;
+    if (!no_output && mode != PerceptionHealth::MODE_SAFE_STOP) return;
+    cmd_pub_->publish(geometry_msgs::msg::Twist{});
+    if (last_v_ > 0)  // log the override once; the row's age is that of the last grid the vehicle acted on
+      log_.row(std::to_string(last_stamp_), (t - last_stamp_) * 1e3, static_cast<int>(mode), std::nan(""), std::nan(""),
+               0.0, 0.0, no_output ? "watchdog: no output" : "watchdog: SAFE_STOP");
+    last_v_ = 0;
+  }
+
+  double v_max_, lidar_only_factor_, half_width_, lookahead_, corridor_start_, stop_dist_, gain_, existence_gate_, max_age_,
+      grid_timeout_;
+  double last_grid_rx_{-1}, last_stamp_{0}, last_v_{0};
   uint8_t mode_{PerceptionHealth::MODE_SAFE_STOP};
   bool have_health_{false};
   perception_msgs::msg::ObstacleArray::ConstSharedPtr obstacles_;
@@ -99,6 +123,7 @@ class PlannerConsumerNode : public rclcpp::Node {
   rclcpp::Subscription<PerceptionHealth>::SharedPtr health_sub_;
   rclcpp::Subscription<perception_msgs::msg::ObstacleArray>::SharedPtr obs_sub_;
   rclcpp::Subscription<perception_msgs::msg::TraversabilityGrid>::SharedPtr grid_sub_;
+  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 }  // namespace offroad

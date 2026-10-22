@@ -94,6 +94,32 @@ try:
 except Exception as e:
     print(f"\nreceive delay split unavailable: {e!r}")
 
+# Health as recorded: time in each mode, and every lidar status change with the lidar data age at that
+# moment (for a dropout clip, the age at FAILED is the detection delay; hazard H-6).
+print("\nhealth (as recorded):")
+try:
+    import rosbag2_py
+    from rclpy.serialization import deserialize_message
+    from perception_msgs.msg import PerceptionHealth
+    r = rosbag2_py.SequentialReader()
+    r.open(rosbag2_py.StorageOptions(uri=os.path.join(out, "outputs"), storage_id="mcap"), rosbag2_py.ConverterOptions("cdr", "cdr"))
+    r.set_filter(rosbag2_py.StorageFilter(topics=["/perception/health"]))
+    MODES, STATUS = ["NOMINAL", "LIDAR_ONLY", "CAMERA_ONLY", "SAFE_STOP"], ["OK", "DEGRADED", "FAILED"]
+    modes, prev, n, changes = Counter(), None, 0, 0
+    while r.has_next():
+        _, data, t = r.read_next()
+        h = deserialize_message(data, PerceptionHealth)
+        n += 1
+        modes[MODES[h.mode]] += 1
+        lidar = next((s for s in h.sensors if s.sensor_id == "os1_lidar"), None)
+        if lidar and lidar.status != prev and changes < 30:
+            changes += 1
+            print(f"  health #{n}: lidar {STATUS[lidar.status]} (data age {lidar.data_age_ms:.0f} ms, '{lidar.reason}'), mode {MODES[h.mode]}")
+            prev = lidar.status
+    print(f"  {n} messages; " + ", ".join(f"{k} {v}" for k, v in modes.most_common()))
+except Exception as e:
+    print(f"  unavailable: {e!r}")
+
 path = os.path.join(out, "planner.csv")
 if os.path.exists(path):
     rows = list(csv.DictReader(open(path)))

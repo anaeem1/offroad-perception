@@ -88,3 +88,4 @@ planner_consumer:
     speed_gain: 0.5
     existence_gate: 0.5
     max_output_age_s: 0.25
+    grid_timeout_s: 0.25

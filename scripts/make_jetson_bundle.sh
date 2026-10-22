@@ -8,7 +8,7 @@ ONNX="$OFFROAD_DATA_ROOT/onnx"
 STAGE="$(mktemp -d)"; B="$STAGE/$NAME"
 mkdir -p "$B/ws/src" "$B/onnx"
 cp -r src/perception_msgs src/offroad_perception "$B/ws/src/"
-cp scripts/jetson/replay_on_jetson.sh "$B/"
+cp scripts/jetson/replay_on_jetson.sh scripts/jetson/make_dropout_clip.py "$B/"
 for f in salsanext_rellis_op17.onnx segformer_b0_480x768_op17.onnx; do  # ADR-0010 deployment models
   cp "$ONNX/$f" "$B/onnx/"
 done

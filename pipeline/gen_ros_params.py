@@ -40,7 +40,7 @@ def main():
         "planner_consumer": {"ros__parameters": {"v_max": 2.0, "lidar_only_speed_factor": 0.5, "corridor_half_width_m": 0.9,
                                                  "corridor_start_m": float(ego["x"][1]), "lookahead_m": 15.0,
                                                  "stop_distance_m": 2.0, "speed_gain": 0.5, "existence_gate": 0.5,
-                                                 "max_output_age_s": 0.25}},
+                                                 "max_output_age_s": 0.25, "grid_timeout_s": 0.25}},
     }
     out = REPO / f"src/offroad_perception/config/perception_{args.seq}.yaml"
     out.parent.mkdir(parents=True, exist_ok=True)

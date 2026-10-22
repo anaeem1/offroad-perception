@@ -41,6 +41,10 @@
 7. The camera covers only a 37.7° forward wedge (ADR-0002). In `MODE_CAMERA_ONLY`, every cell outside
    that wedge is UNKNOWN (255). The mode means a narrow field of view, not just reduced range.
    The current implementation never enters it: without lidar it reports `MODE_SAFE_STOP` (`docs/odd.md`).
+8. **Missing output means stop** (clarified 2026-10-22). Lidar loss produces no grids at all, only health
+   messages, so a consumer that decides once per grid would never see the stop. Consumers must command a
+   stop when no grid has arrived for 250 ms, independent of the last health message. The reference
+   consumer (`planner_consumer_node.cpp`) does this with a 10 Hz watchdog.
 
 ## Versioning
 Breaking changes bump the major version and get an ADR. Additive fields bump the minor version.
