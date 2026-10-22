@@ -76,16 +76,19 @@ RELLIS-3D's lidar labels mark ground where people walked as `person` (ADR-0009).
 ## Latency budget (target, Jetson Orin NX, 10 Hz lidar)
 | Stage | Budget (ms) | Measured (ms) |
 |---|---|---|
-| Camera seg | 30 | 35.0 * |
-| Lidar seg | 20 | **44.2** * |
+| Camera seg (SegFormer-B0 480×768 FP16) | 30 | 20.0 * |
+| Lidar seg (SalsaNext FP16) | 20 | **49.1** * |
 | Fusion + BEV | 15 | — |
 | Clustering + tracking | 10 | — |
 | Transport + slack | 25 | — |
 | **End-to-end** | **100** | — |
 
-\* Preliminary: TensorRT FP16 GPU compute median, MAXN, with other workloads running on the board
-([jetson_trt_models.txt](docs/measurements/jetson_trt_models.txt)). Both models are over budget, and
-lidar seg by 2.2×. A quiet-board re-measure is pending.
+\* TensorRT GPU compute median per model, measured alone (MAXN, clocks locked;
+[jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)). The deployment configuration is
+ADR-0010. Lidar seg is 2.5× over its stage budget: INT8 is the remaining lever and has not yet passed its
+accuracy check. The other rows are filled from the second on-device replay. The first replay, with a
+640×1024 camera model, took 150 ms per scan and could not keep up with the sensor
+([jetson_replay_run1.txt](docs/measurements/jetson_replay_run1.txt)).
 
 ## Repo layout
 - `src/perception_msgs/` — the contract (ROS 2 interfaces)
