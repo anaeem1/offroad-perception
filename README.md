@@ -213,6 +213,13 @@ scripts/make_jetson_bundle.sh jetson_bundle6                                    
 Data download and bag conversion: [scripts/download_rellis.sh](scripts/download_rellis.sh),
 [scripts/convert_bags.sh](scripts/convert_bags.sh). Jetson setup: [docs/jetson_setup.md](docs/jetson_setup.md).
 
+## Credits
+- **Data:** RELLIS-3D, P. Jiang, P. Osteen, M. Wigness, S. Saripalli, "RELLIS-3D Dataset: Data, Benchmarks and
+  Analysis", ICRA 2021 ([github.com/unmannedlab/RELLIS-3D](https://github.com/unmannedlab/RELLIS-3D)); used under its license.
+- **Lidar model:** SalsaNext, T. Cortinhal, G. Tzelepis, E. Aksoy, 2020; network code vendored in
+  [ml/lidar/salsanext.py](ml/lidar/salsanext.py), weights released with RELLIS-3D.
+- **Camera model:** SegFormer, E. Xie et al., NeurIPS 2021; B0 backbone via Hugging Face `transformers`, fine-tuned here.
+
 ## Repo layout
 - `src/perception_msgs/`: the contract (ROS 2 interfaces); `src/offroad_perception/`: C++ core, ROS 2 nodes, parity tests
 - `pipeline/`: Python reference pipeline, evaluation, fault injection, rendering; `ml/`: training, evaluation, ONNX export
