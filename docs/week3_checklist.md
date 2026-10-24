@@ -31,10 +31,18 @@ planner consumes the contract. The Jetson is reached through its own Claude agen
 - [ ] Run 2 (bundle 6): does the lidar path keep up with 10 Hz? Output age against the ADR-0005 bound
 
 ## Exit criterion
-- [ ] README latency table filled from run 2
-- [ ] Planner consumes the contract: share of decisions with cmd_v > 0, and why the others stopped
+- [ ] README latency table: model rows measured on the board; end-to-end row waits for run 2 (ADR-0012)
+- [x] Planner consumes the contract, offline: moves in 84 % of test scans; stops for UNKNOWN 10 %, lethal 6 %
+      (`pipeline/planner.py`, `robustness_00001_test.json`). On the board: run 2
 - [ ] Jetson outputs vs the Python reference on the same clip (`compare_jetson_outputs.py`)
 - [ ] Fault injection H-6: lidar dropped for 3 s → FAILED and SAFE_STOP within ~250–350 ms, then recovery
+
+## Added 2026-10-24 (server first, ADR-0012)
+- [x] Fault-injection study: 18 replays of the test block (`robustness_00001_test.json`, `docs/figures/robustness.png`);
+      hazards H-14/H-15 and ODD degradation limits from it
+- [x] Demo video of the full test block (`pipeline/render_demo.py`; GIF in the README)
+- [x] README rewritten as an architecture document
+- [x] ONNX Runtime GPU fix: replays had run their models on the CPU
 
 ## Owner decisions
 - [ ] ADR-0005: output-age bound 150 → 250 ms (the deployed params already use 250)

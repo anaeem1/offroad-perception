@@ -77,30 +77,30 @@ Week 2 is a Python reference pipeline on the server (also the golden reference f
 week 3 is the C++/TensorRT runtime on the Jetson, including the C++ tracker, the planner consumer, and
 bringing both models under budget. The Oct 26 feature stop is unchanged.
 
+**Re-plan (Oct 24, ADR-0012):** owner decision: finish on the server first (robustness study, demo video,
+README as an architecture document); the second Jetson run moves after the write-up. The deadline stands.
+
 ## Current state
-*Updated 2026-10-22.*
-- **Weeks 1–2 complete.** Week 2 (00001 test): wedge mIoU lidar 30.9 → fused 34.5 (≥10k-pt classes 53.7 → 59.1);
-  lethal cells 88.8 % lethal / 1.7 % free; tracking MOTA 0.59, IDF1 0.56, 41 ID switches. C++ core matches the
-  Python reference in all 9 stages (`cpp_parity.json`).
-- **Week 3 (checklist: `docs/week3_checklist.md`).** Run 1 on the Jetson (`jetson_replay_run1.txt`): builds and
-  runs, but the lidar path took 150 ms per scan; 203 of 319 scans, age ~720 ms, SAFE_STOP throughout. Diagnosis:
-  receive delay 570 ms = 123 ms sensor lag recorded in the bag + ~447 ms queueing (subscription depth 5).
-  Fixes since: ADR-0010 (SegFormer 480×768 FP16 20 ms; SalsaNext FP16 49 ms, a recorded overrun of its 20 ms
-  budget), CPU stage rework, ADR-0011 (sensor queues depth 1, newest wins; odometry in its own callback group),
-  planner watchdog (contract rule 8: stop when grids stop; found while designing the H-6 test).
-- **INT8 lidar closed:** 10 calibration variants, best 38.72 vs 41.44 FP32 (bar ≤ 2 mIoU loss), vehicle IoU
-  22.0 → 15.2 (ADR-0010). DLA and SegFormer INT8 rejected too. No model lever left; accept the overrun.
-- **Waiting on the Jetson:** `CAT/jetson_bundle6.tar.gz` (commit b3d93f0; supersedes bundle 5; no bundle 5
-  results reported): run 2 with the deployed config, timing of the best INT8 engine, run 3 = lidar dropped for 3 s (H-6).
-  Results come back as a tarball. Then: `split_receive_delay.py`, `compare_jetson_outputs.py`, README latency
-  table, `jetson_replay_run2.txt`, H-6 evidence.
-- Records corrected 2026-10-22 after the board agent's review: the latency sweep ran with nomad_node and Isaac
-  ROS still running (single-model times still match run 1); its concurrent rows are two processes, not the
-  runtime's one-process/two-stream setup.
-- **Open / needs a decision:** ADR-0005 output-age bound 150 → 250 ms (the deployed params already use 250;
-  the contract text still says 150). Optional private GitHub repo (the Jetson would need a deploy key).
-- Week 4 (Oct 26–29): ODD and hazard analysis are drafted (update with run 2/3 evidence); README as an
-  architecture document; demo video. Feature stop Oct 26.
+*Updated 2026-10-24.*
+- **Weeks 1–2 complete; week 3 per ADR-0012.** Held-out 00001 test: wedge mIoU 30.9 → 34.5 fused; lethal cells
+  88.8 % lethal / 1.7 % free; MOTA 0.59, IDF1 0.56, 41 IDSW; contract-following planner (offline port,
+  `pipeline/planner.py`) moves in 84 % of scans. C++ core = Python reference in all 9 stages.
+- **Robustness study done** (`robustness_00001_test.json`, `docs/figures/robustness.png`, 18 runs via
+  `scripts/slurm/robustness.sbatch`, faults in `pipeline/faults.py`): lidar faults raise lethal-reported-free
+  1.67 % → 3.14 % (50 % returns lost) / 4.60 % (32 rings) while the planner moves as often and the health
+  density floor (0.2) fires only at ≥ 75 % loss → hazard H-14 (RPN 60). Camera faults only remove the camera's
+  in-view gain (4° drift: 34.5 → 30.9 = lidar-only); grid and tracking unchanged.
+- **Demo:** `<data root>/videos/demo_00001_test.mp4` (105 s, 1080p, 33 MB; not in git), GIF + still in
+  `docs/figures/`. Render data: `<data root>/runs/replay_00001_demo/render/`.
+- **README rewritten** as the architecture document (at a glance, architecture, contract, results, robustness,
+  safety case, deployment status, findings, decision log, limitations, reproduce).
+- **Server env fix:** `env/activate.sh` puts cuDNN 9 on LD_LIBRARY_PATH; before Oct 24 every replay ran ORT on
+  the CPU. Full test-block replay now ~5 min on GPU with `--default-only`.
+- **Jetson (deferred, ADR-0012):** run 1 measured (150 ms/scan, SAFE_STOP held). `CAT/jetson_bundle6.tar.gz`
+  (commit b3d93f0) is ready: run 2 + INT8 timing + lidar-dropout test (H-6). INT8 lidar closed (ADR-0010).
+- **Open / needs the owner:** public link for the application (GitHub repo; video hosting); ADR-0005
+  (output-age bound 150 → 250 ms; deployed params use 250).
+- **Next:** hosting + links in the README; week 4 polish (Oct 26–29); Jetson run 2 when the owner has board time.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
