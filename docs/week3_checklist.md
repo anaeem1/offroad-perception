@@ -45,5 +45,5 @@ planner consumes the contract. The Jetson is reached through its own Claude agen
 - [x] ONNX Runtime GPU fix: replays had run their models on the CPU
 
 ## Owner decisions
-- [ ] ADR-0005: output-age bound 150 → 250 ms (the deployed params already use 250)
+- [x] ADR-0005 accepted 2026-10-24: 250 ms from the sweep-start stamp; contract v1.0
 - [ ] Optional: private GitHub repo (the Jetson would need a deploy key or token)

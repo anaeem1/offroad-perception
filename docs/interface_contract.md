@@ -1,4 +1,4 @@
-# Perception Interface Contract v0.2
+# Perception Interface Contract v1.0
 
 ## Frames
 - `base_link`: machine body frame (REP-103: x forward, y left, z up). All outputs are in this frame.
@@ -11,7 +11,9 @@
   Ouster driver used here, that is the start of the 100 ms sweep (measured; per-point `t` spans the sweep).
 - Camera frames are matched to the **time the lidar swept the camera's field of view** (t_wedge: median
   measurement time of the lidar points that project into the image), within ±50 ms. Frames outside the
-  window are dropped and counted as camera DEGRADED. *Clarified 2026-10-18:* v0.1 said "within ±50 ms of
+  window are not fused: those points keep lidar-only semantics and their cells carry no camera flag
+  (`source_flags` 2). The health monitor reports the camera DEGRADED only when frames stop arriving
+  (> 150 ms). *Clarified 2026-10-18:* v0.1 said "within ±50 ms of
   the lidar scan", i.e. of `header.stamp`. But the sweep starts behind the machine, so the lidar passes
   the camera's view ~55–60 ms after the stamp. Measured on bag 00001: the best-matching frame is 6–10 ms
   (median) from t_wedge and 100 % of scans have one within the window, but **0 %** are within ±50 ms of
@@ -19,10 +21,10 @@
   (`docs/measurements/camera_matching_00001.json`). The sensors are not hardware synchronized, so the
   offset changes between recordings. Each pair is motion-compensated with odometry instead of assuming a
   constant offset.
-- Consumers may assume outputs are no older than 150 ms when `/perception/health.mode == NOMINAL`.
-  **Under review (ADR-0005, proposed):** lidar scans arrive a median 127 ms after their stamp, so this
-  bound cannot hold. The proposed bound is 250 ms, and the deployed parameters already enforce it (output
-  older than the bound forces `MODE_SAFE_STOP`).
+- **Output age (v1.0, ADR-0005):** consumers may assume outputs are no older than **250 ms after
+  `header.stamp`** when `/perception/health.mode == NOMINAL`. Older output forces `MODE_SAFE_STOP`.
+  `PerceptionHealth.end_to_end_latency_ms` reports publish time minus `header.stamp`. v0.x promised
+  150 ms, which cannot hold: the scan alone arrives a median 123–127 ms after its sweep-start stamp.
 - Output rate: one output per processed scan, nominally 10 Hz. *Clarified 2026-10-22 (ADR-0011):* when
   processing is slower than the sensor, the stack skips scans instead of queueing them, so outputs stay as
   fresh as possible and the rate drops. Consumers must not assume a fixed rate; they use `header.stamp`.
@@ -48,6 +50,9 @@
 
 ## Versioning
 Breaking changes bump the major version and get an ADR. Additive fields bump the minor version.
+- v1.0 (2026-10-24): output-age guarantee 150 → 250 ms after the sweep-start stamp (breaking: weakens a
+  consumer guarantee; ADR-0005). Clarified the output rate (ADR-0011) and "missing output means stop" (rule 8).
+  No message definition changed.
 - v0.2 (2026-10-18): grid memory semantics and `source_flags` value 4 (additive, ADR-0008); camera matching
   rule clarified (match to the lidar's sweep of the camera FOV).
 
@@ -56,7 +61,7 @@ Breaking changes bump the major version and get an ADR. Additive fields bump the
 |---|---|
 | Grid extent and resolution | **Resolved:** 40 m × 40 m @ 0.2 m (ADR-0007), with 5 s static memory (ADR-0008). |
 | RELLIS-3D class → traversability cost | **Resolved (v0.1):** `config/class_costs.yaml`, explained in `docs/traversability_cost_table.md`. Costs are judgment-based and get revisited with week 2 data. |
-| Output age guarantee | **Open:** ADR-0005 (proposed), needs an owner decision. |
+| Output age guarantee | **Resolved (v1.0):** 250 ms after the sweep-start stamp in NOMINAL (ADR-0005, accepted 2026-10-24). |
 | Generic obstacles outside the camera wedge | **Resolved:** height-above-ground check raises cells to lethal (ADR-0003, ADR-0007). |
 | ~0.5° pitch residual in the camera-lidar extrinsic | **Resolved:** −0.5° correction adopted; +2.2 wedge mIoU on held-out test (`docs/measurements/fusion_00001.json`). |
 | Camera debayering (`bayer_rggb8`) | **Resolved:** OpenCV `BayerBG2RGB` (mean error 3 vs the dataset JPEGs; `BayerRG2RGB` gives 22). |

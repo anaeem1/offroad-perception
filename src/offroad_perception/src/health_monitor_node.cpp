@@ -24,7 +24,7 @@ class HealthMonitorNode : public rclcpp::Node {
   explicit HealthMonitorNode(const rclcpp::NodeOptions& opts) : Node("health_monitor", opts) {
     timeout_ = declare_parameter<double>("sensor_timeout_s", 0.25);
     degraded_age_ = declare_parameter<double>("camera_degraded_age_s", 0.15);
-    max_output_age_ = declare_parameter<double>("max_output_age_s", 0.25);  // ADR-0005 (proposed bound)
+    max_output_age_ = declare_parameter<double>("max_output_age_s", 0.25);  // ADR-0005, contract v1.0
     min_valid_fraction_ = declare_parameter<double>("lidar_min_valid_fraction", 0.2);
     pub_ = create_publisher<PerceptionHealth>("/perception/health", 10);
     lidar_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>("/os1_cloud_node/points", rclcpp::SensorDataQoS(),

@@ -98,8 +98,10 @@ README as an architecture document); the second Jetson run moves after the write
   the CPU. Full test-block replay now ~5 min on GPU with `--default-only`.
 - **Jetson (deferred, ADR-0012):** run 1 measured (150 ms/scan, SAFE_STOP held). `CAT/jetson_bundle6.tar.gz`
   (commit b3d93f0) is ready: run 2 + INT8 timing + lidar-dropout test (H-6). INT8 lidar closed (ADR-0010).
-- **Open / needs the owner:** public link for the application (GitHub repo; video hosting); ADR-0005
-  (output-age bound 150 → 250 ms; deployed params use 250).
+- **ADR-0005 accepted (2026-10-24):** output age ≤ 250 ms from the sweep-start stamp; contract v1.0,
+  `perception_msgs` 1.0.0 (no message definition changed).
+- **Open / needs the owner:** GitHub repo (owner creates it; push via a deploy key generated on the server);
+  YouTube upload of the demo video (owner), then the link goes into the README.
 - **Next:** hosting + links in the README; week 4 polish (Oct 26–29); Jetson run 2 when the owner has board time.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.

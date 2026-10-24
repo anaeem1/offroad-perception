@@ -47,7 +47,7 @@ flowchart LR
   FUSE --> BEV[BEV traversability grid<br/>40 m @ 0.2 m + 5 s memory]
   FUSE --> CLU[Obstacle clustering]
   CLU --> TRK[Tracker<br/>Kalman + Hungarian]
-  BEV --> C[(Contract<br/>perception_msgs v0.2)]
+  BEV --> C[(Contract<br/>perception_msgs v1.0)]
   TRK --> C
   HM[Health monitor<br/>ages, density, modes] --> C
   C --> PLN[Planner consumer<br/>enforces the contract]
@@ -80,7 +80,8 @@ Rules a consumer must follow (each one exists because of a failure it prevents):
 1. `cost == 255` is UNKNOWN and is never free space.
 2. Obstacles count only above an existence-probability gate; COASTING tracks are predictions only.
 3. `MODE_SAFE_STOP` overrides everything.
-4. `header.stamp` is the lidar sweep start, never the publish time; consumers predict forward by the observed age.
+4. `header.stamp` is the lidar sweep start, never the publish time. Output is at most 250 ms old in NOMINAL;
+   consumers predict forward by the observed age ([ADR-0005](docs/adr/0005-output-age-guarantee.md)).
 5. **Missing output means stop.** Lidar loss produces no grids at all, so a consumer that only acts per grid
    would keep its last command. The reference planner has a watchdog for this.
 
@@ -182,7 +183,7 @@ Each was found in the data, not assumed, and each is recorded where it changed s
 | [0002](docs/adr/0002-late-fusion.md) | Late fusion; lidar primary, camera refines its 37.7° view |
 | [0003](docs/adr/0003-lidar-model-salsanext.md) | SalsaNext, released RELLIS-3D weights |
 | [0004](docs/adr/0004-camera-model-segformer-b0.md) | SegFormer-B0 fine-tuned on RELLIS-3D |
-| [0005](docs/adr/0005-output-age-guarantee.md) | Output age bound must include the 100 ms sweep (150 → 250 ms, proposed) |
+| [0005](docs/adr/0005-output-age-guarantee.md) | Output age bound includes the 100 ms sweep: 250 ms from the sweep-start stamp (contract v1.0) |
 | [0006](docs/adr/0006-onnx-opset-17.md) | ONNX opset 17 for TensorRT 8.6 |
 | [0007](docs/adr/0007-bev-grid-parameters.md) | Grid 40 m × 40 m at 0.2 m, from measured coverage |
 | [0008](docs/adr/0008-grid-memory.md) | 5 s static grid memory for the blind near field |

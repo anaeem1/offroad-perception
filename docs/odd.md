@@ -30,7 +30,7 @@ be safe; the health monitor and contract tell the consumer when it is degraded (
 | Perception range | Useful to **~15 m**; cells beyond are mostly UNKNOWN | `grid_coverage_00001.json`, ADR-0007 |
 | Near field | Lidar blind within ~3 m; covered by **5 s static grid memory** while moving | ADR-0008 |
 | Camera coverage | Semantics refined only inside the forward 37.7° wedge; elsewhere lidar-only | ADR-0002 |
-| Output age | Sweep-start stamp to output; bound under review: 150 ms (v0.2) vs 250 ms proposed | ADR-0005 |
+| Output age | ≤ 250 ms from the sweep-start stamp in NOMINAL; older output forces SAFE_STOP | ADR-0005, contract v1.0 |
 | Obstacle classes | Person, vehicle, pole, log, barrier, generic object (height check) | `config/class_costs.yaml`, ADR-0003 |
 
 ## Sensor degradation (measured by fault injection on held-out data)

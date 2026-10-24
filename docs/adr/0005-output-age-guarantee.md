@@ -1,5 +1,5 @@
 # ADR-0005: Output age guarantee must account for lidar sweep time
-- **Status:** proposed (needs owner decision: it weakens a consumer guarantee in contract v0.1)
+- **Status:** accepted (owner decision, 2026-10-24): contract v1.0
 - **Date:** 2026-10-06
 ## Context
 - Contract v0.1: `header.stamp` = lidar measurement time, and "consumers may assume outputs are no
@@ -16,14 +16,15 @@
    longer matches when most points were measured. It hides latency instead of removing it.
 3. **Keep 150 ms; measure age from message arrival instead of the stamp.** Misleading: consumers care
    about the age of the world state, not of our processing.
-## Decision (proposed)
+## Decision
 Option 1. Contract v1.0 states: `header.stamp` is the sweep-start time of the source scan, and outputs are
 no older than 250 ms after `header.stamp` in NOMINAL. `PerceptionHealth.end_to_end_latency_ms`
 reports publish time minus `header.stamp`. Exceeding 250 ms forces MODE_SAFE_STOP, as implemented in
 `health_monitor_node.cpp` and assumed by hazard H-2. (The first draft said "DEGRADED", which the health
 message has no mode for.)
 ## Consequences
-- Consumers (planner) must forward-predict obstacles by the observed age; at 5 m/s, 250 ms is 1.25 m.
+- Consumers (planner) must forward-predict obstacles by the observed age; at the ODD's 2 m/s, 250 ms is 0.5 m
+  (1.25 m at 5 m/s).
   The planner's safety margins must be sized for this. That is the point of making it explicit.
 - Latency reporting splits into sensor/driver latency (~127 ms, outside our control on replay) and
   our pipeline latency (the 100 ms budget). Both get measured on the Jetson in week 3.
