@@ -1,0 +1,661 @@
+{
+  "date": "2026-10-24",
+  "seq": "00001",
+  "scans": "0:1047 (test block)",
+  "method": "faults injected into the replayed sensor data (pipeline/faults.py); ground truth from the clean data; same models, fusion, grid (5 s memory), tracker and offline planner as the baseline",
+  "families": {
+    "lidar_drop": {
+      "label": "Lidar returns lost",
+      "x": "fraction of returns lost",
+      "runs": [
+        [
+          "baseline",
+          0
+        ],
+        [
+          "drop25",
+          0.25
+        ],
+        [
+          "drop50",
+          0.5
+        ],
+        [
+          "drop75",
+          0.75
+        ],
+        [
+          "drop90",
+          0.9
+        ]
+      ]
+    },
+    "beams": {
+      "label": "Lidar rings",
+      "x": "rings kept of 64",
+      "runs": [
+        [
+          "baseline",
+          64
+        ],
+        [
+          "beams32",
+          32
+        ],
+        [
+          "beams16",
+          16
+        ]
+      ]
+    },
+    "range_noise": {
+      "label": "Lidar range noise",
+      "x": "sigma (cm)",
+      "runs": [
+        [
+          "baseline",
+          0
+        ],
+        [
+          "noise03",
+          0.03
+        ],
+        [
+          "noise10",
+          0.1
+        ],
+        [
+          "noise30",
+          0.3
+        ]
+      ]
+    },
+    "cam_offset": {
+      "label": "Camera clock offset",
+      "x": "stamp offset (ms)",
+      "runs": [
+        [
+          "baseline",
+          0
+        ],
+        [
+          "camoff050",
+          50
+        ],
+        [
+          "camoff100",
+          100
+        ],
+        [
+          "camoff200",
+          200
+        ]
+      ]
+    },
+    "cam_yaw": {
+      "label": "Camera extrinsic drift",
+      "x": "yaw error (\u00b0)",
+      "runs": [
+        [
+          "baseline",
+          0
+        ],
+        [
+          "camyaw1",
+          1
+        ],
+        [
+          "camyaw2",
+          2
+        ],
+        [
+          "camyaw4",
+          4
+        ]
+      ]
+    },
+    "cam_gain": {
+      "label": "Camera exposure",
+      "x": "brightness gain",
+      "runs": [
+        [
+          "camgain025",
+          0.25
+        ],
+        [
+          "baseline",
+          1
+        ],
+        [
+          "camgain3",
+          3
+        ]
+      ]
+    }
+  },
+  "runs": {
+    "baseline": {
+      "point_miou_all": 29.85,
+      "point_miou_all_ge10k": 39.3,
+      "point_miou_wedge": 34.46,
+      "lethal_predicted_lethal": 0.8882,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {}
+    },
+    "beams16": {
+      "point_miou_all": 19.57,
+      "point_miou_all_ge10k": 29.35,
+      "point_miou_wedge": 31.67,
+      "lethal_predicted_lethal": 0.7942,
+      "lethal_predicted_free": 0.0853,
+      "lethal_predicted_unknown": 0.0449,
+      "free_predicted_lethal": 0.0529,
+      "corridor_unknown_0.9-2m": 0.094,
+      "planner_fraction_moving": 0.829,
+      "planner_reasons": {
+        "ok": 868,
+        "unknown ahead": 111,
+        "lethal ahead": 65,
+        "obstacle ahead": 3
+      },
+      "tracking": {
+        "mota": -0.0777,
+        "idf1": 0.3516,
+        "num_switches": 15,
+        "recall": 0.4636,
+        "precision": 0.464
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.1401,
+      "health_flags_lidar": true,
+      "faults": {
+        "beams": 16.0
+      }
+    },
+    "beams32": {
+      "point_miou_all": 27.74,
+      "point_miou_all_ge10k": 38.47,
+      "point_miou_wedge": 34.84,
+      "lethal_predicted_lethal": 0.8451,
+      "lethal_predicted_free": 0.046,
+      "lethal_predicted_unknown": 0.0148,
+      "free_predicted_lethal": 0.0081,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.872,
+      "planner_reasons": {
+        "ok": 913,
+        "unknown ahead": 106,
+        "lethal ahead": 28
+      },
+      "tracking": {
+        "mota": 0.4958,
+        "idf1": 0.5037,
+        "num_switches": 35,
+        "recall": 0.7254,
+        "precision": 0.7703
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.2803,
+      "health_flags_lidar": false,
+      "faults": {
+        "beams": 32.0
+      }
+    },
+    "camgain025": {
+      "point_miou_all": 29.31,
+      "point_miou_all_ge10k": 39.21,
+      "point_miou_wedge": 33.73,
+      "lethal_predicted_lethal": 0.8877,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_gain": 0.25
+      }
+    },
+    "camgain3": {
+      "point_miou_all": 28.78,
+      "point_miou_all_ge10k": 39.23,
+      "point_miou_wedge": 32.66,
+      "lethal_predicted_lethal": 0.8884,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_gain": 3.0
+      }
+    },
+    "camoff050": {
+      "point_miou_all": 29.53,
+      "point_miou_all_ge10k": 39.33,
+      "point_miou_wedge": 34.06,
+      "lethal_predicted_lethal": 0.8883,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_offset": 0.05
+      }
+    },
+    "camoff100": {
+      "point_miou_all": 29.54,
+      "point_miou_all_ge10k": 39.33,
+      "point_miou_wedge": 34.18,
+      "lethal_predicted_lethal": 0.8883,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_offset": 0.1
+      }
+    },
+    "camoff200": {
+      "point_miou_all": 28.34,
+      "point_miou_all_ge10k": 39.25,
+      "point_miou_wedge": 32.22,
+      "lethal_predicted_lethal": 0.8885,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 0.999,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_offset": 0.2
+      }
+    },
+    "camyaw1": {
+      "point_miou_all": 29.67,
+      "point_miou_all_ge10k": 39.2,
+      "point_miou_wedge": 34.06,
+      "lethal_predicted_lethal": 0.8882,
+      "lethal_predicted_free": 0.0167,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_yaw": 1.0
+      }
+    },
+    "camyaw2": {
+      "point_miou_all": 29.52,
+      "point_miou_all_ge10k": 39.03,
+      "point_miou_wedge": 33.32,
+      "lethal_predicted_lethal": 0.8881,
+      "lethal_predicted_free": 0.0168,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_yaw": 2.0
+      }
+    },
+    "camyaw4": {
+      "point_miou_all": 28.55,
+      "point_miou_all_ge10k": 38.75,
+      "point_miou_wedge": 30.9,
+      "lethal_predicted_lethal": 0.8873,
+      "lethal_predicted_free": 0.0171,
+      "lethal_predicted_unknown": 0.0,
+      "free_predicted_lethal": 0.008,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8367,
+      "planner_reasons": {
+        "ok": 876,
+        "unknown ahead": 106,
+        "lethal ahead": 65
+      },
+      "tracking": {
+        "mota": 0.5894,
+        "idf1": 0.5612,
+        "num_switches": 41,
+        "recall": 0.8197,
+        "precision": 0.7924
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "cam_yaw": 4.0
+      }
+    },
+    "drop25": {
+      "point_miou_all": 30.16,
+      "point_miou_all_ge10k": 39.82,
+      "point_miou_wedge": 34.57,
+      "lethal_predicted_lethal": 0.8811,
+      "lethal_predicted_free": 0.0223,
+      "lethal_predicted_unknown": 0.0034,
+      "free_predicted_lethal": 0.0078,
+      "corridor_unknown_0.9-2m": 0.094,
+      "planner_fraction_moving": 0.85,
+      "planner_reasons": {
+        "ok": 890,
+        "unknown ahead": 106,
+        "lethal ahead": 51
+      },
+      "tracking": {
+        "mota": 0.5811,
+        "idf1": 0.5345,
+        "num_switches": 41,
+        "recall": 0.8068,
+        "precision": 0.7933
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.4214,
+      "health_flags_lidar": false,
+      "faults": {
+        "lidar_drop": 0.25
+      }
+    },
+    "drop50": {
+      "point_miou_all": 29.48,
+      "point_miou_all_ge10k": 39.54,
+      "point_miou_wedge": 34.85,
+      "lethal_predicted_lethal": 0.8642,
+      "lethal_predicted_free": 0.0314,
+      "lethal_predicted_unknown": 0.01,
+      "free_predicted_lethal": 0.0078,
+      "corridor_unknown_0.9-2m": 0.094,
+      "planner_fraction_moving": 0.8586,
+      "planner_reasons": {
+        "ok": 899,
+        "unknown ahead": 106,
+        "lethal ahead": 42
+      },
+      "tracking": {
+        "mota": 0.5265,
+        "idf1": 0.5178,
+        "num_switches": 35,
+        "recall": 0.7458,
+        "precision": 0.7835
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.281,
+      "health_flags_lidar": false,
+      "faults": {
+        "lidar_drop": 0.5
+      }
+    },
+    "drop75": {
+      "point_miou_all": 25.76,
+      "point_miou_all_ge10k": 38.0,
+      "point_miou_wedge": 35.17,
+      "lethal_predicted_lethal": 0.8244,
+      "lethal_predicted_free": 0.0474,
+      "lethal_predicted_unknown": 0.0293,
+      "free_predicted_lethal": 0.0086,
+      "corridor_unknown_0.9-2m": 0.094,
+      "planner_fraction_moving": 0.8644,
+      "planner_reasons": {
+        "ok": 905,
+        "unknown ahead": 107,
+        "lethal ahead": 35
+      },
+      "tracking": {
+        "mota": 0.2894,
+        "idf1": 0.4478,
+        "num_switches": 12,
+        "recall": 0.492,
+        "precision": 0.713
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.1406,
+      "health_flags_lidar": true,
+      "faults": {
+        "lidar_drop": 0.75
+      }
+    },
+    "drop90": {
+      "point_miou_all": 25.73,
+      "point_miou_all_ge10k": 38.02,
+      "point_miou_wedge": 36.94,
+      "lethal_predicted_lethal": 0.7844,
+      "lethal_predicted_free": 0.0557,
+      "lethal_predicted_unknown": 0.0794,
+      "free_predicted_lethal": 0.1037,
+      "corridor_unknown_0.9-2m": 0.095,
+      "planner_fraction_moving": 0.8348,
+      "planner_reasons": {
+        "ok": 874,
+        "unknown ahead": 109,
+        "lethal ahead": 43,
+        "obstacle ahead": 21
+      },
+      "tracking": {
+        "mota": 0.1371,
+        "idf1": 0.2811,
+        "num_switches": 5,
+        "recall": 0.3053,
+        "precision": 0.6474
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.0562,
+      "health_flags_lidar": true,
+      "faults": {
+        "lidar_drop": 0.9
+      }
+    },
+    "noise03": {
+      "point_miou_all": 29.85,
+      "point_miou_all_ge10k": 39.31,
+      "point_miou_wedge": 34.46,
+      "lethal_predicted_lethal": 0.8819,
+      "lethal_predicted_free": 0.0201,
+      "lethal_predicted_unknown": 0.0016,
+      "free_predicted_lethal": 0.0082,
+      "corridor_unknown_0.9-2m": 0.093,
+      "planner_fraction_moving": 0.8319,
+      "planner_reasons": {
+        "ok": 871,
+        "unknown ahead": 106,
+        "lethal ahead": 70
+      },
+      "tracking": {
+        "mota": 0.5989,
+        "idf1": 0.5641,
+        "num_switches": 39,
+        "recall": 0.8235,
+        "precision": 0.7969
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "range_noise": 0.03
+      }
+    },
+    "noise10": {
+      "point_miou_all": 29.86,
+      "point_miou_all_ge10k": 39.32,
+      "point_miou_wedge": 34.49,
+      "lethal_predicted_lethal": 0.8747,
+      "lethal_predicted_free": 0.0242,
+      "lethal_predicted_unknown": 0.0038,
+      "free_predicted_lethal": 0.0098,
+      "corridor_unknown_0.9-2m": 0.091,
+      "planner_fraction_moving": 0.8329,
+      "planner_reasons": {
+        "ok": 872,
+        "unknown ahead": 104,
+        "lethal ahead": 71
+      },
+      "tracking": {
+        "mota": 0.5761,
+        "idf1": 0.5512,
+        "num_switches": 42,
+        "recall": 0.8042,
+        "precision": 0.7913
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "range_noise": 0.1
+      }
+    },
+    "noise30": {
+      "point_miou_all": 29.68,
+      "point_miou_all_ge10k": 39.2,
+      "point_miou_wedge": 34.49,
+      "lethal_predicted_lethal": 0.867,
+      "lethal_predicted_free": 0.0283,
+      "lethal_predicted_unknown": 0.0055,
+      "free_predicted_lethal": 0.0252,
+      "corridor_unknown_0.9-2m": 0.085,
+      "planner_fraction_moving": 0.8109,
+      "planner_reasons": {
+        "ok": 849,
+        "unknown ahead": 99,
+        "lethal ahead": 99
+      },
+      "tracking": {
+        "mota": 0.5455,
+        "idf1": 0.551,
+        "num_switches": 36,
+        "recall": 0.7674,
+        "precision": 0.7865
+      },
+      "camera_matched_fraction": 1.0,
+      "lidar_valid_fraction_median": 0.5614,
+      "health_flags_lidar": false,
+      "faults": {
+        "range_noise": 0.3
+      }
+    }
+  },
+  "missing": []
+}

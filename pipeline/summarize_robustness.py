@@ -18,11 +18,11 @@ FAMILIES = {
     "lidar_drop": ("Lidar returns lost", "fraction of returns lost",
                    [("baseline", 0), ("drop25", 0.25), ("drop50", 0.5), ("drop75", 0.75), ("drop90", 0.9)]),
     "beams": ("Lidar rings", "rings kept of 64", [("baseline", 64), ("beams32", 32), ("beams16", 16)]),
-    "range_noise": ("Lidar range noise", "sigma (m)",
+    "range_noise": ("Lidar range noise", "sigma (cm)",
                     [("baseline", 0), ("noise03", 0.03), ("noise10", 0.1), ("noise30", 0.3)]),
-    "cam_offset": ("Camera clock offset", "offset (ms)",
+    "cam_offset": ("Camera clock offset", "stamp offset (ms)",
                    [("baseline", 0), ("camoff050", 50), ("camoff100", 100), ("camoff200", 200)]),
-    "cam_yaw": ("Camera extrinsic drift", "yaw error (deg)",
+    "cam_yaw": ("Camera extrinsic drift", "yaw error (°)",
                 [("baseline", 0), ("camyaw1", 1), ("camyaw2", 2), ("camyaw4", 4)]),
     "cam_gain": ("Camera exposure", "brightness gain", [("camgain025", 0.25), ("baseline", 1), ("camgain3", 3)]),
 }
@@ -61,40 +61,52 @@ def figure(res, path):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    rows = [("point_miou_all_ge10k", "point mIoU\n(classes ≥10k pts)", 1),
-            ("lethal_predicted_free", "lethal cells\nreported free (%)", 100),
-            ("planner_fraction_moving", "planner can move\n(% of scans)", 100),
-            ("mota", "tracking MOTA", 1)]
+    # System-level outcomes only: point mIoU is scored on the returns that survive, so it hides lost coverage.
+    rows = [("lethal_predicted_free", "truly lethal cells\nreported free (%)", 100, (0, None)),
+            ("planner_fraction_moving", "contract-following planner\ncan move (% of scans)", 100, (0, 100)),
+            ("mota", "tracking MOTA", 1, (None, None))]
+    ticks = {"lidar_drop": lambda v: f"{v:.0%}", "beams": lambda v: f"{v:g}", "range_noise": lambda v: f"{100 * v:g}",
+             "cam_offset": lambda v: f"{v:g}", "cam_yaw": lambda v: f"{v:g}", "cam_gain": lambda v: f"{v:g}×"}
     fams = [f for f in FAMILIES if all(n in res for n, _ in FAMILIES[f][2])]
-    ink, ink2, series, grid_c, base_c = "#0b0b0b", "#52514e", "#2a78d6", "#e4e3df", "#8a8984"
-    fig, axes = plt.subplots(len(rows), len(fams), figsize=(2.6 * len(fams), 2.1 * len(rows)), sharey="row",
-                             squeeze=False, facecolor="#fcfcfb")
+    ink, ink2, series, grid_c, base_c, surf = "#0b0b0b", "#52514e", "#2a78d6", "#e4e3df", "#8a8984", "#fcfcfb"
+    fig, axes = plt.subplots(len(rows), len(fams), figsize=(2.55 * len(fams), 2.2 * len(rows) + 0.5), sharey="row",
+                             squeeze=False, facecolor=surf)
     for j, f in enumerate(fams):
         title, xlabel, pts = FAMILIES[f]
         pts = sorted(pts, key=lambda p: p[1])
-        for i, (key, ylabel, scale) in enumerate(rows):
+        for i, (key, ylabel, scale, ylim) in enumerate(rows):
             ax = axes[i][j]
-            ax.set_facecolor("#fcfcfb")
+            ax.set_facecolor(surf)
             val = lambda n: (res[n]["tracking"][key] if key == "mota" else res[n][key]) * scale
             xs, ys = [p[1] for p in pts], [val(n) for n, _ in pts]
+            flagged = [res[n]["health_flags_lidar"] for n, _ in pts]
             ax.axhline(val("baseline"), color=base_c, lw=1, ls=(0, (3, 3)), zorder=1)
-            ax.plot(xs, ys, color=series, lw=2, marker="o", ms=5, mec="#fcfcfb", mew=1.5, zorder=3)
+            ax.plot(xs, ys, color=series, lw=2, zorder=2)
+            for x, y, fl in zip(xs, ys, flagged):  # open marker: the health monitor would flag low point density
+                ax.plot(x, y, "o", ms=6, mew=2, mec=series, mfc=surf if fl else series, zorder=3)
             ax.grid(axis="y", color=grid_c, lw=0.8)
-            for s in ("top", "right"):
-                ax.spines[s].set_visible(False)
-            for s in ("left", "bottom"):
-                ax.spines[s].set_color(grid_c)
+            for sp in ("top", "right"):
+                ax.spines[sp].set_visible(False)
+            for sp in ("left", "bottom"):
+                ax.spines[sp].set_color(grid_c)
             ax.tick_params(colors=ink2, labelsize=8)
-            ax.set_xticks(xs)
+            ax.set_xticks(xs, [ticks[f](x) for x in xs])
+            if f == "beams":
+                ax.invert_xaxis()  # severity increases to the right in every column
+            every = [(r["tracking"][key] if key == "mota" else r[key]) * scale for r in res.values()]
+            lo_, hi_ = min(every), max(every)
+            pad = 0.08 * (hi_ - lo_)
+            ax.set_ylim(ylim[0] if ylim[0] is not None else lo_ - pad, ylim[1] if ylim[1] is not None else hi_ + pad)
             if i == 0:
                 ax.set_title(title, fontsize=10, color=ink, loc="left")
             if i == len(rows) - 1:
                 ax.set_xlabel(xlabel, fontsize=8, color=ink2)
             if j == 0:
                 ax.set_ylabel(ylabel, fontsize=8.5, color=ink2)
-    fig.suptitle("Sensor faults injected into the replay of RELLIS-3D 00001 (held-out test block); "
-                 "dashed line = no fault", fontsize=10.5, color=ink, x=0.01, ha="left")
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    fig.suptitle("Sensor faults injected into the replay of RELLIS-3D 00001 (held-out test block). Dashed: no fault. "
+                 "Open marker: the health monitor would flag low lidar point density.", fontsize=10, color=ink,
+                 x=0.01, ha="left")
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
 
