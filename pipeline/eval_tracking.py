@@ -152,8 +152,9 @@ def main():
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(out, indent=2) + "\n")
-    g = out["by_existence_gate"]["0.5"]
-    print(f"gate 0.5: MOTA {g['mota']} IDF1 {g['idf1']} IDSW {g['num_switches']} FP {g['num_false_positives']} "
+    gate = str(args.gates[-1])
+    g = out["by_existence_gate"][gate]
+    print(f"gate {gate}: MOTA {g['mota']} IDF1 {g['idf1']} IDSW {g['num_switches']} FP {g['num_false_positives']} "
           f"FN {g['num_misses']} objects {g['num_unique_objects']} -> {args.out}")
 
 

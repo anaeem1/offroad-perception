@@ -15,7 +15,7 @@ ONNX_DIR = DATA_ROOT / "onnx"
 
 def _session(path, device):
     if device == "cuda":
-        import torch  # noqa: F401  loads the CUDA/cuDNN libraries ORT 1.20 links against
+        import torch  # noqa: F401  (not enough on its own: env/activate.sh puts cuDNN 9 on LD_LIBRARY_PATH)
     import onnxruntime as ort
     providers = ["CUDAExecutionProvider", "CPUExecutionProvider"] if device == "cuda" else ["CPUExecutionProvider"]
     opts = ort.SessionOptions()

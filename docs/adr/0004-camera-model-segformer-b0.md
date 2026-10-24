@@ -1,5 +1,5 @@
 # ADR-0004: Camera segmentation is SegFormer-B0, fine-tuned on RELLIS-3D at 640×1024
-- **Status:** accepted (resolution provisional until measured on the Orin NX)
+- **Status:** accepted. Deployment resolution superseded by ADR-0010 (480×768 on the Orin NX); the offline reference keeps 640×1024
 - **Date:** 2026-10-06
 ## Context
 - Camera seg budget: 30 ms on an Orin NX (GPU shared with lidar seg).
