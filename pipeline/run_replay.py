@@ -26,6 +26,7 @@ from rosbags.highlevel import AnyReader
 
 from ml.fusion.projection import load_rellis_calib, perturb
 from ml.metrics import ConfusionMatrix
+from pipeline import faults as FAULTS
 from pipeline import fusion as F
 from pipeline.align_bag import BAYER_CODES
 from pipeline.bev import GridParams, build_grid, load_costs, outside_ego
@@ -34,6 +35,7 @@ from pipeline.cluster import cluster
 from pipeline.extract_odom import load_odom
 from pipeline.geometry import T_root_frame, apply, deskew, tf_graph
 from pipeline.models import CameraSeg, LidarSeg
+from pipeline.planner import decide as planner_decide
 from pipeline.rellis import (ALIGN_DIR, BAGS, CAMERA_TOPIC, DATA_ROOT, LIDAR_TOPIC, decode_bayer, decode_cloud,
                              load_scan_labels, stamp_of)
 from pipeline.tracker import COASTING, CONFIRMED, Tracker
@@ -66,6 +68,9 @@ def main():
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--save-grids", type=int, default=20, help="save every Nth grid (0: none)")
     ap.add_argument("--memory-s", type=float, default=3.0, help="grid memory max age (0 disables), ADR-0008")
+    ap.add_argument("--fault", action="append", help="sensor fault to inject, e.g. lidar_drop=0.5 (pipeline/faults.py)")
+    ap.add_argument("--dump-render", type=int, default=0, help="save demo-video render data for every Nth scan")
+    ap.add_argument("--default-only", action="store_true", help="score only the default fusion variant (fast)")
     args = ap.parse_args()
     lo, hi = (int(v) for v in args.scans.split(":")) if args.scans else (0, 10 ** 9)
     out_dir = DATA_ROOT / f"runs/replay_{args.seq}_{args.tag}"
@@ -77,6 +82,10 @@ def main():
     insp = json.loads(Path(f"docs/measurements/bag_{args.seq}_inspection.json").read_text())
     T_base_lidar = T_root_frame(tf_graph(insp["tf_static"]), insp["pointcloud"]["frame_id"])
     cam, T_cam_lidar = load_rellis_calib(args.seq)
+    faults = FAULTS.parse(args.fault)
+    T_cam_lidar = FAULTS.extrinsic(T_cam_lidar, faults)  # drift: the extrinsic the pipeline believes is wrong
+    if args.dump_render:
+        (out_dir / "render").mkdir(exist_ok=True)
     T_cam = {pitch: perturb(T_cam_lidar, pitch_deg=pitch) for pitch in set(PITCHES + [args.pitch])}
     lidar, camera = LidarSeg(args.device), CameraSeg(args.device)
     cost_lut, obstacle_lut = load_costs()
@@ -95,10 +104,14 @@ def main():
 
     n_sc = len(SCORED) + 1
     variants = [(a, pool, mc, pitch) for a, pool, mc, pitch in itertools.product(ALPHAS, POOLS, (True, False), PITCHES)]
+    if args.default_only:
+        variants = [(args.alpha, args.pool, not args.no_motion_comp, args.pitch)]
+    projections = {(mc, pitch) for _, _, mc, pitch in variants} | {(True, 0.0)}  # (True, 0.0) defines the wedge
     cm = {(region, v): ConfusionMatrix(n_sc, ignore=(len(SCORED),), device="cpu")
           for region in ("all", "wedge") for v in variants}
     cm_bev = ConfusionMatrix(n_sc, ignore=(len(SCORED),), device="cpu")
     trav = np.zeros((5, 5), np.int64)  # cost buckets: free(<50) low(<128) high(<254) lethal unknown
+    planner_v, planner_reasons = [], collections.Counter()
     frames_f = open(out_dir / "frames.jsonl", "w")
     tracks_f = open(out_dir / "tracks.jsonl", "w")
     gt_f = open(out_dir / "gt_objects.jsonl", "w")
@@ -116,7 +129,8 @@ def main():
             nonlocal n_done
             t0 = time.perf_counter()
             stamp = stamp_of(msg)
-            c = decode_cloud(msg)
+            c_clean = decode_cloud(msg)
+            c = FAULTS.lidar(c_clean, faults, np.random.default_rng(scan))
             xyz, valid = c["xyz"], c["range_mm"] > 0
             point_t = stamp + c["t_ns"] * 1e-9
             p_lid = lidar(xyz, c["remission"])
@@ -129,7 +143,7 @@ def main():
             have_cam = cmsg is not None and abs(t_c - t_wedge) <= 0.05  # +/-50 ms of when the wedge was swept
             p_l_onto = F.lidar_to_ontology(p_lid, lidar.train_to_onto, lidar.bucket)
             if have_cam:
-                rgb = cv2.cvtColor(decode_bayer(cmsg), BAYER_CODES[args.debayer])
+                rgb = FAULTS.image(cv2.cvtColor(decode_bayer(cmsg), BAYER_CODES[args.debayer]), faults)
                 p_cam = camera(rgb)
             t2 = time.perf_counter()
 
@@ -138,7 +152,7 @@ def main():
             lid_lab = F.lidar_labels(p_lid, lidar.train_to_onto)
             proj = {}
             if have_cam:
-                for mc, pitch in itertools.product((True, False), PITCHES):
+                for mc, pitch in projections:
                     proj[(mc, pitch)] = F.camera_points(xyz, point_t, valid, cam, T_cam[pitch],
                                                         odom if mc else None, T_base_lidar, t_c)
             wedge = np.zeros(len(xyz), bool)
@@ -200,12 +214,17 @@ def main():
                                         "range": float(np.hypot(*d.xyz[:2]))}) + "\n")
             t5 = time.perf_counter()
 
-            # Ground truth: BEV grid and obstacle clusters from the labels, same code path.
-            onehot = np.zeros((len(vi), len(F.ONTOLOGY_IDS)), np.float32)
-            gt_idx = onto_lut[gt[vi]]
-            onehot[np.arange(len(vi)), gt_idx] = 1.0
-            grid_gt = build_grid(xyz_base, onehot, np.zeros(len(vi), bool), gp, cost_lut)
-            dets_gt = cluster(xyz_base, onehot, np.zeros_like(grid_gt.geometric), gp, obstacle_lut)
+            # Ground truth: BEV grid and obstacle clusters from the labels, same code path, on the clean cloud.
+            vg, base_g = vi, xyz_base
+            if c is not c_clean:
+                vg = np.flatnonzero(c_clean["range_mm"] > 0)
+                base_g = apply(T_base_lidar, deskew(c_clean["xyz"][vg], point_t[vg], odom, T_base_lidar, stamp))
+                keep_g = outside_ego(base_g)
+                vg, base_g = vg[keep_g], base_g[keep_g]
+            onehot = np.zeros((len(vg), len(F.ONTOLOGY_IDS)), np.float32)
+            onehot[np.arange(len(vg)), onto_lut[gt[vg]]] = 1.0
+            grid_gt = build_grid(base_g, onehot, np.zeros(len(vg), bool), gp, cost_lut)
+            dets_gt = cluster(base_g, onehot, np.zeros_like(grid_gt.geometric), gp, obstacle_lut)
             # BEV IoU: GT is this sweep's labels, so it can only score cells this sweep observed.
             both = (single_flags > 0) & (grid_gt.source_flags > 0)
             cm_bev_single.update(torch.from_numpy(scored_index(single_cls[both])),
@@ -227,7 +246,14 @@ def main():
                 gt_f.write(json.dumps({"scan": scan, "t": stamp, "x": float(xo[0]), "y": float(xo[1]),
                                        "cls": d.semantic_class, "n": d.n_points,
                                        "range": float(np.hypot(*d.xyz[:2]))}) + "\n")
+            T_base_odom = np.linalg.inv(T_odom_base)
+            trk_base = [(*apply(T_base_odom, np.array([[tr.x[0], tr.x[1], T_odom_base[2, 3]]]))[0][:2], *tr.dims[:2],
+                         tr.state, tr.existence) for tr in live if tr.state in (CONFIRMED, COASTING)]
+            v_cmd, why, d_blocked, d_obstacle = planner_decide(grid.cost, CX, CY, trk_base, have_cam)
+            planner_v.append(v_cmd)
+            planner_reasons[why] += 1
             frames_f.write(json.dumps({
+                "planner_v": round(v_cmd, 3), "planner_reason": why, "d_blocked_m": round(d_blocked, 2),
                 "scan": scan, "t": stamp, "camera_used": bool(have_cam),
                 "cam_minus_scan_ms": None if t_c is None else round(1e3 * (t_c - stamp), 1),
                 "cam_minus_wedge_ms": None if t_c is None else round(1e3 * (t_c - t_wedge), 1),
@@ -235,6 +261,24 @@ def main():
                 "n_dets_gt": len(dets_gt), "n_tracks": sum(t.state != 0 for t in live),
                 "observed_cells": int((grid.source_flags > 0).sum()), "lethal_cells": int((grid.cost == 254).sum()),
                 "geometric_cells": int(grid.geometric.sum()), "remembered_cells": n_remembered}) + "\n")
+            if args.dump_render and n_done % args.dump_render == 0:  # demo video (pipeline/render_demo.py)
+                fused = have_cam and args.alpha < 1.0
+                jpg = cv2.imencode(".jpg", cv2.cvtColor(cv2.resize(rgb, (960, 600)), cv2.COLOR_RGB2BGR))[1] if have_cam else []
+                trk = []
+                for tr in live:
+                    if tr.state in (CONFIRMED, COASTING):
+                        p_b = apply(T_base_odom, np.array([[tr.x[0], tr.x[1], T_odom_base[2, 3]]]))[0]
+                        v_b = T_base_odom[:2, :2] @ np.asarray(tr.x[2:4])
+                        trk.append([tr.id, tr.state, p_b[0], p_b[1], v_b[0], v_b[1], tr.semantic_class, tr.existence])
+                np.savez_compressed(
+                    out_dir / "render" / f"{scan:06d}.npz", jpg=np.asarray(jpg, np.uint8).ravel(),
+                    uv=uv.astype(np.float32) if fused else np.zeros((0, 2), np.float32),
+                    uv_cls=(F.ONTOLOGY_IDS[probs[idx].argmax(1)] if fused else np.zeros(0)).astype(np.uint8),
+                    cost=grid.cost, cls=grid.semantic_class, flags=grid.source_flags,
+                    tracks=np.array(trk, np.float64).reshape(-1, 8),
+                    dets=np.array([[*d.xyz[:2], *d.dims[:2], d.semantic_class] for d in dets], np.float64).reshape(-1, 5),
+                    meta=np.array([stamp, have_cam, np.nan if t_c is None else 1e3 * (t_c - t_wedge), n_remembered,
+                                   1e3 * (t5 - t0), v_cmd, d_blocked]), reason=np.array(why))
             if args.save_grids and n_done % args.save_grids == 0:
                 saved_grids[scan] = np.stack([grid.cost, grid.semantic_class, grid.source_flags, grid_gt.cost,
                                               grid_gt.semantic_class])
@@ -249,7 +293,7 @@ def main():
         for conn, _, raw in reader.messages(connections=conns):
             if conn.topic == CAMERA_TOPIC:
                 m = reader.deserialize(raw, conn.msgtype)
-                cams.append((stamp_of(m), m))
+                cams.append((FAULTS.camera_stamp(stamp_of(m), faults), m))
                 while pending and stamp_of(pending[0][1]) + 0.2 < cams[-1][0]:
                     process(*pending.popleft())
                 continue
@@ -286,11 +330,15 @@ def main():
         "bev_cell_iou_default": summary(cm_bev_single),
         "bev_cell_iou_with_memory_on_currently_observed_gt": summary(cm_bev),
         "memory_max_age_s": args.memory_s,
+        "faults": faults,
         "corridor_unknown_fraction": {f"{mode}|{lo_}-{hi_}m": round(float(np.mean(v)), 3)
                                       for (mode, lo_, hi_), v in corridor_unknown.items()},
         "traversability_confusion_gt_rows_pred_cols": {"buckets": ["free<50", "low<128", "high<254", "lethal", "unknown"],
                                                        "counts": trav.tolist()},
         "timing_ms_median_server": {k: round(float(np.median(v)), 2) for k, v in timing.items()},
+        "planner_offline": {"fraction_moving": round(float(np.mean(np.array(planner_v) > 0)), 4),
+                            "median_v_mps": round(float(np.median(planner_v)), 3),
+                            "reasons": dict(planner_reasons.most_common())},
     }
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
     if saved_grids:

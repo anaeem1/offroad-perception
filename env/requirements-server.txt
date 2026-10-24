@@ -22,3 +22,4 @@ tensorboard==2.18.0
 motmetrics==1.4.0
 # tensorrt + polygraphy (server-side ONNX parse check only) are pinned once the
 # Jetson's JetPack/TensorRT version is known. Engines are always built on the Jetson.
+imageio-ffmpeg==0.5.1  # H.264 encoding for the demo video (pipeline/render_demo.py)
