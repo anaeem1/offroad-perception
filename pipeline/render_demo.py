@@ -15,6 +15,7 @@ import yaml
 from PIL import Image
 
 from pipeline.bev import EGO_BOX
+from pipeline.bev_memory import REMEMBERED
 from pipeline.render_bev import UNKNOWN_RGB, cost_rgb
 from pipeline.rellis import DATA_ROOT
 
@@ -56,8 +57,8 @@ def camera_panel(d, lut):
 
 def bev_panel(d, lut, extent, res):
     rgb = cost_rgb(d["cost"]).astype(np.float32)
-    mem = (d["flags"] & 16) > 0  # contract source_flags bit 4: remembered static evidence (ADR-0008)
-    rgb[mem] = 0.6 * rgb[mem] + 0.4 * np.array([70, 110, 255])
+    mem = d["flags"] == REMEMBERED  # cells filled from grid memory only (ADR-0008)
+    rgb[mem] = 0.45 * rgb[mem] + 0.55 * np.array([70, 110, 255])
     img = cv2.resize(rgb.astype(np.uint8)[::-1], None, fx=SCALE, fy=SCALE, interpolation=cv2.INTER_NEAREST)
     img = np.ascontiguousarray(cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE))  # forward (+x) up, left left
 
@@ -107,7 +108,7 @@ def frame(d, lut, extent, res, t0, n_frames_seen):
     cv2.rectangle(img, (1340, 925), (1360, 939), UNKNOWN_RGB, -1)
     text(img, "UNKNOWN (never free)", (1368, 938), 0.5, DIM)
     cv2.rectangle(img, (1560, 925), (1580, 939), (70, 110, 255), -1)
-    text(img, "remembered (5 s, ADR-0008)", (1588, 938), 0.5, DIM)
+    text(img, "blue tint: remembered (<= 5 s)", (1588, 938), 0.5, DIM)
     text(img, "dot = confirmed track, ring = coasting, arrow = 1 s ahead", (1060, 985), 0.5, DIM)
     text(img, "white boxes = obstacle clusters, blue outline = planner corridor, white square = vehicle", (1060, 1010), 0.5, DIM)
 

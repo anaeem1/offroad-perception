@@ -36,7 +36,7 @@
    never a model's internal class index. The lidar and camera models have different class sets.
 6. **Grid memory (v0.2, ADR-0008):** cells the current sweep cannot see (notably the lidar's ~3 m blind
    zone) may carry *static* evidence up to 5 s older than `header.stamp`, with confidence scaled down by age.
-   `source_flags` bit 4 marks that remembered evidence is present. People and vehicles are never remembered.
+   `source_flags` value 4 (alongside 1 = lidar, 2 = camera) marks remembered evidence. People and vehicles are never remembered.
    Cells with no observation in the last 5 s are UNKNOWN.
 7. The camera covers only a 37.7° forward wedge (ADR-0002). In `MODE_CAMERA_ONLY`, every cell outside
    that wedge is UNKNOWN (255). The mode means a narrow field of view, not just reduced range.
@@ -48,7 +48,7 @@
 
 ## Versioning
 Breaking changes bump the major version and get an ADR. Additive fields bump the minor version.
-- v0.2 (2026-10-18): grid memory semantics and `source_flags` bit 4 (additive, ADR-0008); camera matching
+- v0.2 (2026-10-18): grid memory semantics and `source_flags` value 4 (additive, ADR-0008); camera matching
   rule clarified (match to the lidar's sweep of the camera FOV).
 
 ## Open questions

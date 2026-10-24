@@ -33,7 +33,7 @@ On the held-out test block, 5 s leaves 0.09 / 0.08 / 0.06 UNKNOWN in the first t
 1.00 / 1.00 / 0.85).
 ## Consequences
 - **Contract v0.2 (additive):** grid cells may carry static evidence up to 5 s older than `header.stamp`.
-  Their confidence is scaled down by age, and the grid-level `source_flags` gets bit 4 when any cell was
+  Their confidence is scaled down by age, and the grid-level `source_flags` gets flag value 4 when any cell was
   remembered. Cells never observed, or observed more than 5 s ago, are still UNKNOWN.
 - **Known hazard, for the week 4 hazard analysis:** after standing still for more than 5 s, the near field
   expires back to UNKNOWN, and something could enter the blind zone unseen. The tracker carries people that

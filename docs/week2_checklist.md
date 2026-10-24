@@ -17,7 +17,7 @@ the golden reference for the C++ runtime (`docs/measurements/cpp_parity.json`: a
 ## BEV traversability grid
 - [x] Extent/resolution from measured coverage (ADR-0007); 5 s static grid memory for the lidar blind zone (ADR-0008)
 - [x] Grid from fused semantics + cost table + height check; 255 = UNKNOWN; ego filter for self-returns
-- [x] Confidence and `source_flags` per the contract (v0.2 adds bit 4 = remembered)
+- [x] Confidence and `source_flags` per the contract (v0.2 adds flag value 4 = remembered)
 
 ## Clustering + tracking
 - [x] Connected components of obstacle points (+ void points in height-check cells)

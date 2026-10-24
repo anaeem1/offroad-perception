@@ -7,7 +7,7 @@ Memory is keyed by odom-frame cells, so it stays valid as the machine moves.
 Per sweep: build the current grid -> fill(): unobserved cells take a remembered value no older than
 max_age_s, with confidence decayed linearly by age -> update(): store the current sweep's observed cells,
 except dynamic classes (person, vehicle) which only the current sweep and the tracker may report.
-Grid-level source_flags gains bit 4 when any cell came from memory.
+Cells filled from memory get source_flags = 4 (REMEMBERED; 1 = lidar, 2 = camera).
 """
 from dataclasses import dataclass
 
