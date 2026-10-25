@@ -100,8 +100,11 @@ README as an architecture document); the second Jetson run moves after the write
   (commit b3d93f0) is ready: run 2 + INT8 timing + lidar-dropout test (H-6). INT8 lidar closed (ADR-0010).
 - **ADR-0005 accepted (2026-10-24):** output age ≤ 250 ms from the sweep-start stamp; contract v1.0,
   `perception_msgs` 1.0.0 (no message definition changed).
-- **Open / needs the owner:** GitHub repo (owner creates it; push via a deploy key generated on the server);
-  YouTube upload of the demo video (owner), then the link goes into the README.
+- **Public repo:** github.com/anaeem1/offroad-perception (pushed 2026-10-25). Push from this server with the
+  repo-only deploy key `~/.ssh/offroad_perception_deploy` (set as `core.sshCommand` in the repo config):
+  `git push`. Owner chose to publish everything as is (server paths, CLAUDE.md, author email).
+- **Open / needs the owner:** YouTube link for the demo video (owner uploads `CAT/demo_00001_test.mp4`,
+  unlisted), then it goes into the README under the GIF.
 - **Next:** hosting + links in the README; week 4 polish (Oct 26–29); Jetson run 2 when the owner has board time.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
