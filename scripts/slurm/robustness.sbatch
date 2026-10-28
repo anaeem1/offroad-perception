@@ -4,6 +4,7 @@
 # Submit from the repo root; each argument is one run, name:fault[,fault...] (empty fault list = baseline):
 #   sbatch --job-name=robust-a scripts/slurm/robustness.sbatch baseline: drop50:lidar_drop=0.5
 # -> <data root>/runs/replay_00001_robust_<name>/ (metrics.json, tracking.json); pipeline/summarize_robustness.py
+# Env: PREFIX=<tag prefix> (default robust); SKIP_TRACKING=1 skips the tracking evaluation.
 #SBATCH --partition=H100
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16
@@ -18,10 +19,12 @@ for item in "$@"; do
   args=()
   IFS=',' read -ra fs <<< "$specs"
   for f in "${fs[@]}"; do [ -n "$f" ] && args+=(--fault "$f"); done
-  run="$OFFROAD_DATA_ROOT/runs/replay_00001_robust_$name"
+  prefix="${PREFIX:-robust}"
+  run="$OFFROAD_DATA_ROOT/runs/replay_00001_${prefix}_$name"
   echo "== $name ${args[*]:-}"
-  python -m pipeline.run_replay --seq 00001 --scans 0:1047 --tag "robust_$name" --memory-s 5 --default-only \
+  python -m pipeline.run_replay --seq 00001 --scans 0:1047 --tag "${prefix}_$name" --memory-s 5 --default-only \
     --save-grids 0 "${args[@]}"
+  [ -n "${SKIP_TRACKING:-}" ] && continue
   python -m pipeline.gt_objects --run "$run"
   python -m pipeline.track_offline --run "$run" --min-points 30 --out tracks_mp30.jsonl
   python -m pipeline.eval_tracking --run "$run" --tracks tracks_mp30.jsonl --gt-file gt_objects_v2.jsonl \

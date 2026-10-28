@@ -81,6 +81,7 @@ def main():
     odom = load_odom(args.seq)
     insp = json.loads(Path(f"docs/measurements/bag_{args.seq}_inspection.json").read_text())
     T_base_lidar = T_root_frame(tf_graph(insp["tf_static"]), insp["pointcloud"]["frame_id"])
+    forward_deg = float(np.degrees(np.arctan2(T_base_lidar[0, 1], T_base_lidar[0, 0])))  # base +x seen from the lidar
     cam, T_cam_lidar = load_rellis_calib(args.seq)
     faults = FAULTS.parse(args.fault)
     T_cam_lidar = FAULTS.extrinsic(T_cam_lidar, faults)  # drift: the extrinsic the pipeline believes is wrong
@@ -130,7 +131,7 @@ def main():
             t0 = time.perf_counter()
             stamp = stamp_of(msg)
             c_clean = decode_cloud(msg)
-            c = FAULTS.lidar(c_clean, faults, np.random.default_rng(scan))
+            c = FAULTS.lidar(c_clean, faults, np.random.default_rng(scan), forward_deg)
             xyz, valid = c["xyz"], c["range_mm"] > 0
             point_t = stamp + c["t_ns"] * 1e-9
             p_lid = lidar(xyz, c["remission"])
@@ -174,12 +175,14 @@ def main():
             t3 = time.perf_counter()
 
             # Default variant -> fused distributions for every valid point.
+            cross_disagree = float("nan")  # camera vs lidar argmax inside the camera view (monitor signal)
             probs = p_l_onto.copy()
             from_cam = np.zeros(len(xyz), bool)
             if have_cam and args.alpha < 1.0:
                 uv, idx = proj.get((not args.no_motion_comp, args.pitch)) or F.camera_points(
                     xyz, point_t, valid, cam, T_cam[args.pitch], None if args.no_motion_comp else odom, T_base_lidar, t_c)
                 pc = F.camera_to_ontology(F.sample_camera(p_cam, uv), camera.class_ids)
+                cross_disagree = float(np.mean(pc.argmax(1) != p_l_onto[idx].argmax(1))) if len(idx) else float("nan")
                 probs[idx] = F.fuse(p_l_onto[idx], pc, args.alpha, args.pool)
                 from_cam[idx] = True
             # Lidar-only points: argmax in the lidar's own space (bucket -> void), as a one-hot-ish distribution.
@@ -199,6 +202,10 @@ def main():
                     unk = (single_flags == 0) & ~(age_ <= a)
                     for lo_, hi_, m_ in CORRIDOR:
                         corridor_unknown[(f"memory_{a:g}s", lo_, hi_)].append(float(unk[m_].mean()))
+                # Monitor signal: remembered-lethal cells that this sweep now reports free.
+                both = (single_flags.ravel() > 0) & (age_.ravel() <= args.memory_s)
+                mem_lethal = both & (memory.cost[rows_, cols_] == 254)
+                memory_flip = float(np.mean(single_cost.ravel()[mem_lethal] < 50)) if mem_lethal.any() else 0.0
                 n_remembered = memory.fill(grid, T_odom_base, stamp)  # old static evidence where this sweep is blind
                 memory.update(grid, T_odom_base, stamp)
             for lo_, hi_, m_ in CORRIDOR:
@@ -234,6 +241,18 @@ def main():
                           torch.from_numpy(scored_index(grid_gt.semantic_class[both])))
             bucket = lambda cst: np.select([cst < 50, cst < 128, cst < 254, cst == 254], [0, 1, 2, 3], 4)
             np.add.at(trav, (bucket(grid_gt.cost.ravel()), bucket(grid.cost.ravel())), 1)
+            # Per-scan safety error (truly lethal reported free) and cheap runtime monitor signals, for monitor studies.
+            gt_l = grid_gt.cost == 254
+            corr = (np.abs(CY) <= 0.9) & (CX >= 0.9) & (CX <= 15.0)
+            pv = p_lid[valid]
+            ent = -(pv * np.log(np.clip(pv, 1e-9, 1))).sum(1) / np.log(pv.shape[1])
+            err = {"gt_lethal": int(gt_l.sum()), "missed": int((gt_l & (grid.cost < 50)).sum()),
+                   "unknown": int((gt_l & (grid.cost == 255)).sum()), "gt_lethal_corridor": int((gt_l & corr).sum()),
+                   "missed_corridor": int((gt_l & corr & (grid.cost < 50)).sum())}
+            monitor = {"density": round(float(valid.mean()), 4),
+                       "near_coverage": round(float((single_flags[(CX ** 2 + CY ** 2) <= 100] > 0).mean()), 4),
+                       "lidar_entropy": round(float(ent.mean()), 4), "cross_disagree": round(cross_disagree, 4),
+                       "memory_flip": round(memory_flip, 4) if memory is not None else None}
 
             for tr in live:
                 if tr.state in (CONFIRMED, COASTING):
@@ -253,6 +272,7 @@ def main():
             planner_v.append(v_cmd)
             planner_reasons[why] += 1
             frames_f.write(json.dumps({
+                "err": err, "monitor": monitor,
                 "planner_v": round(v_cmd, 3), "planner_reason": why, "d_blocked_m": round(d_blocked, 2),
                 "scan": scan, "t": stamp, "camera_used": bool(have_cam),
                 "cam_minus_scan_ms": None if t_c is None else round(1e3 * (t_c - stamp), 1),

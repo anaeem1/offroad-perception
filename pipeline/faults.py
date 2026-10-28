@@ -5,6 +5,8 @@ shows up as UNKNOWN where the labels know the answer (hazards H-4, H-5, H-13; do
 Spec strings for run_replay --fault (repeatable):
   lidar_drop=<p>      lose a random fraction p of returns (rain, dust, a dirty window)
   beams=<n>           keep n of the 64 rings, evenly spaced (a cheaper sensor than the one trained on)
+  lidar_sector=<deg>  lose every return in a sector this wide, centred on the vehicle's forward direction
+                      (mud or a splash on the front of the window: spatially correlated loss)
   range_noise=<m>     Gaussian range noise with this sigma, along each ray
   cam_offset=<s>      camera clock offset (lost time sync: frames carry wrong stamps)
   cam_yaw=<deg>       camera-lidar extrinsic drift about the camera's vertical axis
@@ -15,7 +17,7 @@ import numpy as np
 
 from ml.fusion.projection import perturb
 
-KINDS = {"lidar_drop", "beams", "range_noise", "cam_offset", "cam_yaw", "cam_pitch", "cam_gain"}
+KINDS = {"lidar_drop", "beams", "lidar_sector", "range_noise", "cam_offset", "cam_yaw", "cam_pitch", "cam_gain"}
 BEAMS = 64  # Ouster OS1-64; the cloud is column-major, point i is ring i % 64
 
 
@@ -29,10 +31,10 @@ def parse(specs):
     return out
 
 
-def lidar(cloud, f, rng):
+def lidar(cloud, f, rng, forward_deg=0.0):
     """Decoded cloud (rellis.decode_cloud) -> faulted copy. Lost returns read as the sensor reports them:
-    xyz = 0, range 0."""
-    if not ({"lidar_drop", "beams", "range_noise"} & f.keys()):
+    xyz = 0, range 0. forward_deg: azimuth of the vehicle's +x axis in the lidar frame."""
+    if not ({"lidar_drop", "beams", "lidar_sector", "range_noise"} & f.keys()):
         return cloud
     c = dict(cloud, xyz=cloud["xyz"].copy(), remission=cloud["remission"].copy(), range_mm=cloud["range_mm"].copy())
     n = len(c["xyz"])
@@ -42,6 +44,9 @@ def lidar(cloud, f, rng):
     if "beams" in f:
         keep = np.round(np.linspace(0, BEAMS - 1, int(f["beams"]))).astype(int)
         lost |= ~np.isin(np.arange(n) % BEAMS, keep)
+    if "lidar_sector" in f:
+        az = np.degrees(np.arctan2(c["xyz"][:, 1], c["xyz"][:, 0]))
+        lost |= np.abs((az - forward_deg + 180.0) % 360.0 - 180.0) < f["lidar_sector"] / 2
     if "range_noise" in f:
         r = np.linalg.norm(c["xyz"], axis=1)
         ok = r > 0
