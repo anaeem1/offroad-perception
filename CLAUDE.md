@@ -106,6 +106,12 @@ README as an architecture document); the second Jetson run moves after the write
 - **Open / needs the owner:** YouTube link for the demo video (owner uploads `CAT/demo_00001_test.mp4`,
   unlisted), then it goes into the README under the GIF.
 - **Next:** hosting + links in the README; week 4 polish (Oct 26–29); Jetson run 2 when the owner has board time.
+- **Research track (after the application, owner request 2026-10-27):** paper on perception monitors that
+  track safety, not inputs. Proposal doc: claude.ai/artifact/1oV5xPPsY1D9NJ66GhjBag. Pilot (`monitor_pilot_00001.json`,
+  `pipeline/pilot_monitors.py`, 12 replays with PREFIX=pilot): at fault-free risk, lidar entropy keeps 58 % of
+  scans, density 55 %, a learned combination (fault family held out) 40 %, oracle 84 %; deployed density floor
+  lets 83 % through at 2.27 % (vs 1.67 %). Next gate: literature review, then go/no-go (end of Nov).
+  Report PDF: `CAT/offroad_perception_report.pdf` (doc claude.ai/artifact/PDUWaWWDs38zcMdgzZThVX).
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
