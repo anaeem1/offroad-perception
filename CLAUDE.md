@@ -51,7 +51,7 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
     Pins in `env/requirements-server.txt`, full lock in `env/requirements-server.lock.txt`.
     torch stays on 2.5.x on purpose (TorchScript ONNX exporter, opset 16/17).
   - Data root: `/usace_share/Share_Abdullah/offroad_perception` (repo symlink `data`, gitignored).
-    Shared NFS volume, ~95 % full; this project uses ~150 GB. (`/home` was 99 % full until it was expanded to 10 TB ~Oct 18.)
+    Shared NFS volume, 63 % used with 5.5 TB free (2026-10-31); this project uses ~200 GB incl. GOOSE. (`/home` was 99 % full until it was expanded to 10 TB ~Oct 18.)
 - **Jetson (deployment target):** ROS 2 runtime, TensorRT engines, C++ nodes, latency measurement.
   - **Orin NX 8 GB** (not an Orin Nano, as first assumed), L4T R36.3.0 = **JetPack 6.0**, TensorRT 8.6.2,
     CUDA 12.2, **ROS 2 Humble already installed** (colcon present), Docker present. Power mode
@@ -115,6 +115,16 @@ README as an architecture document); the second Jetson run moves after the write
   Confidence (arXiv 2403.08185, conformal, indoor) and Task-Aware Risk Estimation (RSS 2023, PAC, on-road);
   second dataset candidate GOOSE + GOOSE-Ex (check camera calibration and licence first).
   Report PDF: `CAT/offroad_perception_report.pdf` (doc claude.ai/artifact/PDUWaWWDs38zcMdgzZThVX).
+  - **Conformal gate (2026-10-31, `conformal_gate_pilot.json`, `pipeline/conformal_gate.py`):** loss = per-scan
+    lethal-reported-free share, 0 if rejected; alpha = fault-free mean 0.0198. Exchangeable 5 s block splits:
+    risk ~alpha at 77-78 % coverage (oracle 90 %). Unseen fault family breaks it: fewer rings 1.9x alpha
+    (density), range noise 1.7x (density/entropy at 100 % coverage); lost returns over-gated (26-40 %).
+  - **GOOSE second benchmark (in progress):** `scripts/download_goose.sh` (ownCloud mirrors, CC BY-SA 4.0) ->
+    `<data root>/goose/3d/{lidar,labels}/<split>/<sequence>/`; `config/goose_to_rellis.yaml` (64 -> RELLIS ids);
+    `ml/lidar/train_salsanext.py` (SalsaNext on VLS-128, RELLIS class set); `pipeline/goose_monitor_eval.py`
+    (single keyframes: no memory, tracking or camera; VLS-128 2.09 m above ground, 128 measured rows).
+    GOOSE has no camera-lidar extrinsics in the zips (TF only in raw bags) and a real rain sequence in val
+    (2023-05-15_neubiberg_rain). Next: train (~40 epochs), clean + fault runs on val (calibration) and test.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
