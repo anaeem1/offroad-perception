@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-31",
+  "data": "pilot replays of the 00001 test block (12 runs)",
+  "loss": "per-scan share of truly lethal cells reported free; 0 for a rejected scan",
+  "alpha": 0.01979,
+  "alpha_definition": "mean per-scan loss of the fault-free run",
+  "block_scans": 50,
+  "trials": 200,
+  "A_exchangeable": {
+    "point density": {
+      "mean_test_risk": 0.01969,
+      "share_of_trials_above_alpha": 0.485,
+      "mean_coverage": 0.7714
+    },
+    "lidar entropy": {
+      "mean_test_risk": 0.01967,
+      "share_of_trials_above_alpha": 0.47,
+      "mean_coverage": 0.7844
+    },
+    "learned (calibration scans only)": {
+      "mean_test_risk": 0.01963,
+      "share_of_trials_above_alpha": 0.48,
+      "mean_coverage": 0.7728
+    },
+    "oracle": {
+      "mean_test_risk": 0.01991,
+      "share_of_trials_above_alpha": 0.505,
+      "mean_coverage": 0.8945
+    },
+    "accept all": {
+      "mean_test_risk": 0.03643,
+      "share_of_trials_above_alpha": 1.0,
+      "mean_coverage": 1.0
+    }
+  },
+  "B_unseen_fault_family": {
+    "camera": {
+      "point density": {
+        "test_risk": 0.01953,
+        "coverage": 1.0,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01997,
+        "coverage_on_faulted_scans": 1.0
+      },
+      "lidar entropy": {
+        "test_risk": 0.01953,
+        "coverage": 1.0,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01997,
+        "coverage_on_faulted_scans": 1.0
+      },
+      "learned (calibration scans only)": {
+        "test_risk": 0.01914,
+        "coverage": 0.9813,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01949,
+        "coverage_on_faulted_scans": 0.9771
+      },
+      "oracle": {
+        "test_risk": 0.01142,
+        "coverage": 0.9419,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01135,
+        "coverage_on_faulted_scans": 0.9403
+      },
+      "accept all": {
+        "test_risk": 0.01953,
+        "coverage": 1.0,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01997,
+        "coverage_on_faulted_scans": 1.0
+      }
+    },
+    "fewer rings": {
+      "point density": {
+        "test_risk": 0.03139,
+        "coverage": 0.8867,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03822,
+        "coverage_on_faulted_scans": 0.83
+      },
+      "lidar entropy": {
+        "test_risk": 0.02251,
+        "coverage": 0.7511,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.0249,
+        "coverage_on_faulted_scans": 0.6266
+      },
+      "learned (calibration scans only)": {
+        "test_risk": 0.03673,
+        "coverage": 0.9268,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.04623,
+        "coverage_on_faulted_scans": 0.8902
+      },
+      "oracle": {
+        "test_risk": 0.02777,
+        "coverage": 0.9045,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03551,
+        "coverage_on_faulted_scans": 0.8787
+      },
+      "accept all": {
+        "test_risk": 0.04275,
+        "coverage": 1.0,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.05526,
+        "coverage_on_faulted_scans": 1.0
+      }
+    },
+    "front sector blocked": {
+      "point density": {
+        "test_risk": 0.01771,
+        "coverage": 1.0,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.0177,
+        "coverage_on_faulted_scans": 1.0
+      },
+      "lidar entropy": {
+        "test_risk": 0.0176,
+        "coverage": 0.9939,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.01756,
+        "coverage_on_faulted_scans": 0.9924
+      },
+      "learned (calibration scans only)": {
+        "test_risk": 0.00348,
+        "coverage": 0.1986,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.0,
+        "coverage_on_faulted_scans": 0.0
+      },
+      "oracle": {
+        "test_risk": 0.01007,
+        "coverage": 0.9435,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.00974,
+        "coverage_on_faulted_scans": 0.9432
+      },
+      "accept all": {
+        "test_risk": 0.01771,
+        "coverage": 1.0,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.0177,
+        "coverage_on_faulted_scans": 1.0
+      }
+    },
+    "range noise": {
+      "point density": {
+        "test_risk": 0.03038,
+        "coverage": 1.0,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03354,
+        "coverage_on_faulted_scans": 1.0
+      },
+      "lidar entropy": {
+        "test_risk": 0.03038,
+        "coverage": 1.0,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03354,
+        "coverage_on_faulted_scans": 1.0
+      },
+      "learned (calibration scans only)": {
+        "test_risk": 0.02266,
+        "coverage": 0.8728,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.02389,
+        "coverage_on_faulted_scans": 0.841
+      },
+      "oracle": {
+        "test_risk": 0.01957,
+        "coverage": 0.9259,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.02147,
+        "coverage_on_faulted_scans": 0.9193
+      },
+      "accept all": {
+        "test_risk": 0.03038,
+        "coverage": 1.0,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03354,
+        "coverage_on_faulted_scans": 1.0
+      }
+    },
+    "returns lost": {
+      "point density": {
+        "test_risk": 0.00839,
+        "coverage": 0.343,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.00722,
+        "coverage_on_faulted_scans": 0.2607
+      },
+      "lidar entropy": {
+        "test_risk": 0.00899,
+        "coverage": 0.4174,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.0079,
+        "coverage_on_faulted_scans": 0.3446
+      },
+      "learned (calibration scans only)": {
+        "test_risk": 0.01075,
+        "coverage": 0.466,
+        "above_alpha": false,
+        "risk_on_faulted_scans": 0.00988,
+        "coverage_on_faulted_scans": 0.3992
+      },
+      "oracle": {
+        "test_risk": 0.03061,
+        "coverage": 0.9041,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.03265,
+        "coverage_on_faulted_scans": 0.8949
+      },
+      "accept all": {
+        "test_risk": 0.05019,
+        "coverage": 1.0,
+        "above_alpha": true,
+        "risk_on_faulted_scans": 0.05425,
+        "coverage_on_faulted_scans": 1.0
+      }
+    }
+  }
+}
