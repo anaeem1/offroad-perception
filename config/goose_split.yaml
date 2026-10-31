@@ -1,0 +1,16 @@
+# Recording-level split of GOOSE for the monitor study (ml/lidar/goose.py).
+# GOOSE's own splits are by frame within the same recordings (every val recording also appears in train; the
+# test split has no labels), so they cannot measure behaviour on unseen recordings. We hold out whole
+# recordings instead, including real adverse weather, and never train on them.
+#   fit_train: official train frames of the training recordings  (model training)
+#   fit_val:   official val frames of the training recordings    (epoch selection only; frame-level, optimistic)
+#   heldout:   train + val frames of the held-out recordings     (monitor calibration and test)
+# Frame counts (train + val) as downloaded 2026-10-31: 8,680 labelled frames in 23 recordings; 2,191 held out.
+heldout:
+  - 2023-05-15_neubiberg_rain        # 536  real rain, rural roads and fields
+  - 2023-05-24_neubiberg_cloudy      # 497  same area, overcast: pairs with the rain recording
+  - 2022-11-29_campus_rain_2         # 172  real rain, campus
+  - 2022-11-04_campus_rain           # 64   real rain, campus
+  - 2023-01-20_campus_snow           # 31   snow, campus
+  - 2022-10-12_solalinden_waldwege   # 561  forest roads, clear
+  - 2022-08-18_putzbrunn_feldwege    # 330  field roads, clear
