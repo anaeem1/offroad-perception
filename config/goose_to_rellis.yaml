@@ -1,0 +1,76 @@
+# GOOSE class (label_key, goose-dataset.de challenge_label_mapping.csv) -> RELLIS-3D ontology id, so that the
+# second benchmark runs through the same cost table, grid, fusion and evaluation code as RELLIS-3D.
+# RELLIS ontology ids used by the pipeline: 0 void, 1 dirt, 3 grass, 4 tree, 5 pole, 6 water, 7 sky, 8 vehicle,
+# 9 object, 10 asphalt, 12 building, 15 log, 17 person, 18 fence, 19 bush, 23 concrete, 27 barrier, 31 puddle,
+# 33 mud, 34 rubble. Judgement calls are commented; the conservative choice (lethal) wins when unsure.
+0: 0     # undefined
+56: 0    # outlier
+8: 0     # ego_vehicle (removed by the ego box anyway)
+# artificial structures
+38: 12   # building
+39: 12   # wall
+43: 12   # bridge
+44: 12   # tunnel
+# artificial ground
+23: 10   # asphalt
+7: 10    # bikeway
+9: 10    # pedestrian_crossing
+11: 10   # road_marking
+3: 23    # cobble
+21: 23   # sidewalk
+22: 23   # curb (a low step; concrete costs it as artificial ground, the height check catches tall curbs)
+# natural ground
+24: 1    # gravel: drivable loose ground, closest to dirt
+31: 1    # soil
+5: 1     # leaves (on the ground)
+2: 1     # snow: no RELLIS class; treated as dirt
+50: 3    # low_grass
+54: 6    # water
+# obstacles
+40: 34   # rock -> rubble
+29: 9    # debris
+4: 9     # obstacle
+61: 9    # pipe
+47: 9    # misc_sign
+46: 9    # traffic_sign
+55: 9    # wire
+26: 9    # rail_track: conservative (RELLIS has no rail class)
+33: 9    # animal: no RELLIS class; a generic object, lethal
+41: 18   # fence
+1: 27    # traffic_cone
+10: 27   # road_block
+25: 27   # boom_barrier
+42: 27   # guard_rail
+48: 27   # barrier_tape
+58: 27   # container
+60: 27   # barrel
+45: 5    # pole
+6: 5     # street_light
+19: 5    # traffic_light
+# vehicles
+12: 8    # car
+13: 8    # bicycle
+15: 8    # bus
+20: 8    # motorcycle
+34: 8    # truck
+35: 8    # on_rails
+36: 8    # caravan
+37: 8    # trailer
+49: 8    # kick_scooter
+57: 8    # heavy_machinery
+63: 8    # military_vehicle
+# vegetation
+17: 19   # bush
+59: 19   # hedge
+52: 19   # scenery_vegetation
+30: 3    # crops: low, drivable like grass (the height check catches tall crops)
+51: 3    # high_grass: RELLIS grass includes tall grass
+18: 3    # moss
+16: 4    # forest
+27: 4    # tree_crown
+28: 4    # tree_trunk
+62: 15   # tree_root -> log (a low ground obstacle)
+# people and sky
+14: 17   # person
+32: 17   # rider
+53: 7    # sky

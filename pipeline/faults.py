@@ -4,7 +4,7 @@ shows up as UNKNOWN where the labels know the answer (hazards H-4, H-5, H-13; do
 
 Spec strings for run_replay --fault (repeatable):
   lidar_drop=<p>      lose a random fraction p of returns (rain, dust, a dirty window)
-  beams=<n>           keep n of the 64 rings, evenly spaced (a cheaper sensor than the one trained on)
+  beams=<n>           keep n of the sensor's rings, evenly spaced (a cheaper sensor than the one trained on)
   lidar_sector=<deg>  lose every return in a sector this wide, centred on the vehicle's forward direction
                       (mud or a splash on the front of the window: spatially correlated loss)
   range_noise=<m>     Gaussian range noise with this sigma, along each ray
@@ -31,9 +31,10 @@ def parse(specs):
     return out
 
 
-def lidar(cloud, f, rng, forward_deg=0.0):
+def lidar(cloud, f, rng, forward_deg=0.0, rings=None, n_rings=BEAMS):
     """Decoded cloud (rellis.decode_cloud) -> faulted copy. Lost returns read as the sensor reports them:
-    xyz = 0, range 0. forward_deg: azimuth of the vehicle's +x axis in the lidar frame."""
+    xyz = 0, range 0. forward_deg: azimuth of the vehicle's +x axis in the lidar frame. rings: ring index per point
+    when the cloud is not in Ouster column-major order (e.g. GOOSE .bin files), out of n_rings."""
     if not ({"lidar_drop", "beams", "lidar_sector", "range_noise"} & f.keys()):
         return cloud
     c = dict(cloud, xyz=cloud["xyz"].copy(), remission=cloud["remission"].copy(), range_mm=cloud["range_mm"].copy())
@@ -42,8 +43,8 @@ def lidar(cloud, f, rng, forward_deg=0.0):
     if "lidar_drop" in f:
         lost |= rng.random(n) < f["lidar_drop"]
     if "beams" in f:
-        keep = np.round(np.linspace(0, BEAMS - 1, int(f["beams"]))).astype(int)
-        lost |= ~np.isin(np.arange(n) % BEAMS, keep)
+        keep = np.round(np.linspace(0, n_rings - 1, int(f["beams"]))).astype(int)
+        lost |= ~np.isin(np.arange(n) % n_rings if rings is None else rings, keep)
     if "lidar_sector" in f:
         az = np.degrees(np.arctan2(c["xyz"][:, 1], c["xyz"][:, 0]))
         lost |= np.abs((az - forward_deg + 180.0) % 360.0 - 180.0) < f["lidar_sector"] / 2

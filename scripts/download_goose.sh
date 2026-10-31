@@ -2,7 +2,8 @@
 # Download the GOOSE subset the monitor study needs into $OFFROAD_DATA_ROOT/goose (licence: CC BY-SA 4.0).
 # Idempotent: finished items leave a .done marker and are skipped on re-run; partial downloads resume.
 # Zips are integrity-tested and extracted, then deleted. Run on the login node (compute nodes have no
-# internet). Links are copied from goose-dataset.de/docs/setup/ and /docs/mucar3/ (read 2026-10-31).
+# internet). Links are copied from goose-dataset.de/docs/setup/ and /docs/mucar3/ (read 2026-10-31). The zips
+# come from the Fraunhofer ownCloud mirrors listed there (~15 MB/s here vs ~1 MB/s from goose-dataset.de/storage).
 # Usage: scripts/download_goose.sh [item ...]   (default: all items, in the order below)
 set -euo pipefail
 : "${OFFROAD_DATA_ROOT:=/usace_share/Share_Abdullah/offroad_perception}"
@@ -12,6 +13,7 @@ ZIPS="$ROOT/_zips"
 mkdir -p "$ZIPS"
 S=https://goose-dataset.de/storage
 R=https://goose-dataset.de/docs/resources
+O=https://owncloud.fraunhofer.de/index.php/s  # mirrors of $S/goose_{3d,2d}_<split>.zip
 
 # name | url | extract into (relative to $ROOT; "-" = keep the file as is)
 MANIFEST="
@@ -23,11 +25,11 @@ calib_windshield_vis_dist  $R/camera_parameters/mucar3/windshield_vis_dist.dat c
 calib_tf_tree              $R/mucar3_tf/mucar3_tf.dot                        calib/mucar3
 challenge_label_mapping    $R/challenge_label_mapping.csv                    meta
 ddrnet_class_512           https://goose-dataset.de/models/ddrnet_class_512.pth  weights
-goose_3d_val               $S/goose_3d_val.zip                               3d
-goose_3d_test              $S/goose_3d_test.zip                              3d
-goose_2d_val               $S/goose_2d_val.zip                               2d
-goose_2d_test              $S/goose_2d_test.zip                              2d
-goose_3d_train             $S/goose_3d_train.zip                             3d
+goose_3d_val               $O/bpH7050VITEVnme/download                       3d
+goose_3d_test              $O/x1mXXdVZEfoaDrc/download                       3d
+goose_2d_val               $O/nXgZyiqVOUxrWI9/download                       2d
+goose_2d_test              $O/pgSQyZeHNT1vsU1/download                       2d
+goose_3d_train             $O/EZ6VFxH8tKSTt8J/download                       3d
 "
 
 want=("$@")
@@ -37,6 +39,7 @@ while read -r name url dest; do
   [ -f "$ZIPS/$name.done" ] && { echo "have $name"; continue; }
   mkdir -p "$ROOT/$dest"
   file="$ZIPS/$(basename "$url")"
+  [[ "$url" == */download ]] && file="$ZIPS/$name.zip"
   echo "== $name <- $url"
   wget -q -c --tries=10 --timeout=60 -O "$file" "$url"
   if [[ "$file" == *.zip ]]; then
