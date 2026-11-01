@@ -3,10 +3,13 @@ risk bound in real rain and snow, and on injected fault families it was not cali
 
 Runs come from scripts/slurm/goose_faults.sbatch (pipeline/goose_monitor_eval.py). Loss and gate as in
 pipeline/conformal_gate.py: per-scan share of truly lethal cells reported free, 0 for a rejected scan; alpha = the
-mean clean loss of the clear-weather calibration recordings.
-  1 weather: calibrate on clear recordings (clean + every fault run), test on the weather recordings, clean
+mean clean loss of the calibration recordings (clear recordings for test 1, all held-out recordings otherwise).
+  0 per run: mean per-scan loss; AUROC of each signal for unsafe scans (loss above the clear clean 95th pct)
+  1 weather: calibrate on clear recordings (clean + every fault run), test on the weather recordings, clean and
+    with faults, pooled and per recording
   2 unseen fault family: calibrate on every recording without one family, test on that family
-  3 rain vs overcast: same area (neubiberg), clean, mean loss and monitor signals
+  3 leave one recording out: calibrate on the other six recordings, test on it (clean + every fault run)
+  4 rain vs overcast: same area (neubiberg), clean, mean loss and monitor signals
 
   python -m pipeline.goose_gate --out docs/measurements/goose_gate.json
 """
@@ -18,7 +21,7 @@ from pathlib import Path
 import numpy as np
 
 from pipeline.conformal_gate import evaluate, threshold
-from pipeline.pilot_monitors import fit_logistic
+from pipeline.pilot_monitors import auroc, fit_logistic
 from pipeline.rellis import DATA_ROOT
 
 RUNS = {"clean": "none", "drop25": "returns lost", "drop50": "returns lost", "drop75": "returns lost",
@@ -56,6 +59,7 @@ def main():
     weather = np.isin(seq, list(WEATHER))
     clean = run == "clean"
     alpha = float(err[clean & ~weather].mean())
+    alpha_all = float(err[clean].mean())
     unsafe = err > np.percentile(err[clean & ~weather], 95)
 
     def scores(train):
@@ -67,24 +71,38 @@ def main():
         out["accept all"] = np.zeros(len(err))
         return out
 
-    def gate(cal, test):
+    def gate(cal, test, a):
         res = {}
         for k, s in scores(cal).items():
-            t = threshold(s[cal], err[cal], alpha) if k != "accept all" else np.inf
+            t = threshold(s[cal], err[cal], a) if k != "accept all" else np.inf
             risk, cov = evaluate(s[test], err[test], t)
-            res[k] = {"risk": round(risk, 5), "coverage": round(cov, 4), "above_alpha": bool(risk > alpha)}
+            res[k] = {"risk": round(risk, 5), "coverage": round(cov, 4), "above_alpha": bool(risk > a)}
         return res
 
     out = {"date": datetime.date.today().isoformat(), "alpha": round(alpha, 5),
-           "alpha_definition": "mean clean per-scan loss on the clear-weather held-out recordings",
+           "alpha_definition": "mean clean per-scan loss on the clear-weather held-out recordings (test 1)",
+           "alpha_all": round(alpha_all, 5),
+           "alpha_all_definition": "mean clean per-scan loss on all held-out recordings (tests 2 and 3)",
            "runs": sorted(set(run)), "scans": len(rows)}
+    # 0: per run, and how well each signal ranks unsafe scans
+    out["per_run_mean_loss"] = {r: {"clear": round(float(err[(run == r) & ~weather].mean()), 5),
+                                    "weather": round(float(err[(run == r) & weather].mean()), 5),
+                                    "all": round(float(err[run == r].mean()), 5)} for r in RUNS if r in set(run)}
+    out["auroc_unsafe"] = {k: {"clean only": round(auroc(X[clean, i], unsafe[clean]), 3),
+                               **{f: round(auroc(X[(fam == f) | clean, i], unsafe[(fam == f) | clean]), 3)
+                                  for f in sorted(set(fam) - {"none"})}} for i, k in enumerate(SIGNALS)}
     # 1: clear -> real weather
     cal = ~weather
-    out["weather"] = {"clean weather scans": gate(cal, weather & clean),
-                      "weather scans with injected faults": gate(cal, weather & ~clean)}
+    out["weather"] = {"clean weather scans": gate(cal, weather & clean, alpha),
+                      "weather scans with injected faults": gate(cal, weather & ~clean, alpha),
+                      "per recording": {s: {"clean": gate(cal, (seq == s) & clean, alpha),
+                                            "with faults": gate(cal, (seq == s) & ~clean, alpha)}
+                                        for s in sorted(WEATHER)}}
     # 2: unseen fault family (all recordings)
-    out["unseen_fault_family"] = {f: gate(fam != f, fam == f) for f in sorted(set(fam) - {"none"})}
-    # 3: rain vs overcast, same area
+    out["unseen_fault_family"] = {f: gate(fam != f, fam == f, alpha_all) for f in sorted(set(fam) - {"none"})}
+    # 3: unseen recording
+    out["leave_one_recording_out"] = {s: gate(seq != s, seq == s, alpha_all) for s in sorted(set(seq))}
+    # 4: rain vs overcast, same area
     pair = {}
     for s in ("2023-05-15_neubiberg_rain", "2023-05-24_neubiberg_cloudy"):
         m = clean & (seq == s)

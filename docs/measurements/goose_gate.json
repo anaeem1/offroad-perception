@@ -1,0 +1,799 @@
+{
+  "date": "2026-11-01",
+  "alpha": 0.05602,
+  "alpha_definition": "mean clean per-scan loss on the clear-weather held-out recordings (test 1)",
+  "alpha_all": 0.05218,
+  "alpha_all_definition": "mean clean per-scan loss on all held-out recordings (tests 2 and 3)",
+  "runs": [
+    "clean",
+    "drop25",
+    "drop50",
+    "drop75",
+    "noise10",
+    "noise30",
+    "rings32",
+    "rings64",
+    "sector120",
+    "sector60"
+  ],
+  "scans": 21540,
+  "per_run_mean_loss": {
+    "clean": {
+      "clear": 0.05602,
+      "weather": 0.04569,
+      "all": 0.05218
+    },
+    "drop25": {
+      "clear": 0.06648,
+      "weather": 0.0552,
+      "all": 0.06229
+    },
+    "drop50": {
+      "clear": 0.07808,
+      "weather": 0.06911,
+      "all": 0.07475
+    },
+    "drop75": {
+      "clear": 0.09427,
+      "weather": 0.08977,
+      "all": 0.0926
+    },
+    "rings64": {
+      "clear": 0.05053,
+      "weather": 0.04391,
+      "all": 0.04807
+    },
+    "rings32": {
+      "clear": 0.04193,
+      "weather": 0.04059,
+      "all": 0.04143
+    },
+    "noise10": {
+      "clear": 0.0548,
+      "weather": 0.04388,
+      "all": 0.05074
+    },
+    "noise30": {
+      "clear": 0.05838,
+      "weather": 0.04413,
+      "all": 0.05309
+    },
+    "sector60": {
+      "clear": 0.04562,
+      "weather": 0.0383,
+      "all": 0.0429
+    },
+    "sector120": {
+      "clear": 0.03408,
+      "weather": 0.02714,
+      "all": 0.0315
+    }
+  },
+  "auroc_unsafe": {
+    "density": {
+      "clean only": 0.771,
+      "fewer rings": 0.492,
+      "range noise": 0.776,
+      "returns lost": 0.662,
+      "sector blocked": 0.631
+    },
+    "near_coverage": {
+      "clean only": 0.526,
+      "fewer rings": 0.483,
+      "range noise": 0.531,
+      "returns lost": 0.575,
+      "sector blocked": 0.502
+    },
+    "lidar_entropy": {
+      "clean only": 0.422,
+      "fewer rings": 0.373,
+      "range noise": 0.401,
+      "returns lost": 0.409,
+      "sector blocked": 0.416
+    }
+  },
+  "weather": {
+    "clean weather scans": {
+      "density": {
+        "risk": 0.04569,
+        "coverage": 1.0,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.04476,
+        "coverage": 0.9775,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.04535,
+        "coverage": 0.9838,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.04531,
+        "coverage": 0.9975,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.04569,
+        "coverage": 1.0,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.04569,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "weather scans with injected faults": {
+      "density": {
+        "risk": 0.04626,
+        "coverage": 0.949,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.04458,
+        "coverage": 0.8701,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.04485,
+        "coverage": 0.874,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.04996,
+        "coverage": 0.9975,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.05022,
+        "coverage": 1.0,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.05022,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "per recording": {
+      "2022-11-04_campus_rain": {
+        "clean": {
+          "density": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "near_coverage": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "lidar_entropy": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "oracle": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "accept all": {
+            "risk": 0.10228,
+            "coverage": 1.0,
+            "above_alpha": true
+          }
+        },
+        "with faults": {
+          "density": {
+            "risk": 0.0757,
+            "coverage": 0.8646,
+            "above_alpha": true
+          },
+          "near_coverage": {
+            "risk": 0.09044,
+            "coverage": 0.967,
+            "above_alpha": true
+          },
+          "lidar_entropy": {
+            "risk": 0.08906,
+            "coverage": 0.9514,
+            "above_alpha": true
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.09293,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "oracle": {
+            "risk": 0.09293,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "accept all": {
+            "risk": 0.09293,
+            "coverage": 1.0,
+            "above_alpha": true
+          }
+        }
+      },
+      "2022-11-29_campus_rain_2": {
+        "clean": {
+          "density": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "near_coverage": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "lidar_entropy": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "oracle": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "accept all": {
+            "risk": 0.08446,
+            "coverage": 1.0,
+            "above_alpha": true
+          }
+        },
+        "with faults": {
+          "density": {
+            "risk": 0.0838,
+            "coverage": 0.991,
+            "above_alpha": true
+          },
+          "near_coverage": {
+            "risk": 0.08025,
+            "coverage": 0.9354,
+            "above_alpha": true
+          },
+          "lidar_entropy": {
+            "risk": 0.08066,
+            "coverage": 0.9302,
+            "above_alpha": true
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.08521,
+            "coverage": 0.9994,
+            "above_alpha": true
+          },
+          "oracle": {
+            "risk": 0.08521,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "accept all": {
+            "risk": 0.08521,
+            "coverage": 1.0,
+            "above_alpha": true
+          }
+        }
+      },
+      "2023-01-20_campus_snow": {
+        "clean": {
+          "density": {
+            "risk": 0.05978,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "near_coverage": {
+            "risk": 0.05848,
+            "coverage": 0.9677,
+            "above_alpha": true
+          },
+          "lidar_entropy": {
+            "risk": 0.05978,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.05978,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "oracle": {
+            "risk": 0.05978,
+            "coverage": 1.0,
+            "above_alpha": true
+          },
+          "accept all": {
+            "risk": 0.05978,
+            "coverage": 1.0,
+            "above_alpha": true
+          }
+        },
+        "with faults": {
+          "density": {
+            "risk": 0.05397,
+            "coverage": 0.9642,
+            "above_alpha": false
+          },
+          "near_coverage": {
+            "risk": 0.05278,
+            "coverage": 0.9319,
+            "above_alpha": false
+          },
+          "lidar_entropy": {
+            "risk": 0.05074,
+            "coverage": 0.8961,
+            "above_alpha": false
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.05556,
+            "coverage": 1.0,
+            "above_alpha": false
+          },
+          "oracle": {
+            "risk": 0.05556,
+            "coverage": 1.0,
+            "above_alpha": false
+          },
+          "accept all": {
+            "risk": 0.05556,
+            "coverage": 1.0,
+            "above_alpha": false
+          }
+        }
+      },
+      "2023-05-15_neubiberg_rain": {
+        "clean": {
+          "density": {
+            "risk": 0.02556,
+            "coverage": 1.0,
+            "above_alpha": false
+          },
+          "near_coverage": {
+            "risk": 0.02424,
+            "coverage": 0.9681,
+            "above_alpha": false
+          },
+          "lidar_entropy": {
+            "risk": 0.02506,
+            "coverage": 0.9756,
+            "above_alpha": false
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.02499,
+            "coverage": 0.9962,
+            "above_alpha": false
+          },
+          "oracle": {
+            "risk": 0.02556,
+            "coverage": 1.0,
+            "above_alpha": false
+          },
+          "accept all": {
+            "risk": 0.02556,
+            "coverage": 1.0,
+            "above_alpha": false
+          }
+        },
+        "with faults": {
+          "density": {
+            "risk": 0.03016,
+            "coverage": 0.9448,
+            "above_alpha": false
+          },
+          "near_coverage": {
+            "risk": 0.02709,
+            "coverage": 0.8339,
+            "above_alpha": false
+          },
+          "lidar_entropy": {
+            "risk": 0.02765,
+            "coverage": 0.8453,
+            "above_alpha": false
+          },
+          "learned (calibration scans only)": {
+            "risk": 0.03309,
+            "coverage": 0.9965,
+            "above_alpha": false
+          },
+          "oracle": {
+            "risk": 0.03349,
+            "coverage": 1.0,
+            "above_alpha": false
+          },
+          "accept all": {
+            "risk": 0.03349,
+            "coverage": 1.0,
+            "above_alpha": false
+          }
+        }
+      }
+    }
+  },
+  "unseen_fault_family": {
+    "fewer rings": {
+      "density": {
+        "risk": 0.03644,
+        "coverage": 0.8366,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.02717,
+        "coverage": 0.5854,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.02881,
+        "coverage": 0.6007,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.0414,
+        "coverage": 0.9638,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.04289,
+        "coverage": 0.9979,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.04475,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "range noise": {
+      "density": {
+        "risk": 0.05191,
+        "coverage": 1.0,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.05191,
+        "coverage": 0.9995,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.05172,
+        "coverage": 0.9907,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.0515,
+        "coverage": 0.9979,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.04771,
+        "coverage": 0.9956,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.05191,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "returns lost": {
+      "density": {
+        "risk": 0.07654,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.07654,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "lidar_entropy": {
+        "risk": 0.07654,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.07597,
+        "coverage": 0.998,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.07654,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.07654,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    },
+    "sector blocked": {
+      "density": {
+        "risk": 0.03704,
+        "coverage": 0.9928,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.03155,
+        "coverage": 0.8143,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.03497,
+        "coverage": 0.9102,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.03114,
+        "coverage": 0.9227,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.03369,
+        "coverage": 0.9956,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.0372,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    }
+  },
+  "leave_one_recording_out": {
+    "2022-08-18_putzbrunn_feldwege": {
+      "density": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "lidar_entropy": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.08979,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    },
+    "2022-10-12_solalinden_waldwege": {
+      "density": {
+        "risk": 0.04062,
+        "coverage": 0.9859,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.04063,
+        "coverage": 0.9812,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.04077,
+        "coverage": 0.9745,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.0374,
+        "coverage": 0.9089,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.03988,
+        "coverage": 0.9981,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.04174,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "2022-11-04_campus_rain": {
+      "density": {
+        "risk": 0.08286,
+        "coverage": 0.9219,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.09277,
+        "coverage": 0.9859,
+        "above_alpha": true
+      },
+      "lidar_entropy": {
+        "risk": 0.0917,
+        "coverage": 0.9812,
+        "above_alpha": true
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.09387,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.09387,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.09387,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    },
+    "2022-11-29_campus_rain_2": {
+      "density": {
+        "risk": 0.08514,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.08469,
+        "coverage": 0.9959,
+        "above_alpha": true
+      },
+      "lidar_entropy": {
+        "risk": 0.08509,
+        "coverage": 0.9988,
+        "above_alpha": true
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.08514,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.08514,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.08514,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    },
+    "2023-01-20_campus_snow": {
+      "density": {
+        "risk": 0.05451,
+        "coverage": 0.9645,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.05377,
+        "coverage": 0.9419,
+        "above_alpha": true
+      },
+      "lidar_entropy": {
+        "risk": 0.0518,
+        "coverage": 0.9097,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.05599,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.05599,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.05599,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    },
+    "2023-05-15_neubiberg_rain": {
+      "density": {
+        "risk": 0.02434,
+        "coverage": 0.8454,
+        "above_alpha": false
+      },
+      "near_coverage": {
+        "risk": 0.01732,
+        "coverage": 0.5696,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.01367,
+        "coverage": 0.4036,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.02958,
+        "coverage": 0.9694,
+        "above_alpha": false
+      },
+      "oracle": {
+        "risk": 0.0312,
+        "coverage": 0.9977,
+        "above_alpha": false
+      },
+      "accept all": {
+        "risk": 0.0327,
+        "coverage": 1.0,
+        "above_alpha": false
+      }
+    },
+    "2023-05-24_neubiberg_cloudy": {
+      "density": {
+        "risk": 0.05372,
+        "coverage": 0.9714,
+        "above_alpha": true
+      },
+      "near_coverage": {
+        "risk": 0.0521,
+        "coverage": 0.9175,
+        "above_alpha": false
+      },
+      "lidar_entropy": {
+        "risk": 0.05003,
+        "coverage": 0.8863,
+        "above_alpha": false
+      },
+      "learned (calibration scans only)": {
+        "risk": 0.05523,
+        "coverage": 0.999,
+        "above_alpha": true
+      },
+      "oracle": {
+        "risk": 0.05524,
+        "coverage": 1.0,
+        "above_alpha": true
+      },
+      "accept all": {
+        "risk": 0.05524,
+        "coverage": 1.0,
+        "above_alpha": true
+      }
+    }
+  },
+  "rain_vs_overcast": {
+    "2023-05-15_neubiberg_rain": {
+      "scans": 533,
+      "mean_loss": 0.02556,
+      "density": 1.0256,
+      "near_coverage": 0.1936,
+      "lidar_entropy": 0.3014
+    },
+    "2023-05-24_neubiberg_cloudy": {
+      "scans": 497,
+      "mean_loss": 0.04651,
+      "density": 1.0441,
+      "near_coverage": 0.2272,
+      "lidar_entropy": 0.2795
+    }
+  }
+}
