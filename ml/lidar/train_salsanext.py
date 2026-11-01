@@ -80,6 +80,13 @@ def measure_norm(ds, n=300):
     return a.mean(0), a.std(0)
 
 
+def seed_worker(_):
+    """Forked workers inherit one copy of the dataset's augmentation stream; give each its own (from torch's
+    per-worker seed, so --seed still fixes it). Runs before 2026-11-01 drew the same angles in every worker."""
+    info = torch.utils.data.get_worker_info()
+    info.dataset.rng = np.random.default_rng(info.seed % 2 ** 32)
+
+
 def evaluate(model, ds, n_classes, device, every=1):
     cm = ConfusionMatrix(n_classes, device=device)
     model.eval()
@@ -104,8 +111,9 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="cap scans per split (smoke tests)")
     ap.add_argument("--train-split", default="train")
     ap.add_argument("--val-split", default="val")
+    ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
-    torch.manual_seed(0)
+    torch.manual_seed(args.seed)
     device = "cuda"
     data_cfg = yaml.safe_load(open(RUN_DIR / "data_cfg.yaml"))
     n_classes = len(data_cfg["learning_map_inv"])
@@ -134,7 +142,8 @@ def main():
     w = torch.tensor(1.0 / (freq + 0.001), dtype=torch.float32, device=device)
     w[0] = 0.0
     loader = DataLoader(train, batch_size=args.batch, shuffle=True, drop_last=True, collate_fn=pixel_labels,
-                        num_workers=int(os.environ.get("SLURM_CPUS_PER_TASK", "8")), persistent_workers=True)
+                        num_workers=int(os.environ.get("SLURM_CPUS_PER_TASK", "8")), persistent_workers=True,
+                        worker_init_fn=seed_worker)
 
     model = SalsaNext(n_classes).to(device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)

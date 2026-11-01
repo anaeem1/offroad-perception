@@ -30,19 +30,26 @@ def _official(split):
     return out
 
 
+def held_out(fold="a"):
+    """Recordings held out in one fold of config/goose_split.yaml (a = the heldout list, b and c = folds)."""
+    cfg = yaml.safe_load(open(REPO / "config/goose_split.yaml"))
+    return set(cfg["heldout"] if fold == "a" else cfg["folds"][fold])
+
+
 def scans(split):
     """Sorted (scan .bin, label) pairs. Official splits (train, val, test) or the recording-level split of
     config/goose_split.yaml: fit_train, fit_val (training recordings), heldout (held-out recordings, both
-    official splits)."""
+    official splits), for fold a; append :b or :c for the other folds (fit_train:b, heldout:b)."""
     if split in ("train", "val", "test"):
         return _official(split)
-    held = set(yaml.safe_load(open(REPO / "config/goose_split.yaml"))["heldout"])
+    kind, _, fold = split.partition(":")
+    held = held_out(fold or "a")
     rec = lambda item: item[0].parent.name
-    if split == "fit_train":
+    if kind == "fit_train":
         return [it for it in _official("train") if rec(it) not in held]
-    if split == "fit_val":
+    if kind == "fit_val":
         return [it for it in _official("val") if rec(it) not in held]
-    if split == "heldout":
+    if kind == "heldout":
         return sorted((it for it in _official("train") + _official("val") if rec(it) in held), key=lambda it: it[0])
     raise ValueError(f"unknown split {split}")
 

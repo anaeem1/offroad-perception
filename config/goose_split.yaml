@@ -14,3 +14,25 @@ heldout:
   - 2023-01-20_campus_snow           # 31   snow, campus
   - 2022-10-12_solalinden_waldwege   # 561  forest roads, clear
   - 2022-08-18_putzbrunn_feldwege    # 330  field roads, clear
+# Further folds for cross-fitting (2026-11-01): one model per fold, trained on the other two, so every
+# recording is held out by some model. Same-area recordings share a fold. Fold a = heldout above.
+# Note: campus_rain/_2/snow (fold a) share the campus with fold b; neubiberg rain/cloudy (a) with neubiberg_sunny (b).
+folds:
+  b:                                       # 3,231 frames
+    - 2022-11-11_aying                     # 584
+    - 2022-12-07_aying_hills               # 558
+    - 2023-01-20_aying_mangfall_2          # 1023
+    - 2023-04-20_campus                    # 321
+    - 2023-02-23_campus_roads              # 172
+    - 2023-05-17_neubiberg_sunny           # 267
+    - 2023-02-13_touareg_neuperlach        # 43
+    - 2022-10-14_hohenbrunn_feldwege_waldwege  # 263
+  c:                                       # 3,258 frames
+    - 2022-09-14_garching_uebungsplatz     # 511
+    - 2022-09-21_garching_uebungsplatz_2   # 338
+    - 2023-03-02_garching                  # 397
+    - 2023-03-03_garching_2                # 483
+    - 2022-07-22_flight                    # 469
+    - 2023-04-05_flight_with_tiguan        # 191
+    - 2022-07-27_hoehenkirchner_forst      # 339
+    - 2022-08-30_siegertsbrunn_feldwege    # 530
