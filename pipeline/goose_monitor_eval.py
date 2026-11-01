@@ -7,11 +7,18 @@ labelled ground 4-10 m away on val, measured below). Ring index = nearest of the
 
   python -m pipeline.goose_monitor_eval --run-dir <data root>/weights/salsanext_goose --split test --tag clean
   python -m pipeline.goose_monitor_eval ... --tag drop50 --fault lidar_drop=0.5
--> <data root>/runs/goose_<split>_<tag>/frames.jsonl, metrics.json
+  python -m pipeline.goose_monitor_eval ... --split heldout:b --mc-passes 8 --ensemble <run dir> ...
+-> <data root>/runs/goose_<split>_<tag>/frames.jsonl, metrics.json (":" in the split becomes "_")
+
+Uncertainty baselines (2026-11-01), over lidar points inside the grid, normalised by log(classes):
+entropy_grid (softmax entropy), mc_mi (MC-dropout mutual information, --mc-passes), ens_mi (deep-ensemble
+mutual information over --run-dir plus the --ensemble members). The grid and the error always come from the
+--run-dir model in eval mode, so these are monitors of that one deployed model.
 """
 import argparse
 import datetime
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -44,6 +51,18 @@ def ring_rows(sample, gap_deg=0.05):
     return np.array([np.median(p[a:b]) for a, b in zip(edges[:-1], edges[1:])])
 
 
+def mutual_info(p):
+    """[members or passes, points, classes] -> per-point mutual information, normalised by log(classes)."""
+    h = lambda q: -(q * torch.log(q.clamp(min=1e-9))).sum(-1)
+    return (h(p.mean(0)) - h(p).mean(0)) / math.log(p.shape[-1])
+
+
+def set_dropout(model, on):
+    for m in model.modules():
+        if isinstance(m, torch.nn.Dropout2d):
+            m.train(on)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", type=Path, required=True)
@@ -51,15 +70,22 @@ def main():
     ap.add_argument("--tag", required=True)
     ap.add_argument("--fault", action="append")
     ap.add_argument("--every", type=int, default=1)
+    ap.add_argument("--mc-passes", type=int, default=0, help="MC-dropout passes for mc_mi (0 = off)")
+    ap.add_argument("--ensemble", type=Path, action="append", default=[], help="extra ensemble member run dirs")
     args = ap.parse_args()
     faults = FAULTS.parse(args.fault)
-    out_dir = DATA_ROOT / f"runs/goose_{args.split}_{args.tag}"
+    out_dir = DATA_ROOT / f"runs/goose_{args.split.replace(':', '_')}_{args.tag}"
     out_dir.mkdir(parents=True, exist_ok=True)
     cfg = SensorConfig.from_arch_cfg(args.run_dir / "arch_cfg.yaml")
     data = yaml.safe_load(open(args.run_dir / "data_cfg.yaml"))
     train_to_onto = np.array([data["learning_map_inv"][i] for i in range(len(data["learning_map_inv"]))])
     bucket = sorted(k for k, v in data["learning_map"].items() if v == 0)
     model = load_model(args.run_dir / "SalsaNext_valid_best", len(train_to_onto)).cuda().eval()
+    members = []
+    for d in args.ensemble:  # members must share the input normalisation (same training split)
+        m_cfg = SensorConfig.from_arch_cfg(d / "arch_cfg.yaml")
+        assert np.allclose(m_cfg.means, cfg.means) and np.allclose(m_cfg.stds, cfg.stds), f"{d}: other normalisation"
+        members.append(load_model(d / "SalsaNext_valid_best", len(train_to_onto)).cuda().eval())
     goose_to_onto = yaml.safe_load(open(REPO / "config/goose_to_rellis.yaml"))
     g2o = np.zeros(1 << 16, np.int64)
     for g, o in goose_to_onto.items():
@@ -95,13 +121,29 @@ def main():
         c = FAULTS.lidar(cloud, faults, np.random.default_rng(i), forward_deg=0.0, rings=ring, n_rings=128)
         valid = c["range_mm"] > 0
         proj, _pr, px, py, _d = project(c["xyz"][valid], c["remission"][valid], cfg)
+        x = torch.from_numpy(proj)[None].cuda()
+        iy, ix = torch.from_numpy(py).long().cuda(), torch.from_numpy(px).long().cuda()
+        base, keep = to_base(c["xyz"][valid])
+        in_grid = keep & (np.abs(base[:, 0]) < gp.extent_m / 2) & (np.abs(base[:, 1]) < gp.extent_m / 2)
+        g = torch.from_numpy(in_grid).cuda()
+        extra = {}
         with torch.no_grad():
-            p_img = model(torch.from_numpy(proj)[None].cuda())[0]
-        p_lid = p_img[:, torch.from_numpy(py).long().cuda(), torch.from_numpy(px).long().cuda()].T.float().cpu().numpy()
+            p_img = model(x)[0]
+            p_pts = p_img[:, iy, ix].T.float()
+            if args.mc_passes:
+                set_dropout(model, True)  # Dropout2d draws a new mask for every batch element
+                mc = model(x.expand(args.mc_passes, -1, -1, -1))[:, :, iy[g], ix[g]].permute(0, 2, 1).float()
+                set_dropout(model, False)
+                extra["mc_mi"] = round(float(mutual_info(mc).mean()), 5)
+                del mc
+            if members:
+                ens = torch.stack([p_pts[g]] + [m(x)[0][:, iy[g], ix[g]].T.float() for m in members])
+                extra["ens_mi"] = round(float(mutual_info(ens).mean()), 5)
+                del ens
+        p_lid = p_pts.cpu().numpy()
         probs = F.lidar_to_ontology(p_lid, train_to_onto, bucket)
         ent = -(p_lid * np.log(np.clip(p_lid, 1e-9, 1))).sum(1) / np.log(p_lid.shape[1])
 
-        base, keep = to_base(c["xyz"][valid])
         grid = build_grid(base[keep], probs[keep], np.zeros(keep.sum(), bool), gp, cost_lut)
         base_gt, keep_gt = to_base(xyz)
         onehot = np.zeros((keep_gt.sum(), len(F.ONTOLOGY_IDS)), np.float32)
@@ -114,16 +156,19 @@ def main():
                "missed_corridor": int((gt_l & corr & (grid.cost < 50)).sum())}
         monitor = {"density": round(float(valid.sum() / NOMINAL_POINTS), 4),
                    "near_coverage": round(float((grid.source_flags[near] > 0).mean()), 4),
-                   "lidar_entropy": round(float(ent.mean()), 4)}
+                   "lidar_entropy": round(float(ent.mean()), 4),
+                   "entropy_grid": round(float(ent[in_grid].mean()), 5), **extra}
         frames.write(json.dumps({"scan": i, "name": scan_p.stem, "sequence": scan_p.parent.name, "err": err,
                                  "monitor": monitor}) + "\n")
         for k in tot:
             tot[k] += err[k]
     frames.close()
     metrics = {"date": datetime.date.today().isoformat(), "split": args.split, "n_scans": len(items),
-               "faults": faults, "run_dir": str(args.run_dir), "lidar_height_m": LIDAR_HEIGHT_M,
+               "faults": faults, "run_dir": str(args.run_dir), "ensemble": [str(d) for d in args.ensemble],
+               "mc_passes": args.mc_passes, "lidar_height_m": LIDAR_HEIGHT_M,
                "lethal_reported_free": round(tot["missed"] / max(1, tot["gt_lethal"]), 5),
-               "lethal_reported_unknown": round(tot["unknown"] / max(1, tot["gt_lethal"]), 5)}
+               "lethal_reported_unknown": round(tot["unknown"] / max(1, tot["gt_lethal"]), 5),
+               "gpu_peak_gb": round(torch.cuda.max_memory_allocated() / 2 ** 30, 2)}
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
     print(json.dumps(metrics))
 
