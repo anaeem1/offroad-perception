@@ -132,6 +132,17 @@ README as an architecture document); the second Jetson run moves after the write
     on 5 of 7 recordings for every score, the oracle included; monitors reject the easiest recording (entropy keeps
     40 % of neubiberg rain) and accept the hardest. The pooled weather test passes only because neubiberg rain
     dominates it. Implication for the paper: marginal calibration fails under site shift; needs a shift-aware gate.
+  - **Cross-fitting run (submitted 2026-11-01 ~19:00 UTC, results due ~01:30 UTC Nov 2):** folds b, c in
+    `config/goose_split.yaml` so all 23 recordings are held out once; 7 trainings (`salsanext_goose_{a,b,c}_s0`,
+    fold-a ensemble seeds 1-4; per-worker augmentation fix, so fold a s0 replaces the pilot model), evals with
+    MC dropout (8 passes) + ensemble MI (fold a) + in-grid entropy (`goose_faults.sbatch` PARALLEL=1), then
+    `pipeline/goose_sites.py` -> `docs/measurements/goose_sites.json` (LORO over 23, k labelled site scans,
+    ensemble baseline). Job ids: `<data root>/logs/goose_crossfit_jobs.txt` (10571-10582). If a training fails,
+    its dependents stay PENDING (DependencyNeverSatisfied): fix, resubmit, re-chain.
+  - **Conformal unit caveat:** `threshold(units=)` (2026-11-01) treats a scan's rows under all runs as one
+    exchangeable unit. The RELLIS pilot (`conformal_gate_pilot.json`) used row-level units with 5 s block
+    splits; with blocks as units (~10 per half) the 1/(n+1) term alone exceeds alpha, so its finite-sample
+    guarantee is not valid as stated. Fix or reword before the paper.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
