@@ -81,7 +81,7 @@ bringing both models under budget. The Oct 26 feature stop is unchanged.
 README as an architecture document); the second Jetson run moves after the write-up. The deadline stands.
 
 ## Current state
-*Updated 2026-10-24.*
+*Updated 2026-11-01.*
 - **Weeks 1–2 complete; week 3 per ADR-0012.** Held-out 00001 test: wedge mIoU 30.9 → 34.5 fused; lethal cells
   88.8 % lethal / 1.7 % free; MOTA 0.59, IDF1 0.56, 41 IDSW; contract-following planner (offline port,
   `pipeline/planner.py`) moves in 84 % of scans. C++ core = Python reference in all 9 stages.
@@ -119,12 +119,20 @@ README as an architecture document); the second Jetson run moves after the write
     lethal-reported-free share, 0 if rejected; alpha = fault-free mean 0.0198. Exchangeable 5 s block splits:
     risk ~alpha at 77-78 % coverage (oracle 90 %). Unseen fault family breaks it: fewer rings 1.9x alpha
     (density), range noise 1.7x (density/entropy at 100 % coverage); lost returns over-gated (26-40 %).
-  - **GOOSE second benchmark (in progress):** `scripts/download_goose.sh` (ownCloud mirrors, CC BY-SA 4.0) ->
-    `<data root>/goose/3d/{lidar,labels}/<split>/<sequence>/`; `config/goose_to_rellis.yaml` (64 -> RELLIS ids);
-    `ml/lidar/train_salsanext.py` (SalsaNext on VLS-128, RELLIS class set); `pipeline/goose_monitor_eval.py`
-    (single keyframes: no memory, tracking or camera; VLS-128 2.09 m above ground, 128 measured rows).
-    GOOSE has no camera-lidar extrinsics in the zips (TF only in raw bags) and a real rain sequence in val
-    (2023-05-15_neubiberg_rain). Next: train (~40 epochs), clean + fault runs on val (calibration) and test.
+  - **GOOSE second benchmark (first results 2026-11-01, `goose_gate.json`, `pipeline/goose_gate.py`):**
+    `scripts/download_goose.sh` (ownCloud mirrors, CC BY-SA 4.0) -> `<data root>/goose/3d/`;
+    `config/goose_to_rellis.yaml` (64 -> RELLIS ids); recording-level split `config/goose_split.yaml` (GOOSE's own
+    splits are by frame; test is unlabelled): 7 held-out recordings, 2,191 frames, incl. 4 rain/snow.
+    SalsaNext trained on VLS-128 (`ml/lidar/train_salsanext.py`, 40 epochs, weights `<data root>/weights/salsanext_goose`,
+    best frame-level val mIoU 33.4, `goose_salsanext_train_log.jsonl`). `pipeline/goose_monitor_eval.py`: single
+    keyframes (no memory, tracking or camera); 10 runs via `scripts/slurm/goose_faults.sbatch`.
+    Findings: clean per-scan loss 5.2 % (RELLIS 2 %); only lost returns raise it (75 %: 5.2 -> 9.3 %); fewer rings
+    and blocked sectors lower it (lethal -> UNKNOWN). Density AUROC 0.77 on clean scans (tracks open scenes);
+    lidar entropy 0.42 (best on RELLIS, 0.83, does not transfer). Loss varies by recording more than by weather
+    (neubiberg rain 2.6 % < same-area overcast 4.7 %; campus rain 8-10 %). Leave-one-recording-out: risk > alpha
+    on 5 of 7 recordings for every score, the oracle included; monitors reject the easiest recording (entropy keeps
+    40 % of neubiberg rain) and accept the hardest. The pooled weather test passes only because neubiberg rain
+    dominates it. Implication for the paper: marginal calibration fails under site shift; needs a shift-aware gate.
 - Evaluation notes: RELLIS-3D splits are by sequence (00004 is all training data; use 00001); mIoU over
   "present" classes is dominated by tiny-support classes, so report the ≥10k-point mean alongside.
 
