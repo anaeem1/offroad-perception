@@ -40,7 +40,7 @@ planner consumes the contract. The Jetson is reached through its own Claude agen
 ## Added 2026-10-24 (server first, ADR-0012)
 - [x] Fault-injection study: 18 replays of the test block (`robustness_00001_test.json`, `docs/figures/robustness.png`);
       hazards H-14/H-15 and ODD degradation limits from it
-- [x] Demo video of the full test block (`pipeline/render_demo.py`; GIF in the README)
+- [x] Demo video of the full test block (`pipeline/render_demo.py`; GIF in the README; full video https://youtu.be/2L4K43ye_TA)
 - [x] README rewritten as an architecture document
 - [x] ONNX Runtime GPU fix: replays had run their models on the CPU
 

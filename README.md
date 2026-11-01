@@ -8,11 +8,12 @@ C++/TensorRT runtime brought up on a Jetson Orin NX.
 > The goal is a **system**, not a state-of-the-art model: clear contracts, measured trade-offs, documented
 > failure modes, and evidence for every claim. Every number below links to the file that measured it.
 
-![Demo: camera with lidar points coloured by fused class, BEV traversability grid with tracks, planner decision](docs/figures/demo_00001.gif)
+[![Demo: camera with lidar points coloured by fused class, BEV traversability grid with tracks, planner decision](docs/figures/demo_00001.gif)](https://youtu.be/2L4K43ye_TA)
 
 *Held-out RELLIS-3D sequence 00001. Left: camera image with lidar points coloured by their fused class.
 Right: 40 m × 40 m traversability grid (green free → red lethal, dark = UNKNOWN, blue tint = remembered),
-tracked people with 1 s velocity arrows, and the corridor a contract-following planner checks.*
+tracked people with 1 s velocity arrows, and the corridor a contract-following planner checks.
+**[Full video (105 s, 1080p) on YouTube](https://youtu.be/2L4K43ye_TA)**.*
 
 ## At a glance
 

@@ -103,9 +103,8 @@ README as an architecture document); the second Jetson run moves after the write
 - **Public repo:** github.com/anaeem1/offroad-perception (pushed 2026-10-25). Push from this server with the
   repo-only deploy key `~/.ssh/offroad_perception_deploy` (set as `core.sshCommand` in the repo config):
   `git push`. Owner chose to publish everything as is (server paths, CLAUDE.md, author email).
-- **Open / needs the owner:** YouTube link for the demo video (owner uploads `CAT/demo_00001_test.mp4`,
-  unlisted), then it goes into the README under the GIF.
-- **Next:** hosting + links in the README; week 4 polish (Oct 26–29); Jetson run 2 when the owner has board time.
+- **Demo video public on YouTube (2026-11-01):** https://youtu.be/2L4K43ye_TA, linked from the README GIF and caption.
+- **Next:** Jetson run 2 when the owner has board time.
 - **Research track (after the application, owner request 2026-10-27):** paper on perception monitors that
   track safety, not inputs. Proposal doc: claude.ai/artifact/1oV5xPPsY1D9NJ66GhjBag. Pilot (`monitor_pilot_00001.json`,
   `pipeline/pilot_monitors.py`, 12 replays with PREFIX=pilot): at fault-free risk, lidar entropy keeps 58 % of
