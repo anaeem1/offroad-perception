@@ -27,12 +27,15 @@ from pipeline.pilot_monitors import RUNS, SIGNALS, fit_logistic, load
 BLOCK = 50
 
 
-def threshold(score, loss, alpha):
-    """Largest score threshold whose adjusted calibration risk is <= alpha (-inf: reject everything)."""
+def threshold(score, loss, alpha, units=None):
+    """Largest score threshold whose adjusted calibration risk is <= alpha (-inf: reject everything).
+    units: number of exchangeable units when the rows come in equal-size groups (e.g. one scan under every
+    fault run); the loss of a unit is the mean over its rows and the correction is 1/(units + 1). Default:
+    every row is a unit."""
     order = np.argsort(score, kind="mergesort")
     s, cum = score[order], np.cumsum(loss[order])
-    n = len(s)
-    ok = (cum + 1.0) / (n + 1) <= alpha
+    n = len(s) if units is None else units
+    ok = (cum * n / len(s) + 1.0) / (n + 1) <= alpha
     ok &= np.r_[s[1:] != s[:-1], True]  # a threshold must accept every tied score
     idx = np.flatnonzero(ok)
     return float(s[idx.max()]) if len(idx) else -np.inf
