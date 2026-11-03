@@ -37,7 +37,7 @@ echo "using lidar=$LIDAR_ENGINE camera=$CAMERA_ENGINE" | tee "$OUT/engines_used.
 echo "== replay"
 nvpmodel -q 2>/dev/null | head -1 | tee "$OUT/power_mode.txt"
 DUR=$(ros2 bag info "$CLIP" | awk '/Duration/ {print int($2)+1}')
-(tegrastats --interval 500 > "$OUT/tegrastats.log" 2>&1 &) ; TS=$!
+tegrastats --interval 500 > "$OUT/tegrastats.log" 2>&1 & TS=$!
 ros2 launch offroad_perception replay.launch.py bag:="$CLIP" seq:="$SEQ" engines:="$ENG" logs:="$OUT" \
   lidar_engine_file:="$LIDAR_ENGINE" camera_engine_file:="$CAMERA_ENGINE" > "$OUT/launch.log" 2>&1 &
 LAUNCH=$!
@@ -49,7 +49,7 @@ sleep $((DUR + 12))
 kill -INT -- -$REC 2>/dev/null || true; sleep 2      # whole process group (recorder)
 kill -INT -- -$LAUNCH 2>/dev/null || true; sleep 6   # whole process group (launch + container)
 pgrep -f "node:=perception" >/dev/null && { echo "container still up; sending TERM"; pkill -TERM -f "node:=perception"; } || true
-pkill -f tegrastats 2>/dev/null || true
+kill "$TS" 2>/dev/null || true  # only this replay's logger (session.sh runs its own)
 grep -iE "error|exception|fail" "$OUT/launch.log" | head -20 || true
 
 echo "== latency summary (ms)"

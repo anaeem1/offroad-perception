@@ -60,6 +60,8 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
     `~/parklabs/CAT` on the Jetson). A Claude Code session runs there: hand it self-contained prompts with
     a fixed reply format. Its clock was at 1970, so check NTP sync first, and run `conda deactivate`
     before any ROS 2 work. See `docs/jetson_setup.md`.
+  - **Drops off Wi-Fi; only a physical restart (owner in the lab) brings it back** (2026-11-03, cause unknown).
+    Board work goes in one unattended tmux script (`scripts/jetson/session.sh`) that restores the board on exit.
   - ONNX ships at **opset 17** (ADR-0006).
   - TensorRT engines must be built **on the Jetson**, not on the server.
   - Keep exported ONNX opsets compatible with the Jetson's TensorRT version.
@@ -102,8 +104,9 @@ README as an architecture document); the second Jetson run moves after the write
   every 64th point of a column-major cloud = beam 0 only (11 % vs 55 % valid), and best-effort QoS lost most
   6.3 MB clouds → lidar never OK, SAFE_STOP 386/436, H-6 dropout run inconclusive. Fixed in code 2026-11-03
   (all points; reliable depth 1 like segmentation_fusion), plus `onto_index` table and a `map_ms` column for the
-  ~19 ms untimed class mapping. `CAT/jetson_bundle7.tar.gz` = rerun of run 2 + dropout. Board was left with
-  clocks locked and find_me_loc/nomad stopped (restore commands in the run-2 reply).
+  ~19 ms untimed class mapping. After run 2 the board dropped off Wi-Fi and needed a physical restart (which also
+  restored clocks and services). `CAT/jetson_bundle7.tar.gz` = rerun of run 2 + dropout via `session.sh`, which
+  also saves the previous boot's journal to find the cause.
 - **Live-driver QoS caveat:** the Ouster ROS 2 driver publishes best effort by default; a reliable subscription is
   incompatible with that. Replay (bag play, reliable) is fine; a live deployment must match the driver's QoS
   in both segmentation_fusion and health_monitor.

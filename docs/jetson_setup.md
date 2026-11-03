@@ -23,6 +23,10 @@
   Conda's Python shadows the system Python 3.10 that ROS 2 Humble and colcon need.
 - Files move from the server via a tarball (VS Code download → `~/parklabs/CAT` on the Jetson).
   Extract with `tar xmzf` so file times are taken from the Jetson's clock.
+- **The board drops off Wi-Fi and comes back only after a physical restart** (owner, 2026-11-03). The on-board
+  Claude agent needs the network, so a session must not depend on it: run board work as one unattended script
+  inside tmux (`scripts/jetson/session.sh`), with clocks locked only while it runs and the board restored on exit.
+  A restart also undoes `jetson_clocks` and restarts find_me_loc and nomad.service.
 
 ## 1. Identify the stack ✔
 `scripts/jetson/jetson_info.sh`. Done; see the table above.
@@ -41,6 +45,9 @@ message. It refuses to run inside conda. If `colcon` is missing, install
 ## 4. Replay the stack
 `scripts/jetson/replay_on_jetson.sh` (bundle 4). Needs the mcap storage plugin for `ros2 bag`:
 `sudo apt install ros-humble-rosbag2-storage-mcap` (installed Oct 19).
+From bundle 7 on, `scripts/jetson/session.sh` wraps it: main replay + lidar-dropout replay, temperature and power
+logged for the whole session, the previous boot's journal saved (to explain the last disconnect), and clocks and
+stopped services restored on exit, even after an error.
 
 ## Rules
 - TensorRT engines are built on the Jetson only. The server never ships `.engine` files.
