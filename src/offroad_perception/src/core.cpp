@@ -8,10 +8,14 @@
 
 namespace offroad {
 
-int onto_index(int id) {
-  for (int k = 0; k < kNumClasses; ++k)
-    if (kOntologyIds[k] == id) return k;
-  return -1;
+int onto_index(int id) {  // table, not a search: called ~20 times per point (~70k points per scan)
+  static const auto table = [] {
+    std::array<int, 35> t;
+    t.fill(-1);
+    for (int k = 0; k < kNumClasses; ++k) t[kOntologyIds[k]] = k;
+    return t;
+  }();
+  return id >= 0 && id < static_cast<int>(table.size()) ? table[id] : -1;
 }
 
 // ---- poses -------------------------------------------------------------------------------------------

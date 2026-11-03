@@ -27,19 +27,23 @@ class HealthMonitorNode : public rclcpp::Node {
     max_output_age_ = declare_parameter<double>("max_output_age_s", 0.25);  // ADR-0005, contract v1.0
     min_valid_fraction_ = declare_parameter<double>("lidar_min_valid_fraction", 0.2);
     pub_ = create_publisher<PerceptionHealth>("/perception/health", 10);
-    lidar_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>("/os1_cloud_node/points", rclcpp::SensorDataQoS(),
+    // Sensor QoS as in segmentation_fusion (reliable, depth 1): the monitor must see the stream perception gets.
+    // With best effort it lost most 6.3 MB replayed clouds on the Orin and read the lidar FAILED while
+    // segmentation processed 95 % of scans (Jetson run 6).
+    lidar_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>("/os1_cloud_node/points", 1,
         [this](sensor_msgs::msg::PointCloud2::ConstSharedPtr m) {
-          // Cheap density check: share of returns with nonzero range in a sample of points.
-          size_t valid = 0, n = 0;
+          // Density: share of all points with nonzero range, as pipeline/run_replay.py computes it. Every point,
+          // not a sample: RELLIS clouds are column-major (index % 64 = beam), so every 64th point is the top beam.
+          size_t valid = 0;
           int orng = -1;
           for (const auto& f : m->fields) if (f.name == "range") orng = static_cast<int>(f.offset);
           const size_t N = static_cast<size_t>(m->width) * m->height;
-          for (size_t i = 0; orng >= 0 && i < N; i += 64, ++n) valid += read_at<uint32_t>(&m->data[i * m->point_step + orng]) > 0;
+          for (size_t i = 0; orng >= 0 && i < N; ++i) valid += read_at<uint32_t>(&m->data[i * m->point_step + orng]) > 0;
           std::lock_guard<std::mutex> lk(mu_);
           lidar_rx_ = now().seconds();
-          lidar_valid_fraction_ = n ? static_cast<double>(valid) / n : 0.0;
+          lidar_valid_fraction_ = orng >= 0 && N ? static_cast<double>(valid) / N : 0.0;
         });
-    cam_sub_ = create_subscription<sensor_msgs::msg::Image>("/pylon_camera_node/image_raw", rclcpp::SensorDataQoS(),
+    cam_sub_ = create_subscription<sensor_msgs::msg::Image>("/pylon_camera_node/image_raw", 1,
         [this](sensor_msgs::msg::Image::ConstSharedPtr) { std::lock_guard<std::mutex> lk(mu_); cam_rx_ = now().seconds(); });
     grid_sub_ = create_subscription<perception_msgs::msg::TraversabilityGrid>("/perception/traversability", 5,
         [this](perception_msgs::msg::TraversabilityGrid::ConstSharedPtr m) {

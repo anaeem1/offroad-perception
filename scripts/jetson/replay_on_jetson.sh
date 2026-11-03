@@ -73,6 +73,9 @@ for name in ("segmentation_camera.csv", "segmentation_lidar.csv", "bev_tracker.c
             continue
         if v:
             print(f"  {col:22s} median {statistics.median(v):9.2f}  p95 {q(v, 95):9.2f}  max {max(v):9.2f}")
+    if name == "bev_tracker.csv" and rows:  # the grid is the contract output; bound 250 ms (ADR-0005)
+        age = [float(r["age_at_publish_ms"]) for r in rows]
+        print(f"  grids older than 250 ms at publish: {sum(a > 250 for a in age)} of {len(age)} ({sum(a > 250 for a in age) / len(age):.1%})")
 
 # Nodes run on the bag's /clock, so receive_delay = sensor lag recorded in the bag (log time - header.stamp)
 # + time the scan waited for our node. Split them per scan with the clip's log times (ADR-0011).
@@ -105,18 +108,21 @@ try:
     r.open(rosbag2_py.StorageOptions(uri=os.path.join(out, "outputs"), storage_id="mcap"), rosbag2_py.ConverterOptions("cdr", "cdr"))
     r.set_filter(rosbag2_py.StorageFilter(topics=["/perception/health"]))
     MODES, STATUS = ["NOMINAL", "LIDAR_ONLY", "CAMERA_ONLY", "SAFE_STOP"], ["OK", "DEGRADED", "FAILED"]
-    modes, prev, n, changes = Counter(), None, 0, 0
+    modes, prev, n, changes, status = Counter(), None, 0, 0, Counter()
     while r.has_next():
         _, data, t = r.read_next()
         h = deserialize_message(data, PerceptionHealth)
         n += 1
         modes[MODES[h.mode]] += 1
+        status.update((s.sensor_id, STATUS[s.status]) for s in h.sensors)
         lidar = next((s for s in h.sensors if s.sensor_id == "os1_lidar"), None)
         if lidar and lidar.status != prev and changes < 30:
             changes += 1
             print(f"  health #{n}: lidar {STATUS[lidar.status]} (data age {lidar.data_age_ms:.0f} ms, '{lidar.reason}'), mode {MODES[h.mode]}")
             prev = lidar.status
     print(f"  {n} messages; " + ", ".join(f"{k} {v}" for k, v in modes.most_common()))
+    for sid in sorted({k[0] for k in status}):
+        print(f"  {sid}: " + ", ".join(f"{st} {status[(sid, st)]}" for st in STATUS))
 except Exception as e:
     print(f"  unavailable: {e!r}")
 

@@ -96,15 +96,24 @@ README as an architecture document); the second Jetson run moves after the write
   safety case, deployment status, findings, decision log, limitations, reproduce).
 - **Server env fix:** `env/activate.sh` puts cuDNN 9 on LD_LIBRARY_PATH; before Oct 24 every replay ran ORT on
   the CPU. Full test-block replay now ~5 min on GPU with `--default-only`.
-- **Jetson (deferred, ADR-0012):** run 1 measured (150 ms/scan, SAFE_STOP held). `CAT/jetson_bundle6.tar.gz`
-  (commit b3d93f0) is ready: run 2 + INT8 timing + lidar-dropout test (H-6). INT8 lidar closed (ADR-0010).
+- **Jetson run 2 (bundle 6, 2026-11-02, `jetson_replay_run2.txt`):** keeps up with 10 Hz (95 % of scans,
+  queueing 4 ms, lidar path 80 ms/scan); grid age 228 ms median, **253 ms p95 vs 250 bound** (123 ms is bag sensor
+  lag). INT8 engine slower than FP16 (64.7 vs 48.9 ms). **Health monitor defect** (also in run 1): density sampled
+  every 64th point of a column-major cloud = beam 0 only (11 % vs 55 % valid), and best-effort QoS lost most
+  6.3 MB clouds → lidar never OK, SAFE_STOP 386/436, H-6 dropout run inconclusive. Fixed in code 2026-11-03
+  (all points; reliable depth 1 like segmentation_fusion), plus `onto_index` table and a `map_ms` column for the
+  ~19 ms untimed class mapping. `CAT/jetson_bundle7.tar.gz` = rerun of run 2 + dropout. Board was left with
+  clocks locked and find_me_loc/nomad stopped (restore commands in the run-2 reply).
+- **Live-driver QoS caveat:** the Ouster ROS 2 driver publishes best effort by default; a reliable subscription is
+  incompatible with that. Replay (bag play, reliable) is fine; a live deployment must match the driver's QoS
+  in both segmentation_fusion and health_monitor.
 - **ADR-0005 accepted (2026-10-24):** output age ≤ 250 ms from the sweep-start stamp; contract v1.0,
   `perception_msgs` 1.0.0 (no message definition changed).
 - **Public repo:** github.com/anaeem1/offroad-perception (pushed 2026-10-25). Push from this server with the
   repo-only deploy key `~/.ssh/offroad_perception_deploy` (set as `core.sshCommand` in the repo config):
   `git push`. Owner chose to publish everything as is (server paths, CLAUDE.md, author email).
 - **Demo video public on YouTube (2026-11-01):** https://youtu.be/2L4K43ye_TA, linked from the README GIF and caption.
-- **Next:** Jetson run 2 when the owner has board time.
+- **Next:** Jetson bundle 7 (fixed health monitor, H-6 dropout, map_ms).
 - **Research track (after the application, owner request 2026-10-27):** paper on perception monitors that
   track safety, not inputs. Proposal doc: claude.ai/artifact/1oV5xPPsY1D9NJ66GhjBag. Pilot (`monitor_pilot_00001.json`,
   `pipeline/pilot_monitors.py`, 12 replays with PREFIX=pilot): at fault-free risk, lidar entropy keeps 58 % of

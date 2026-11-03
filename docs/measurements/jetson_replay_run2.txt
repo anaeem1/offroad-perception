@@ -1,0 +1,86 @@
+# Second on-device replay of the C++ stack (bundle 6, commit in its COMMIT file), 2026-11-02 ~20:35-21:05 board
+# clock, run by the Jetson Claude agent. Orin NX 8 GB, JetPack 6.0, TensorRT 8.6.2, MAXN, jetson_clocks ON (CPU
+# 1.98 GHz, GPU 765 MHz, EMC 3.2 GHz locked). Board quieted: find_me_loc container and nomad.service stopped (owner
+# approved); tf2_echo loop, VS Code server and desktop still running. 3.4 GiB RAM available before the run.
+# Build: 2 packages, Release, no compile errors, no source changes on the board (diff vs pristine: none).
+# Engines in the replay: salsanext_fp16 + segformer480_fp16 (ADR-0010). GPU (tegrastats GR3D) mean 32 %, max 99 %.
+# Input: 00001 clip, scans 100-400 (319 scans), ros2 bag play --clock, rate 1.0. Run 3: same clip, 20 s
+# (--start 5 --end 25), lidar removed for 3.1 s by scripts/jetson/make_dropout_clip.py (hazard H-6).
+#
+# Result: the pipeline keeps up with the 10 Hz sensor (95 % of scans processed, was 64 % in run 1; queueing
+# 4 ms median, was ~447 ms). Grid age at publish: median 228 ms, p95 253 ms against the 250 ms bound (ADR-0005).
+# Health monitor defect found: lidar never OK (see the end). Run 3 is therefore inconclusive for H-6.
+
+== RUN 2 (main replay) ==
+segmentation_camera.csv: 306 rows          median      p95      max   (ms)
+  debayer_ms                                0.90     3.51    19.55
+  resize_ms                                 2.38     4.45    16.83
+  camera_gpu_ms                            20.91    23.14   324.65
+  camera_infer_ms                          22.16    27.15   329.17
+  total_ms                                 25.63    35.93   339.69
+
+segmentation_lidar.csv: 303 rows
+  receive_delay_ms                        127.82   151.77   202.23
+  decode_ms                                 0.82     1.25     2.46
+  range_proj_ms                             3.90     5.61    10.09
+  lidar_gpu_ms                             43.98    53.50   288.43
+  lidar_infer_ms                           46.41    56.51   292.57
+  match_ms                                  0.61     1.33     2.36
+  fuse_ms                                   5.29     7.14    12.82
+  base_ms                                   3.85     5.28     6.72
+  publish_ms                                0.03     0.11    11.90
+  total_ms                                 80.10    96.46   340.17   (timed stages sum to ~61 ms by medians; the
+                                                                      rest is the untimed per-point class mapping,
+                                                                      map_ms from bundle 7 on)
+  camera_used                               1.00     1.00     1.00
+  cam_minus_wedge_ms                        5.49     6.17     6.71
+  age_at_publish_ms                       202.95   228.78   477.09
+
+bev_tracker.csv: 303 rows
+  receive_delay_ms                        202.95   228.60   477.09
+  grid_cluster_ms                           9.51    12.28    19.48
+  memory_ms                                 6.56    10.45    20.77
+  track_ms                                  0.02     0.03     0.23
+  publish_ms                                0.31     1.01    23.07
+  total_ms                                 18.63    23.92    58.23
+  n_points / n_dets / n_tracks           70864 / 5 / 7 (medians)
+  remembered_cells                       22226 (median)
+  age_at_publish_ms                       227.78   253.31   477.09   (the contract output; bound 250 ms)
+
+planner.csv: 317 rows
+  age_at_consume_ms                       227.89   277.66   477.09
+  speed_factor                              0.00     0.15     0.22
+  cmd_v                                     0.00     0.29     0.45
+  cmd_v > 0 in 14 % of 317 decisions: SAFE_STOP 253, LIDAR_ONLY cap 48, watchdog: SAFE_STOP 14, stale output 2
+
+lidar scans: 303 processed of 319 in the clip (95 %); 0 unmatched
+  recorded_lag_ms                         123.45   126.53   130.41   (sensor lag recorded in the bag, sweep included)
+  queueing_ms                               4.44    27.75    76.70
+
+health: 436 messages; SAFE_STOP 386, LIDAR_ONLY 50, NOMINAL 0. Lidar status alternates between DEGRADED
+  ('low point density', data age 50-75 ms, each time a cloud arrives) and FAILED ('stale: no message for
+  250-350 ms'); never OK. First 30 changes listed in the Jetson agent's report.
+
+== ENGINE TIMING (trtexec, alone, same session, clocks locked) ==
+salsanext_fp16   GPU compute median 48.95 ms, mean 49.12, p95 51.35, p99 52.69
+salsanext_int8   GPU compute median 64.73 ms, mean 65.10, p95 67.81, p99 69.85   (explicit Q/DQ, best calibration
+                 variant of ADR-0010; slower than FP16, against a 25.8 ms all-INT8 bound; layer placement not inspected)
+
+== RUN 3 (lidar dropout, H-6) ==
+dropout: last lidar before 1581623811.318 s, first after 1581623814.416 s (bag time): gap 3098 ms, 30 scans dropped
+segmentation_lidar.csv: 154 rows (91 % of 170): total_ms median 81.86, p95 96.16; queueing median 2.33
+bev_tracker.csv: 154 rows: age_at_publish_ms median 225.96, p95 250.96, max 600.62
+health: 316 messages; SAFE_STOP 309, LIDAR_ONLY 7. The lidar FAILED entries inside the gap look the same as the
+  ones outside it (data age 275 ms), so the detection delay cannot be read from this run.
+planner: cmd_v > 0 in 2 % of 155 decisions: SAFE_STOP 147, LIDAR_ONLY cap 4, stale output 3, watchdog 1
+errors: none in either launch log; no leftover perception process after shutdown (fixed shutdown works).
+
+# Health monitor defect (diagnosed on the server 2026-11-03, fixed in bundle 7, not yet re-run):
+# 1. Density read every 64th point. RELLIS clouds (64 x 2048, point_step 48) are column-major: index % 64 is the
+#    beam, so the sample was always beam 0 (+17 deg, mostly sky). Clip 00001_s100-400: 0-13 % valid in the sample
+#    vs 51-57 % over all points (threshold 20 %), so every cloud read DEGRADED. Fix: all points, as
+#    pipeline/run_replay.py and hazard H-14 define density.
+# 2. Lidar and camera subscribed best effort (SensorDataQoS); segmentation_fusion subscribes reliable, depth 1.
+#    The monitor's gaps of 250-350+ ms show it lost most 6.3 MB clouds that segmentation received (95 %).
+#    Fix: same QoS as segmentation_fusion.
+# Both defects were also present in run 1, so run 1's SAFE_STOP does not isolate the output-age check (H-2).

@@ -58,7 +58,7 @@ class SegmentationFusionNode : public rclcpp::Node {
     const auto ego = declare_parameter<std::vector<double>>("ego_box", std::vector<double>{-0.9, 0.9, -0.8, 0.8, -0.5, 2.0});
     ego_ = {ego[0], ego[1], ego[2], ego[3], ego[4], ego[5]};
     lidar_log_.open(declare_parameter<std::string>("lidar_timing_csv", ""),
-                    "stamp,receive_delay_ms,decode_ms,range_proj_ms,lidar_gpu_ms,lidar_infer_ms,match_ms,fuse_ms,"
+                    "stamp,receive_delay_ms,decode_ms,range_proj_ms,lidar_gpu_ms,lidar_infer_ms,map_ms,match_ms,fuse_ms,"
                     "base_ms,publish_ms,total_ms,camera_used,cam_minus_wedge_ms,age_at_publish_ms");
     camera_log_.open(declare_parameter<std::string>("camera_timing_csv", ""),
                      "stamp,debayer_ms,resize_ms,camera_gpu_ms,camera_infer_ms,total_ms");
@@ -180,10 +180,16 @@ class SegmentationFusionNode : public rclcpp::Node {
     std::vector<int32_t> ll;
     const float lidar_gpu = lidar_->infer(ri.input.data(), lp, ll);
     const double t_lidar = ms_since(t1);
+    // Valid points and their class distributions in the ontology (map_ms; ~19 ms on the Orin in run 6, from
+    // total_ms minus the timed stages, before onto_index became a table).
+    t1 = Clock::now();
     const int K = static_cast<int>(lidar_->probs_shape()[1]), HW = 64 * 2048;
     std::vector<uint32_t> vidx;
     std::vector<Vec3> vpts;
     std::vector<double> vt;
+    vidx.reserve(N);
+    vpts.reserve(N);
+    vt.reserve(N);
     for (size_t i = 0; i < N; ++i)
       if (valid[i]) { vidx.push_back(static_cast<uint32_t>(i)); vpts.push_back({xyz[3 * i], xyz[3 * i + 1], xyz[3 * i + 2]}); vt.push_back(pt[i]); }
     std::vector<Dist> probs(vidx.size());
@@ -193,6 +199,7 @@ class SegmentationFusionNode : public rclcpp::Node {
       for (int j = 0; j < K; ++j) pl[j] = lp[j * HW + pix];
       probs[k] = lidar_to_ontology(pl.data(), K, train_to_onto_, bucket_);
     }
+    const double t_map = ms_since(t1);
     // Camera frame nearest to when the lidar swept the camera wedge.
     t1 = Clock::now();
     PoseTrack odom;
@@ -278,7 +285,7 @@ class SegmentationFusionNode : public rclcpp::Node {
     t1 = Clock::now();
     pub_->publish(std::move(out));
     const double t_pub = ms_since(t1);
-    lidar_log_.row(std::to_string(stamp), receive_delay, t_decode, t_proj, lidar_gpu, t_lidar, t_match, t_fuse, t_base, t_pub,
+    lidar_log_.row(std::to_string(stamp), receive_delay, t_decode, t_proj, lidar_gpu, t_lidar, t_map, t_match, t_fuse, t_base, t_pub,
                    ms_since(t0), cam_used ? 1 : 0, cam_minus_wedge, (now().seconds() - stamp) * 1e3);
   }
 

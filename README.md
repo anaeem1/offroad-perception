@@ -24,7 +24,7 @@ tracked people with 1 s velocity arrows, and the corridor a contract-following p
 | Tracking | MOTA **0.59**, IDF1 0.56, 41 ID switches over 66 objects | [tracking_00001_test.json](docs/measurements/tracking_00001_test.json) |
 | Planner | A planner that follows the contract can move in **84 %** of scans | [robustness_00001_test.json](docs/measurements/robustness_00001_test.json) |
 | Robustness | 18 fault-injected replays: lidar faults degrade safety **silently**; camera faults cost at most the camera's own contribution | same, [figure](docs/figures/robustness.png) |
-| Runtime | C++ core identical to the Python reference in all 9 stages; runs end to end on the Orin NX | [cpp_parity.json](docs/measurements/cpp_parity.json), [jetson_replay_run1.txt](docs/measurements/jetson_replay_run1.txt) |
+| Runtime | C++ core identical to the Python reference in all 9 stages; on the Orin NX the grid is **228 ms** old at the median, 253 ms at p95 (bound 250 ms) | [cpp_parity.json](docs/measurements/cpp_parity.json), [jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt) |
 
 ## Scope
 - **Is:** an end-to-end perception system for a slow off-road machine (≤ 2 m/s), with an explicit output contract,
@@ -140,13 +140,15 @@ clean data ([pipeline/faults.py](pipeline/faults.py), 18 runs of the full test b
 ## Deployment on a Jetson Orin NX
 Target: Orin NX 8 GB, JetPack 6.0, TensorRT 8.6, ROS 2 Humble.
 
-| Stage | Budget (ms) | Measured on the Orin NX (ms) |
+| Stage | Budget (ms) | Orin NX, in the replay: median / p95 (ms) |
 |---|---|---|
-| Camera seg (SegFormer-B0 480×768 FP16) | 30 | 20.0 |
-| Lidar seg (SalsaNext FP16) | 20 | **49.1** (recorded overrun) |
-| Fusion + BEV, clustering + tracking, transport | 50 | run 2 pending |
+| Camera seg (SegFormer-B0 480×768 FP16), in parallel with the lidar path | 30 | 20.9 / 23.1 |
+| Lidar seg (SalsaNext FP16) | 20 | **44.0 / 53.5** (recorded overrun) |
+| Fusion + BEV, clustering + tracking, transport | 50 | ~52 by medians: 34 in the segmentation node besides the model (19 of it an untimed per-point class mapping, now a table lookup; re-measure pending), 18.6 BEV + tracking, ~0 transport (intra-process) |
+| **Grid age at publish**, from the sweep-start stamp ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) | 250 | **228 / 253**: 123 sensor lag recorded in the bag (sweep included) + 4 queueing + 80 segmentation + 19 BEV and tracking |
 
-Model times are TensorRT GPU medians measured alone ([jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)).
+Run 2, clocks locked, board quieted ([jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt)). Model rows are
+GPU times inside the replay; alone, SalsaNext FP16 takes 48.9 ms ([jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)).
 
 What the board has shown so far:
 - **Run 1** ([jetson_replay_run1.txt](docs/measurements/jetson_replay_run1.txt)): the full C++ stack builds and runs
@@ -157,9 +159,20 @@ What the board has shown so far:
   INT8 for SalsaNext rejected after ten calibration variants (best: −2.7 mIoU and a third of vehicle IoU lost);
   sensor queues of depth one so a slow node drops stale scans instead of queueing them
   ([ADR-0010](docs/adr/0010-deployment-model-configuration.md), [ADR-0011](docs/adr/0011-newest-input-wins.md)).
-- **Status:** the second on-device run (bundle ready, including a lidar-dropout test for H-6) is scheduled after
-  this write-up ([ADR-0012](docs/adr/0012-server-first-finish.md)). The end-to-end latency on the board in the
-  final configuration is not yet measured, and this document does not claim it.
+- **Run 2** ([jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt)): with those fixes the stack keeps up
+  with the 10 Hz sensor. 95 % of scans are processed (run 1: 64 %), queueing is 4 ms at the median (run 1: ~447 ms),
+  and the lidar path takes 80 ms per scan (run 1: 150 ms). The grid is 228 ms old at the median and **253 ms at
+  p95, just over the 250 ms bound**; 123 ms of that is sensor lag recorded in the bag. The lidar model is the overrun.
+- **The health monitor was wrong in both runs.** It never reported the lidar OK, so the planner moved in only 14 %
+  of decisions. It read point density from every 64th point, but RELLIS clouds are stored column-major, so that
+  sample is always the top beam (11 % valid against 55 % overall). It also subscribed best effort and lost most
+  6.3 MB clouds that the segmentation node (reliable) received. Fixed in code, not yet on the board: density over all
+  points, as the Python reference computes it, and the segmentation node's QoS. Run 1's SAFE_STOP was still the
+  right answer (output ~720 ms old), but it does not isolate the output-age check.
+- **INT8 as built is slower, not faster:** the best calibration variant's engine (explicit Q/DQ) took 64.7 ms against
+  48.9 ms for FP16 on the board; Q/DQ placement not inspected.
+- **Next on the board (bundle 7):** the fixed monitor, the lidar-dropout test for H-6 (inconclusive in run 2's
+  session for the same reason), and the class-mapping time.
 
 ## Findings that changed the design
 Each was found in the data, not assumed, and each is recorded where it changed something.
@@ -173,6 +186,9 @@ Each was found in the data, not assumed, and each is recorded where it changed s
 - **RELLIS-3D labels mark ground where people walked as `person`**, which makes person metrics pessimistic
   ([diag_person_wedge_00001.json](docs/measurements/diag_person_wedge_00001.json), [ADR-0009](docs/adr/0009-tracking-and-its-evaluation.md)).
 - **A 5-deep sensor queue turned a 150 ms pipeline into a 720 ms-old output** ([ADR-0011](docs/adr/0011-newest-input-wins.md)).
+- **A health monitor must see the stream its consumer gets.** Subscribed best effort, it lost most 6.3 MB clouds and
+  read the lidar dead while perception had 95 % of scans; sampling every 64th point of a column-major cloud read one
+  beam. Found on the board ([jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt)).
 - **A planner that decides once per grid never stops when the grids stop**; found while designing the lidar-loss test.
 - **ONNX Runtime silently fell back to the CPU** when cuDNN was missing from the loader path; every replay before the
   fix ran its models on the CPU ([env/activate.sh](env/activate.sh)).
@@ -197,7 +213,8 @@ Each was found in the data, not assumed, and each is recorded where it changed s
 - **Vehicles** are tracked poorly (recall 0.20): the lidar model segments them poorly. Needs vehicle-rich training data
   before any deployment near traffic (H-9).
 - **Partly blinded lidar** is not detected (H-14): replace the fixed density floor with a rolling nominal.
-- **On-device latency** in the final configuration: run 2 on the Orin NX, then fill the latency table.
+- **Output age at p95 is 253 ms against the 250 ms bound** on the Orin NX: the lidar model takes 44 ms against a
+  20 ms budget. The fixed health monitor and the lidar-dropout test (H-6) still need a run on the board.
 - **Single dataset, single site.** Transfer to construction sites needs new data for training and new measurements
   of every limit in the ODD.
 
@@ -209,7 +226,7 @@ sbatch scripts/slurm/robustness.sbatch baseline: drop50:lidar_drop=0.5          
 python -m pipeline.summarize_robustness --out docs/measurements/robustness_00001_test.json --figure docs/figures/robustness.png
 python -m pipeline.run_replay --seq 00001 --scans 0:1047 --tag demo --memory-s 5 --default-only --dump-render 1
 python -m pipeline.render_demo --run <data root>/runs/replay_00001_demo --out demo.mp4  # demo video
-scripts/make_jetson_bundle.sh jetson_bundle6                                            # on-device build + replay
+scripts/make_jetson_bundle.sh jetson_bundle7                                            # on-device build + replay
 ```
 Data download and bag conversion: [scripts/download_rellis.sh](scripts/download_rellis.sh),
 [scripts/convert_bags.sh](scripts/convert_bags.sh). Jetson setup: [docs/jetson_setup.md](docs/jetson_setup.md).

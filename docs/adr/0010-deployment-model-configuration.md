@@ -70,13 +70,15 @@ CUDA stream (critical path). GPU work per frame drops from ~89 ms to ~69 ms. Whe
   Closing the gap would need quantization-aware training or a network designed for INT8: a research
   detour outside this project's scope.
 - The best INT8 variant ships in bundle 6 for **timing only**, so the speed it would have bought is measured,
-  not just bounded (the 25.8 ms bound assumes every layer in INT8).
+  not just bounded (the 25.8 ms bound assumes every layer in INT8). Measured (2026-11-02, clocks locked): **64.7 ms,
+  slower than FP16's 48.9 ms** (`jetson_replay_run2.txt`). As built it buys neither accuracy nor speed; why
+  (Q/DQ placement, reformat layers, layers without INT8 kernels) was not inspected.
 - Accuracy cost is explicit: −1.7 camera mIoU (lidar unchanged at FP16). Fusion and grid metrics
   should be re-measured with the deployed engines' outputs (Jetson-vs-reference comparison).
 - DLA stays unused. A different lidar network designed for DLA would change that, but that is a research
   detour outside this project's scope.
 ## Evidence
-- `docs/measurements/jetson_latency_sweep.txt`, `jetson_replay_run1.txt`, `camera_onnx_640x1024_test.json`,
+- `docs/measurements/jetson_latency_sweep.txt`, `jetson_replay_run1.txt`, `jetson_replay_run2.txt`, `camera_onnx_640x1024_test.json`,
   `camera_onnx_480x768_test.json`, `lidar_int8_vs_fp32.json` (INT8 vs FP32 on the same test scans).
 - `lidar_int8_{mm_avg,mm_avg_excl,pct999,pct9999,pct,pct999999,pct_w4,pct_w8,pct9999_w4}.json` (variants),
   `lidar_int8_sensitivity.json` (per-layer SQNR); produced by `scripts/slurm/quant_variant.sbatch` and

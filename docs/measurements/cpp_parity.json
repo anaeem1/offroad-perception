@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-18",
+  "date": "2026-11-03",
   "dump": "/usace_share/Share_Abdullah/offroad_perception/parity/00001",
   "passed": {
     "range_input": true,
@@ -17,7 +17,7 @@
     "scan_000300": {
       "range_input": {
         "max_abs": 0.9647010564804077,
-        "pixels_differing": 11,
+        "pixels_differing": 7,
         "pixels": 131072
       },
       "deskew_cam_max_abs_m": 1.898960055868315e-08,
@@ -49,7 +49,7 @@
     "scan_000301": {
       "range_input": {
         "max_abs": 0.8782258033752441,
-        "pixels_differing": 8,
+        "pixels_differing": 10,
         "pixels": 131072
       },
       "deskew_cam_max_abs_m": 2.7399561730589994e-08,
