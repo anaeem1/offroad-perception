@@ -1,0 +1,3885 @@
+{
+  "date": "2026-11-03",
+  "folds": "abc",
+  "alphas": [
+    0.05,
+    0.075
+  ],
+  "clean_mean_loss": 0.0995,
+  "fault_mix_mean_loss": 0.09212,
+  "signals": [
+    "density",
+    "near_coverage",
+    "lidar_entropy",
+    "entropy_grid",
+    "mc_mi",
+    "ens_mi"
+  ],
+  "runs": [
+    "clean",
+    "drop25",
+    "drop50",
+    "drop75",
+    "noise10",
+    "noise30",
+    "rings32",
+    "rings64",
+    "sector120",
+    "sector60"
+  ],
+  "rows": 84420,
+  "recordings": 23,
+  "models_best_val_miou": {
+    "salsanext_goose_a_s0": 33.29,
+    "salsanext_goose_a_s1": 33.06,
+    "salsanext_goose_a_s2": 33.29,
+    "salsanext_goose_a_s3": 34.18,
+    "salsanext_goose_a_s4": 32.53,
+    "salsanext_goose_b_s0": 34.76,
+    "salsanext_goose_c_s0": 36.95
+  },
+  "per_recording": {
+    "2022-07-22_flight": {
+      "fold": "c",
+      "scans": 465,
+      "clean_loss": 0.13024,
+      "fault_mix_loss": 0.13838
+    },
+    "2022-07-27_hoehenkirchner_forst": {
+      "fold": "c",
+      "scans": 339,
+      "clean_loss": 0.10304,
+      "fault_mix_loss": 0.08352
+    },
+    "2022-08-18_putzbrunn_feldwege": {
+      "fold": "a",
+      "scans": 319,
+      "clean_loss": 0.09499,
+      "fault_mix_loss": 0.09532
+    },
+    "2022-08-30_siegertsbrunn_feldwege": {
+      "fold": "c",
+      "scans": 406,
+      "clean_loss": 0.21758,
+      "fault_mix_loss": 0.18733
+    },
+    "2022-09-14_garching_uebungsplatz": {
+      "fold": "c",
+      "scans": 496,
+      "clean_loss": 0.07968,
+      "fault_mix_loss": 0.07227
+    },
+    "2022-09-21_garching_uebungsplatz_2": {
+      "fold": "c",
+      "scans": 330,
+      "clean_loss": 0.05723,
+      "fault_mix_loss": 0.05788
+    },
+    "2022-10-12_solalinden_waldwege": {
+      "fold": "a",
+      "scans": 538,
+      "clean_loss": 0.04432,
+      "fault_mix_loss": 0.04409
+    },
+    "2022-10-14_hohenbrunn_feldwege_waldwege": {
+      "fold": "b",
+      "scans": 254,
+      "clean_loss": 0.07093,
+      "fault_mix_loss": 0.07093
+    },
+    "2022-11-04_campus_rain": {
+      "fold": "a",
+      "scans": 64,
+      "clean_loss": 0.11961,
+      "fault_mix_loss": 0.10301
+    },
+    "2022-11-11_aying": {
+      "fold": "b",
+      "scans": 572,
+      "clean_loss": 0.13076,
+      "fault_mix_loss": 0.11062
+    },
+    "2022-11-29_campus_rain_2": {
+      "fold": "a",
+      "scans": 172,
+      "clean_loss": 0.09247,
+      "fault_mix_loss": 0.09175
+    },
+    "2022-12-07_aying_hills": {
+      "fold": "b",
+      "scans": 554,
+      "clean_loss": 0.11561,
+      "fault_mix_loss": 0.09981
+    },
+    "2023-01-20_aying_mangfall_2": {
+      "fold": "b",
+      "scans": 1021,
+      "clean_loss": 0.15793,
+      "fault_mix_loss": 0.1246
+    },
+    "2023-01-20_campus_snow": {
+      "fold": "a",
+      "scans": 31,
+      "clean_loss": 0.06794,
+      "fault_mix_loss": 0.06195
+    },
+    "2023-02-13_touareg_neuperlach": {
+      "fold": "b",
+      "scans": 43,
+      "clean_loss": 0.02531,
+      "fault_mix_loss": 0.02733
+    },
+    "2023-02-23_campus_roads": {
+      "fold": "b",
+      "scans": 172,
+      "clean_loss": 0.181,
+      "fault_mix_loss": 0.16165
+    },
+    "2023-03-02_garching": {
+      "fold": "c",
+      "scans": 393,
+      "clean_loss": 0.0613,
+      "fault_mix_loss": 0.06912
+    },
+    "2023-03-03_garching_2": {
+      "fold": "c",
+      "scans": 476,
+      "clean_loss": 0.0553,
+      "fault_mix_loss": 0.06249
+    },
+    "2023-04-05_flight_with_tiguan": {
+      "fold": "c",
+      "scans": 181,
+      "clean_loss": 0.21292,
+      "fault_mix_loss": 0.20955
+    },
+    "2023-04-20_campus": {
+      "fold": "b",
+      "scans": 321,
+      "clean_loss": 0.09217,
+      "fault_mix_loss": 0.08977
+    },
+    "2023-05-15_neubiberg_rain": {
+      "fold": "a",
+      "scans": 533,
+      "clean_loss": 0.03067,
+      "fault_mix_loss": 0.03654
+    },
+    "2023-05-17_neubiberg_sunny": {
+      "fold": "b",
+      "scans": 265,
+      "clean_loss": 0.03158,
+      "fault_mix_loss": 0.03566
+    },
+    "2023-05-24_neubiberg_cloudy": {
+      "fold": "a",
+      "scans": 497,
+      "clean_loss": 0.04896,
+      "fault_mix_loss": 0.06085
+    }
+  },
+  "per_run_mean_loss": {
+    "clean": 0.0995,
+    "drop25": 0.1018,
+    "drop50": 0.11017,
+    "drop75": 0.12086,
+    "rings64": 0.08332,
+    "rings32": 0.07104,
+    "noise10": 0.09692,
+    "noise30": 0.0983,
+    "sector60": 0.08049,
+    "sector120": 0.0588
+  },
+  "auroc_unsafe": {
+    "density": {
+      "clean": 0.67,
+      "all runs": 0.569
+    },
+    "near_coverage": {
+      "clean": 0.587,
+      "all runs": 0.567
+    },
+    "lidar_entropy": {
+      "clean": 0.403,
+      "all runs": 0.364
+    },
+    "entropy_grid": {
+      "clean": 0.365,
+      "all runs": 0.282
+    },
+    "mc_mi": {
+      "clean": 0.507,
+      "all runs": 0.413
+    }
+  },
+  "fold_a": {
+    "clean_mean_loss": 0.05594,
+    "fault_mix_mean_loss": 0.05949,
+    "auroc_unsafe": {
+      "density": {
+        "clean": 0.816,
+        "all runs": 0.65
+      },
+      "near_coverage": {
+        "clean": 0.488,
+        "all runs": 0.512
+      },
+      "lidar_entropy": {
+        "clean": 0.329,
+        "all runs": 0.351
+      },
+      "entropy_grid": {
+        "clean": 0.259,
+        "all runs": 0.226
+      },
+      "mc_mi": {
+        "clean": 0.394,
+        "all runs": 0.372
+      },
+      "ens_mi": {
+        "clean": 0.419,
+        "all runs": 0.386
+      }
+    },
+    "by_alpha": {
+      "0.05": {
+        "exchangeable": {
+          "density": {
+            "mean_risk": 0.04874,
+            "mean_coverage": 0.8774,
+            "share_above_alpha": 0.33
+          },
+          "near_coverage": {
+            "mean_risk": 0.04883,
+            "mean_coverage": 0.8052,
+            "share_above_alpha": 0.36
+          },
+          "lidar_entropy": {
+            "mean_risk": 0.04864,
+            "mean_coverage": 0.7668,
+            "share_above_alpha": 0.31
+          },
+          "entropy_grid": {
+            "mean_risk": 0.04864,
+            "mean_coverage": 0.7415,
+            "share_above_alpha": 0.33
+          },
+          "mc_mi": {
+            "mean_risk": 0.04865,
+            "mean_coverage": 0.8204,
+            "share_above_alpha": 0.32
+          },
+          "ens_mi": {
+            "mean_risk": 0.04853,
+            "mean_coverage": 0.8135,
+            "share_above_alpha": 0.29
+          },
+          "learned": {
+            "mean_risk": 0.04902,
+            "mean_coverage": 0.9378,
+            "share_above_alpha": 0.31
+          },
+          "oracle": {
+            "mean_risk": 0.04883,
+            "mean_coverage": 0.9834,
+            "share_above_alpha": 0.27
+          },
+          "accept all": {
+            "mean_risk": 0.05921,
+            "mean_coverage": 1.0,
+            "share_above_alpha": 1.0
+          }
+        },
+        "leave_one_recording_out": {
+          "density": {
+            "recordings_above_alpha": 4,
+            "of": 7,
+            "median_risk_over_alpha": 1.021,
+            "max_risk_over_alpha": 1.701,
+            "mean_coverage": 0.8648
+          },
+          "near_coverage": {
+            "recordings_above_alpha": 4,
+            "of": 7,
+            "median_risk_over_alpha": 1.08,
+            "max_risk_over_alpha": 1.958,
+            "mean_coverage": 0.8209
+          },
+          "lidar_entropy": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.948,
+            "max_risk_over_alpha": 1.984,
+            "mean_coverage": 0.764
+          },
+          "entropy_grid": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.94,
+            "max_risk_over_alpha": 1.973,
+            "mean_coverage": 0.7686
+          },
+          "mc_mi": {
+            "recordings_above_alpha": 5,
+            "of": 7,
+            "median_risk_over_alpha": 1.075,
+            "max_risk_over_alpha": 1.743,
+            "mean_coverage": 0.8191
+          },
+          "ens_mi": {
+            "recordings_above_alpha": 4,
+            "of": 7,
+            "median_risk_over_alpha": 1.058,
+            "max_risk_over_alpha": 1.826,
+            "mean_coverage": 0.8094
+          },
+          "learned": {
+            "recordings_above_alpha": 5,
+            "of": 7,
+            "median_risk_over_alpha": 1.234,
+            "max_risk_over_alpha": 1.81,
+            "mean_coverage": 0.928
+          },
+          "oracle": {
+            "recordings_above_alpha": 5,
+            "of": 7,
+            "median_risk_over_alpha": 1.239,
+            "max_risk_over_alpha": 1.857,
+            "mean_coverage": 0.9867
+          },
+          "accept all": {
+            "recordings_above_alpha": 5,
+            "of": 7,
+            "median_risk_over_alpha": 1.239,
+            "max_risk_over_alpha": 2.06,
+            "mean_coverage": 1.0
+          }
+        }
+      },
+      "0.075": {
+        "exchangeable": {
+          "density": {
+            "mean_risk": 0.05947,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "near_coverage": {
+            "mean_risk": 0.05947,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "lidar_entropy": {
+            "mean_risk": 0.05945,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "entropy_grid": {
+            "mean_risk": 0.05946,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "mc_mi": {
+            "mean_risk": 0.05945,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "ens_mi": {
+            "mean_risk": 0.05946,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "learned": {
+            "mean_risk": 0.05946,
+            "mean_coverage": 0.9999,
+            "share_above_alpha": 0.0
+          },
+          "oracle": {
+            "mean_risk": 0.05947,
+            "mean_coverage": 1.0,
+            "share_above_alpha": 0.0
+          },
+          "accept all": {
+            "mean_risk": 0.05947,
+            "mean_coverage": 1.0,
+            "share_above_alpha": 0.0
+          }
+        },
+        "leave_one_recording_out": {
+          "density": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 1.0
+          },
+          "near_coverage": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9999
+          },
+          "lidar_entropy": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9999
+          },
+          "entropy_grid": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9999
+          },
+          "mc_mi": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9999
+          },
+          "ens_mi": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9997
+          },
+          "learned": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 0.9999
+          },
+          "oracle": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 1.0
+          },
+          "accept all": {
+            "recordings_above_alpha": 3,
+            "of": 7,
+            "median_risk_over_alpha": 0.826,
+            "max_risk_over_alpha": 1.373,
+            "mean_coverage": 1.0
+          }
+        }
+      }
+    }
+  },
+  "by_alpha": {
+    "0.05": {
+      "exchangeable": {
+        "density": {
+          "mean_risk": 0.04971,
+          "mean_coverage": 0.5686,
+          "share_above_alpha": 0.42
+        },
+        "near_coverage": {
+          "mean_risk": 0.04964,
+          "mean_coverage": 0.5424,
+          "share_above_alpha": 0.4
+        },
+        "lidar_entropy": {
+          "mean_risk": 0.04971,
+          "mean_coverage": 0.4728,
+          "share_above_alpha": 0.38
+        },
+        "entropy_grid": {
+          "mean_risk": 0.04962,
+          "mean_coverage": 0.4512,
+          "share_above_alpha": 0.35
+        },
+        "mc_mi": {
+          "mean_risk": 0.04962,
+          "mean_coverage": 0.5132,
+          "share_above_alpha": 0.37
+        },
+        "learned": {
+          "mean_risk": 0.04982,
+          "mean_coverage": 0.6544,
+          "share_above_alpha": 0.47
+        },
+        "oracle": {
+          "mean_risk": 0.04974,
+          "mean_coverage": 0.8951,
+          "share_above_alpha": 0.39
+        },
+        "accept all": {
+          "mean_risk": 0.09209,
+          "mean_coverage": 1.0,
+          "share_above_alpha": 1.0
+        }
+      },
+      "leave_one_recording_out": {
+        "density": {
+          "recordings_above_alpha": 8,
+          "of": 23,
+          "median_risk_over_alpha": 0.854,
+          "max_risk_over_alpha": 1.835,
+          "mean_coverage": 0.5546
+        },
+        "near_coverage": {
+          "recordings_above_alpha": 8,
+          "of": 23,
+          "median_risk_over_alpha": 0.876,
+          "max_risk_over_alpha": 2.198,
+          "mean_coverage": 0.5256
+        },
+        "lidar_entropy": {
+          "recordings_above_alpha": 7,
+          "of": 23,
+          "median_risk_over_alpha": 0.764,
+          "max_risk_over_alpha": 3.481,
+          "mean_coverage": 0.4377
+        },
+        "entropy_grid": {
+          "recordings_above_alpha": 8,
+          "of": 23,
+          "median_risk_over_alpha": 0.756,
+          "max_risk_over_alpha": 3.541,
+          "mean_coverage": 0.4502
+        },
+        "mc_mi": {
+          "recordings_above_alpha": 7,
+          "of": 23,
+          "median_risk_over_alpha": 0.841,
+          "max_risk_over_alpha": 3.082,
+          "mean_coverage": 0.5048
+        },
+        "learned": {
+          "recordings_above_alpha": 9,
+          "of": 23,
+          "median_risk_over_alpha": 0.883,
+          "max_risk_over_alpha": 2.126,
+          "mean_coverage": 0.6401
+        },
+        "oracle": {
+          "recordings_above_alpha": 10,
+          "of": 23,
+          "median_risk_over_alpha": 0.995,
+          "max_risk_over_alpha": 1.326,
+          "mean_coverage": 0.898
+        },
+        "accept all": {
+          "recordings_above_alpha": 19,
+          "of": 23,
+          "median_risk_over_alpha": 1.67,
+          "max_risk_over_alpha": 4.191,
+          "mean_coverage": 1.0
+        }
+      },
+      "leave_one_recording_out_per_recording": {
+        "2022-07-22_flight": {
+          "density": {
+            "risk": 0.06984,
+            "coverage": 0.5865
+          },
+          "near_coverage": {
+            "risk": 0.10646,
+            "coverage": 0.7826
+          },
+          "lidar_entropy": {
+            "risk": 0.04584,
+            "coverage": 0.274
+          },
+          "entropy_grid": {
+            "risk": 0.05344,
+            "coverage": 0.3211
+          },
+          "mc_mi": {
+            "risk": 0.0466,
+            "coverage": 0.3772
+          },
+          "learned": {
+            "risk": 0.08862,
+            "coverage": 0.7688
+          },
+          "oracle": {
+            "risk": 0.04905,
+            "coverage": 0.7602
+          },
+          "accept all": {
+            "risk": 0.13838,
+            "coverage": 1.0
+          }
+        },
+        "2022-07-27_hoehenkirchner_forst": {
+          "density": {
+            "risk": 0.05456,
+            "coverage": 0.6413
+          },
+          "near_coverage": {
+            "risk": 0.07673,
+            "coverage": 0.8917
+          },
+          "lidar_entropy": {
+            "risk": 0.04903,
+            "coverage": 0.6109
+          },
+          "entropy_grid": {
+            "risk": 0.03776,
+            "coverage": 0.4891
+          },
+          "mc_mi": {
+            "risk": 0.05553,
+            "coverage": 0.6546
+          },
+          "learned": {
+            "risk": 0.06851,
+            "coverage": 0.7602
+          },
+          "oracle": {
+            "risk": 0.06631,
+            "coverage": 0.9342
+          },
+          "accept all": {
+            "risk": 0.08352,
+            "coverage": 1.0
+          }
+        },
+        "2022-08-18_putzbrunn_feldwege": {
+          "density": {
+            "risk": 0.0454,
+            "coverage": 0.5451
+          },
+          "near_coverage": {
+            "risk": 0.06175,
+            "coverage": 0.6508
+          },
+          "lidar_entropy": {
+            "risk": 0.07307,
+            "coverage": 0.6718
+          },
+          "entropy_grid": {
+            "risk": 0.07638,
+            "coverage": 0.5843
+          },
+          "mc_mi": {
+            "risk": 0.06799,
+            "coverage": 0.6824
+          },
+          "learned": {
+            "risk": 0.02312,
+            "coverage": 0.5304
+          },
+          "oracle": {
+            "risk": 0.04239,
+            "coverage": 0.8831
+          },
+          "accept all": {
+            "risk": 0.09532,
+            "coverage": 1.0
+          }
+        },
+        "2022-08-30_siegertsbrunn_feldwege": {
+          "density": {
+            "risk": 0.08704,
+            "coverage": 0.5236
+          },
+          "near_coverage": {
+            "risk": 0.10988,
+            "coverage": 0.6537
+          },
+          "lidar_entropy": {
+            "risk": 0.17404,
+            "coverage": 0.8347
+          },
+          "entropy_grid": {
+            "risk": 0.17468,
+            "coverage": 0.8089
+          },
+          "mc_mi": {
+            "risk": 0.1541,
+            "coverage": 0.7022
+          },
+          "learned": {
+            "risk": 0.02176,
+            "coverage": 0.3404
+          },
+          "oracle": {
+            "risk": 0.03689,
+            "coverage": 0.7633
+          },
+          "accept all": {
+            "risk": 0.18733,
+            "coverage": 1.0
+          }
+        },
+        "2022-09-14_garching_uebungsplatz": {
+          "density": {
+            "risk": 0.04312,
+            "coverage": 0.598
+          },
+          "near_coverage": {
+            "risk": 0.05983,
+            "coverage": 0.7901
+          },
+          "lidar_entropy": {
+            "risk": 0.03681,
+            "coverage": 0.495
+          },
+          "entropy_grid": {
+            "risk": 0.03028,
+            "coverage": 0.4054
+          },
+          "mc_mi": {
+            "risk": 0.03819,
+            "coverage": 0.5351
+          },
+          "learned": {
+            "risk": 0.0568,
+            "coverage": 0.8079
+          },
+          "oracle": {
+            "risk": 0.05223,
+            "coverage": 0.9581
+          },
+          "accept all": {
+            "risk": 0.07227,
+            "coverage": 1.0
+          }
+        },
+        "2022-09-21_garching_uebungsplatz_2": {
+          "density": {
+            "risk": 0.03402,
+            "coverage": 0.597
+          },
+          "near_coverage": {
+            "risk": 0.04382,
+            "coverage": 0.7348
+          },
+          "lidar_entropy": {
+            "risk": 0.0311,
+            "coverage": 0.56
+          },
+          "entropy_grid": {
+            "risk": 0.02629,
+            "coverage": 0.4655
+          },
+          "mc_mi": {
+            "risk": 0.03384,
+            "coverage": 0.5948
+          },
+          "learned": {
+            "risk": 0.04413,
+            "coverage": 0.7724
+          },
+          "oracle": {
+            "risk": 0.04975,
+            "coverage": 0.9767
+          },
+          "accept all": {
+            "risk": 0.05788,
+            "coverage": 1.0
+          }
+        },
+        "2022-10-12_solalinden_waldwege": {
+          "density": {
+            "risk": 0.02328,
+            "coverage": 0.5875
+          },
+          "near_coverage": {
+            "risk": 0.03489,
+            "coverage": 0.8519
+          },
+          "lidar_entropy": {
+            "risk": 0.03065,
+            "coverage": 0.7199
+          },
+          "entropy_grid": {
+            "risk": 0.02686,
+            "coverage": 0.6422
+          },
+          "mc_mi": {
+            "risk": 0.02951,
+            "coverage": 0.7056
+          },
+          "learned": {
+            "risk": 0.02103,
+            "coverage": 0.4481
+          },
+          "oracle": {
+            "risk": 0.04006,
+            "coverage": 0.9922
+          },
+          "accept all": {
+            "risk": 0.04409,
+            "coverage": 1.0
+          }
+        },
+        "2022-10-14_hohenbrunn_feldwege_waldwege": {
+          "density": {
+            "risk": 0.03293,
+            "coverage": 0.5831
+          },
+          "near_coverage": {
+            "risk": 0.04131,
+            "coverage": 0.5791
+          },
+          "lidar_entropy": {
+            "risk": 0.04474,
+            "coverage": 0.5173
+          },
+          "entropy_grid": {
+            "risk": 0.04158,
+            "coverage": 0.4665
+          },
+          "mc_mi": {
+            "risk": 0.03993,
+            "coverage": 0.5303
+          },
+          "learned": {
+            "risk": 0.03014,
+            "coverage": 0.6114
+          },
+          "oracle": {
+            "risk": 0.04913,
+            "coverage": 0.9469
+          },
+          "accept all": {
+            "risk": 0.07093,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-04_campus_rain": {
+          "density": {
+            "risk": 0.04271,
+            "coverage": 0.4375
+          },
+          "near_coverage": {
+            "risk": 0.07788,
+            "coverage": 0.6906
+          },
+          "lidar_entropy": {
+            "risk": 0.03532,
+            "coverage": 0.4062
+          },
+          "entropy_grid": {
+            "risk": 0.06051,
+            "coverage": 0.5891
+          },
+          "mc_mi": {
+            "risk": 0.03384,
+            "coverage": 0.4125
+          },
+          "learned": {
+            "risk": 0.04436,
+            "coverage": 0.3937
+          },
+          "oracle": {
+            "risk": 0.04649,
+            "coverage": 0.8297
+          },
+          "accept all": {
+            "risk": 0.10301,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-11_aying": {
+          "density": {
+            "risk": 0.0683,
+            "coverage": 0.6159
+          },
+          "near_coverage": {
+            "risk": 0.06296,
+            "coverage": 0.578
+          },
+          "lidar_entropy": {
+            "risk": 0.07085,
+            "coverage": 0.618
+          },
+          "entropy_grid": {
+            "risk": 0.06742,
+            "coverage": 0.5568
+          },
+          "mc_mi": {
+            "risk": 0.06267,
+            "coverage": 0.5341
+          },
+          "learned": {
+            "risk": 0.05985,
+            "coverage": 0.5951
+          },
+          "oracle": {
+            "risk": 0.06111,
+            "coverage": 0.8621
+          },
+          "accept all": {
+            "risk": 0.11062,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-29_campus_rain_2": {
+          "density": {
+            "risk": 0.0482,
+            "coverage": 0.5907
+          },
+          "near_coverage": {
+            "risk": 0.03654,
+            "coverage": 0.5035
+          },
+          "lidar_entropy": {
+            "risk": 0.02474,
+            "coverage": 0.2099
+          },
+          "entropy_grid": {
+            "risk": 0.0364,
+            "coverage": 0.3669
+          },
+          "mc_mi": {
+            "risk": 0.04203,
+            "coverage": 0.4355
+          },
+          "learned": {
+            "risk": 0.06107,
+            "coverage": 0.743
+          },
+          "oracle": {
+            "risk": 0.05514,
+            "coverage": 0.8942
+          },
+          "accept all": {
+            "risk": 0.09175,
+            "coverage": 1.0
+          }
+        },
+        "2022-12-07_aying_hills": {
+          "density": {
+            "risk": 0.06026,
+            "coverage": 0.6173
+          },
+          "near_coverage": {
+            "risk": 0.04794,
+            "coverage": 0.5359
+          },
+          "lidar_entropy": {
+            "risk": 0.07786,
+            "coverage": 0.748
+          },
+          "entropy_grid": {
+            "risk": 0.06542,
+            "coverage": 0.6152
+          },
+          "mc_mi": {
+            "risk": 0.06461,
+            "coverage": 0.6051
+          },
+          "learned": {
+            "risk": 0.05391,
+            "coverage": 0.5946
+          },
+          "oracle": {
+            "risk": 0.06448,
+            "coverage": 0.9097
+          },
+          "accept all": {
+            "risk": 0.09981,
+            "coverage": 1.0
+          }
+        },
+        "2023-01-20_aying_mangfall_2": {
+          "density": {
+            "risk": 0.08867,
+            "coverage": 0.6369
+          },
+          "near_coverage": {
+            "risk": 0.07341,
+            "coverage": 0.5105
+          },
+          "lidar_entropy": {
+            "risk": 0.05224,
+            "coverage": 0.4254
+          },
+          "entropy_grid": {
+            "risk": 0.04181,
+            "coverage": 0.3396
+          },
+          "mc_mi": {
+            "risk": 0.04456,
+            "coverage": 0.3481
+          },
+          "learned": {
+            "risk": 0.10632,
+            "coverage": 0.8174
+          },
+          "oracle": {
+            "risk": 0.06361,
+            "coverage": 0.8314
+          },
+          "accept all": {
+            "risk": 0.1246,
+            "coverage": 1.0
+          }
+        },
+        "2023-01-20_campus_snow": {
+          "density": {
+            "risk": 0.03299,
+            "coverage": 0.529
+          },
+          "near_coverage": {
+            "risk": 0.03397,
+            "coverage": 0.5355
+          },
+          "lidar_entropy": {
+            "risk": 0.00301,
+            "coverage": 0.0613
+          },
+          "entropy_grid": {
+            "risk": 0.01189,
+            "coverage": 0.229
+          },
+          "mc_mi": {
+            "risk": 0.01949,
+            "coverage": 0.3548
+          },
+          "learned": {
+            "risk": 0.05406,
+            "coverage": 0.8194
+          },
+          "oracle": {
+            "risk": 0.05834,
+            "coverage": 0.9839
+          },
+          "accept all": {
+            "risk": 0.06195,
+            "coverage": 1.0
+          }
+        },
+        "2023-02-13_touareg_neuperlach": {
+          "density": {
+            "risk": 0.0137,
+            "coverage": 0.5674
+          },
+          "near_coverage": {
+            "risk": 0.00442,
+            "coverage": 0.2
+          },
+          "lidar_entropy": {
+            "risk": 0.0004,
+            "coverage": 0.0349
+          },
+          "entropy_grid": {
+            "risk": 0.00097,
+            "coverage": 0.0744
+          },
+          "mc_mi": {
+            "risk": 0.00156,
+            "coverage": 0.0884
+          },
+          "learned": {
+            "risk": 0.02514,
+            "coverage": 0.886
+          },
+          "oracle": {
+            "risk": 0.02733,
+            "coverage": 1.0
+          },
+          "accept all": {
+            "risk": 0.02733,
+            "coverage": 1.0
+          }
+        },
+        "2023-02-23_campus_roads": {
+          "density": {
+            "risk": 0.08393,
+            "coverage": 0.5256
+          },
+          "near_coverage": {
+            "risk": 0.04261,
+            "coverage": 0.339
+          },
+          "lidar_entropy": {
+            "risk": 0.08194,
+            "coverage": 0.5035
+          },
+          "entropy_grid": {
+            "risk": 0.11631,
+            "coverage": 0.675
+          },
+          "mc_mi": {
+            "risk": 0.09813,
+            "coverage": 0.6267
+          },
+          "learned": {
+            "risk": 0.04388,
+            "coverage": 0.3384
+          },
+          "oracle": {
+            "risk": 0.05616,
+            "coverage": 0.736
+          },
+          "accept all": {
+            "risk": 0.16165,
+            "coverage": 1.0
+          }
+        },
+        "2023-03-02_garching": {
+          "density": {
+            "risk": 0.03844,
+            "coverage": 0.5964
+          },
+          "near_coverage": {
+            "risk": 0.0452,
+            "coverage": 0.6631
+          },
+          "lidar_entropy": {
+            "risk": 0.04127,
+            "coverage": 0.6232
+          },
+          "entropy_grid": {
+            "risk": 0.03779,
+            "coverage": 0.5573
+          },
+          "mc_mi": {
+            "risk": 0.04463,
+            "coverage": 0.6608
+          },
+          "learned": {
+            "risk": 0.04553,
+            "coverage": 0.6718
+          },
+          "oracle": {
+            "risk": 0.05633,
+            "coverage": 0.971
+          },
+          "accept all": {
+            "risk": 0.06912,
+            "coverage": 1.0
+          }
+        },
+        "2023-03-03_garching_2": {
+          "density": {
+            "risk": 0.03335,
+            "coverage": 0.5718
+          },
+          "near_coverage": {
+            "risk": 0.03012,
+            "coverage": 0.4926
+          },
+          "lidar_entropy": {
+            "risk": 0.0363,
+            "coverage": 0.5952
+          },
+          "entropy_grid": {
+            "risk": 0.03229,
+            "coverage": 0.5351
+          },
+          "mc_mi": {
+            "risk": 0.04176,
+            "coverage": 0.6649
+          },
+          "learned": {
+            "risk": 0.04133,
+            "coverage": 0.655
+          },
+          "oracle": {
+            "risk": 0.04974,
+            "coverage": 0.9668
+          },
+          "accept all": {
+            "risk": 0.06249,
+            "coverage": 1.0
+          }
+        },
+        "2023-04-05_flight_with_tiguan": {
+          "density": {
+            "risk": 0.09173,
+            "coverage": 0.4608
+          },
+          "near_coverage": {
+            "risk": 0.04499,
+            "coverage": 0.2436
+          },
+          "lidar_entropy": {
+            "risk": 0.13874,
+            "coverage": 0.6188
+          },
+          "entropy_grid": {
+            "risk": 0.17704,
+            "coverage": 0.7773
+          },
+          "mc_mi": {
+            "risk": 0.13565,
+            "coverage": 0.6586
+          },
+          "learned": {
+            "risk": 0.02514,
+            "coverage": 0.2243
+          },
+          "oracle": {
+            "risk": 0.04005,
+            "coverage": 0.6541
+          },
+          "accept all": {
+            "risk": 0.20955,
+            "coverage": 1.0
+          }
+        },
+        "2023-04-20_campus": {
+          "density": {
+            "risk": 0.04158,
+            "coverage": 0.5159
+          },
+          "near_coverage": {
+            "risk": 0.01615,
+            "coverage": 0.2103
+          },
+          "lidar_entropy": {
+            "risk": 0.03818,
+            "coverage": 0.276
+          },
+          "entropy_grid": {
+            "risk": 0.04306,
+            "coverage": 0.3287
+          },
+          "mc_mi": {
+            "risk": 0.04661,
+            "coverage": 0.4243
+          },
+          "learned": {
+            "risk": 0.05047,
+            "coverage": 0.6891
+          },
+          "oracle": {
+            "risk": 0.05881,
+            "coverage": 0.8984
+          },
+          "accept all": {
+            "risk": 0.08977,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-15_neubiberg_rain": {
+          "density": {
+            "risk": 0.01449,
+            "coverage": 0.5105
+          },
+          "near_coverage": {
+            "risk": 0.00715,
+            "coverage": 0.2038
+          },
+          "lidar_entropy": {
+            "risk": 0.00292,
+            "coverage": 0.0381
+          },
+          "entropy_grid": {
+            "risk": 0.00611,
+            "coverage": 0.1069
+          },
+          "mc_mi": {
+            "risk": 0.00822,
+            "coverage": 0.2248
+          },
+          "learned": {
+            "risk": 0.02692,
+            "coverage": 0.8083
+          },
+          "oracle": {
+            "risk": 0.0308,
+            "coverage": 0.9827
+          },
+          "accept all": {
+            "risk": 0.03654,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-17_neubiberg_sunny": {
+          "density": {
+            "risk": 0.01038,
+            "coverage": 0.3774
+          },
+          "near_coverage": {
+            "risk": 0.00515,
+            "coverage": 0.1626
+          },
+          "lidar_entropy": {
+            "risk": 0.00674,
+            "coverage": 0.1453
+          },
+          "entropy_grid": {
+            "risk": 0.00952,
+            "coverage": 0.2125
+          },
+          "mc_mi": {
+            "risk": 0.01521,
+            "coverage": 0.4728
+          },
+          "learned": {
+            "risk": 0.02264,
+            "coverage": 0.74
+          },
+          "oracle": {
+            "risk": 0.02805,
+            "coverage": 0.9785
+          },
+          "accept all": {
+            "risk": 0.03566,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-24_neubiberg_cloudy": {
+          "density": {
+            "risk": 0.02641,
+            "coverage": 0.541
+          },
+          "near_coverage": {
+            "risk": 0.01685,
+            "coverage": 0.2859
+          },
+          "lidar_entropy": {
+            "risk": 0.00732,
+            "coverage": 0.0789
+          },
+          "entropy_grid": {
+            "risk": 0.01923,
+            "coverage": 0.2072
+          },
+          "mc_mi": {
+            "risk": 0.02364,
+            "coverage": 0.3169
+          },
+          "learned": {
+            "risk": 0.03278,
+            "coverage": 0.7056
+          },
+          "oracle": {
+            "risk": 0.03896,
+            "coverage": 0.9398
+          },
+          "accept all": {
+            "risk": 0.06085,
+            "coverage": 1.0
+          }
+        }
+      },
+      "labelled_site_scans": {
+        "k=25 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.346,
+              "mean_coverage": 0.2804
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.264,
+              "mean_coverage": 0.2589
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.292,
+              "mean_coverage": 0.2457
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.191,
+              "mean_coverage": 0.1668
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.126,
+              "mean_coverage": 0.1634
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.182,
+              "mean_coverage": 0.2222
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.279,
+              "mean_coverage": 0.526
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.668,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.914,
+              "mean_coverage": 0.5644
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.884,
+              "mean_coverage": 0.5427
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.839,
+              "mean_coverage": 0.4827
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.78,
+              "mean_coverage": 0.4745
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.884,
+              "mean_coverage": 0.5412
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.849,
+              "mean_coverage": 0.6331
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.994,
+              "mean_coverage": 0.8965
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.668,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=25 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.245,
+              "mean_coverage": 0.2073
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.247,
+              "mean_coverage": 0.1781
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.286,
+              "mean_coverage": 0.18
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.05,
+              "median_risk_over_alpha": 0.292,
+              "mean_coverage": 0.1675
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.276,
+              "mean_coverage": 0.1694
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.254,
+              "mean_coverage": 0.2103
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.24,
+              "mean_coverage": 0.4854
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.728,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.888,
+              "mean_coverage": 0.561
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.892,
+              "mean_coverage": 0.5333
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.05,
+              "median_risk_over_alpha": 0.869,
+              "mean_coverage": 0.4778
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.798,
+              "mean_coverage": 0.4729
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.893,
+              "mean_coverage": 0.5376
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.75,
+              "median_risk_over_alpha": 0.877,
+              "mean_coverage": 0.6311
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.65,
+              "median_risk_over_alpha": 0.996,
+              "mean_coverage": 0.8922
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.728,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=50 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.633,
+              "mean_coverage": 0.4826
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.575,
+              "mean_coverage": 0.4703
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.641,
+              "mean_coverage": 0.4159
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.632,
+              "mean_coverage": 0.3638
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.628,
+              "mean_coverage": 0.3756
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.546,
+              "mean_coverage": 0.497
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.68,
+              "mean_coverage": 0.78
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.666,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.929,
+              "mean_coverage": 0.5661
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.837,
+              "mean_coverage": 0.5405
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.796,
+              "mean_coverage": 0.4795
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.773,
+              "mean_coverage": 0.4691
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.872,
+              "mean_coverage": 0.541
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.808,
+              "mean_coverage": 0.6393
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.981,
+              "mean_coverage": 0.9004
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.666,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=50 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.1,
+              "median_risk_over_alpha": 0.617,
+              "mean_coverage": 0.4459
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.15,
+              "median_risk_over_alpha": 0.618,
+              "mean_coverage": 0.425
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.15,
+              "median_risk_over_alpha": 0.64,
+              "mean_coverage": 0.3932
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.95,
+              "median_risk_over_alpha": 0.638,
+              "mean_coverage": 0.3767
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.8,
+              "median_risk_over_alpha": 0.631,
+              "mean_coverage": 0.3945
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.35,
+              "median_risk_over_alpha": 0.619,
+              "mean_coverage": 0.4854
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.617,
+              "mean_coverage": 0.7516
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.725,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.25,
+              "median_risk_over_alpha": 0.885,
+              "mean_coverage": 0.5608
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.89,
+              "mean_coverage": 0.5329
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.854,
+              "mean_coverage": 0.477
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.9,
+              "median_risk_over_alpha": 0.791,
+              "mean_coverage": 0.4724
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.892,
+              "mean_coverage": 0.5374
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.8,
+              "median_risk_over_alpha": 0.892,
+              "mean_coverage": 0.6312
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.85,
+              "median_risk_over_alpha": 0.995,
+              "mean_coverage": 0.8917
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.725,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=100 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.71,
+              "mean_coverage": 0.5652
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.642,
+              "mean_coverage": 0.5168
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.781,
+              "mean_coverage": 0.5253
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.793,
+              "mean_coverage": 0.499
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.765,
+              "mean_coverage": 0.5114
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.763,
+              "mean_coverage": 0.6011
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.0,
+              "median_risk_over_alpha": 0.844,
+              "mean_coverage": 0.8479
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.574,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.982,
+              "mean_coverage": 0.5693
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.811,
+              "mean_coverage": 0.5296
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.825,
+              "mean_coverage": 0.4765
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.741,
+              "mean_coverage": 0.4639
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.848,
+              "mean_coverage": 0.5414
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.791,
+              "mean_coverage": 0.6403
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.968,
+              "mean_coverage": 0.9019
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.574,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=100 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.95,
+              "median_risk_over_alpha": 0.813,
+              "mean_coverage": 0.5535
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.1,
+              "median_risk_over_alpha": 0.811,
+              "mean_coverage": 0.5393
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.35,
+              "median_risk_over_alpha": 0.814,
+              "mean_coverage": 0.4955
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.85,
+              "median_risk_over_alpha": 0.815,
+              "mean_coverage": 0.4798
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.4,
+              "median_risk_over_alpha": 0.819,
+              "mean_coverage": 0.5033
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.3,
+              "median_risk_over_alpha": 0.803,
+              "mean_coverage": 0.5957
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.1,
+              "median_risk_over_alpha": 0.81,
+              "mean_coverage": 0.8274
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.735,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.65,
+              "median_risk_over_alpha": 0.887,
+              "mean_coverage": 0.5612
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.3,
+              "median_risk_over_alpha": 0.89,
+              "mean_coverage": 0.5337
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.55,
+              "median_risk_over_alpha": 0.862,
+              "mean_coverage": 0.4774
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.95,
+              "median_risk_over_alpha": 0.807,
+              "mean_coverage": 0.4722
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.5,
+              "median_risk_over_alpha": 0.89,
+              "mean_coverage": 0.5381
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.7,
+              "median_risk_over_alpha": 0.891,
+              "mean_coverage": 0.6312
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.75,
+              "median_risk_over_alpha": 0.992,
+              "mean_coverage": 0.8908
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 17.0,
+              "median_risk_over_alpha": 1.735,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=200 first": {
+          "site only": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.764,
+              "mean_coverage": 0.6248
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.666,
+              "mean_coverage": 0.5646
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.777,
+              "mean_coverage": 0.5265
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.803,
+              "mean_coverage": 0.5072
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.807,
+              "mean_coverage": 0.5503
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.728,
+              "mean_coverage": 0.6761
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.914,
+              "mean_coverage": 0.9054
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 12.0,
+              "median_risk_over_alpha": 1.202,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.632,
+              "mean_coverage": 0.574
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.816,
+              "mean_coverage": 0.5483
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.707,
+              "mean_coverage": 0.4592
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.585,
+              "mean_coverage": 0.419
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.797,
+              "mean_coverage": 0.5206
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.755,
+              "mean_coverage": 0.6931
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.912,
+              "mean_coverage": 0.932
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 12.0,
+              "median_risk_over_alpha": 1.202,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=200 random": {
+          "site only": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.3,
+              "median_risk_over_alpha": 0.904,
+              "mean_coverage": 0.642
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.6,
+              "median_risk_over_alpha": 0.898,
+              "mean_coverage": 0.6169
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.25,
+              "median_risk_over_alpha": 0.891,
+              "mean_coverage": 0.5753
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.45,
+              "median_risk_over_alpha": 0.885,
+              "mean_coverage": 0.5598
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.05,
+              "median_risk_over_alpha": 0.895,
+              "mean_coverage": 0.5895
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.65,
+              "median_risk_over_alpha": 0.904,
+              "mean_coverage": 0.6904
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 0.6,
+              "median_risk_over_alpha": 0.901,
+              "mean_coverage": 0.8784
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 14.0,
+              "median_risk_over_alpha": 1.449,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.15,
+              "median_risk_over_alpha": 0.836,
+              "mean_coverage": 0.5698
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.904,
+              "mean_coverage": 0.5625
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.7,
+              "median_risk_over_alpha": 0.807,
+              "mean_coverage": 0.4847
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.1,
+              "median_risk_over_alpha": 0.747,
+              "mean_coverage": 0.4494
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.55,
+              "median_risk_over_alpha": 0.874,
+              "mean_coverage": 0.5329
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.8,
+              "median_risk_over_alpha": 0.879,
+              "mean_coverage": 0.6676
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 8.55,
+              "median_risk_over_alpha": 0.991,
+              "mean_coverage": 0.9149
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 14.0,
+              "median_risk_over_alpha": 1.449,
+              "mean_coverage": 1.0
+            }
+          }
+        }
+      }
+    },
+    "0.075": {
+      "exchangeable": {
+        "density": {
+          "mean_risk": 0.07503,
+          "mean_coverage": 0.8253,
+          "share_above_alpha": 0.49
+        },
+        "near_coverage": {
+          "mean_risk": 0.07494,
+          "mean_coverage": 0.8119,
+          "share_above_alpha": 0.51
+        },
+        "lidar_entropy": {
+          "mean_risk": 0.07501,
+          "mean_coverage": 0.7411,
+          "share_above_alpha": 0.51
+        },
+        "entropy_grid": {
+          "mean_risk": 0.07505,
+          "mean_coverage": 0.7433,
+          "share_above_alpha": 0.52
+        },
+        "mc_mi": {
+          "mean_risk": 0.07498,
+          "mean_coverage": 0.8131,
+          "share_above_alpha": 0.47
+        },
+        "learned": {
+          "mean_risk": 0.075,
+          "mean_coverage": 0.9234,
+          "share_above_alpha": 0.52
+        },
+        "oracle": {
+          "mean_risk": 0.07508,
+          "mean_coverage": 0.9772,
+          "share_above_alpha": 0.48
+        },
+        "accept all": {
+          "mean_risk": 0.09227,
+          "mean_coverage": 1.0,
+          "share_above_alpha": 1.0
+        }
+      },
+      "leave_one_recording_out": {
+        "density": {
+          "recordings_above_alpha": 10,
+          "of": 23,
+          "median_risk_over_alpha": 0.888,
+          "max_risk_over_alpha": 2.212,
+          "mean_coverage": 0.8144
+        },
+        "near_coverage": {
+          "recordings_above_alpha": 9,
+          "of": 23,
+          "median_risk_over_alpha": 0.937,
+          "max_risk_over_alpha": 2.3,
+          "mean_coverage": 0.7959
+        },
+        "lidar_entropy": {
+          "recordings_above_alpha": 9,
+          "of": 23,
+          "median_risk_over_alpha": 0.846,
+          "max_risk_over_alpha": 2.475,
+          "mean_coverage": 0.7181
+        },
+        "entropy_grid": {
+          "recordings_above_alpha": 9,
+          "of": 23,
+          "median_risk_over_alpha": 0.89,
+          "max_risk_over_alpha": 2.695,
+          "mean_coverage": 0.7344
+        },
+        "mc_mi": {
+          "recordings_above_alpha": 11,
+          "of": 23,
+          "median_risk_over_alpha": 0.956,
+          "max_risk_over_alpha": 2.507,
+          "mean_coverage": 0.814
+        },
+        "learned": {
+          "recordings_above_alpha": 10,
+          "of": 23,
+          "median_risk_over_alpha": 0.936,
+          "max_risk_over_alpha": 2.025,
+          "mean_coverage": 0.9164
+        },
+        "oracle": {
+          "recordings_above_alpha": 10,
+          "of": 23,
+          "median_risk_over_alpha": 0.909,
+          "max_risk_over_alpha": 1.765,
+          "mean_coverage": 0.9768
+        },
+        "accept all": {
+          "recordings_above_alpha": 12,
+          "of": 23,
+          "median_risk_over_alpha": 1.114,
+          "max_risk_over_alpha": 2.794,
+          "mean_coverage": 1.0
+        }
+      },
+      "leave_one_recording_out_per_recording": {
+        "2022-07-22_flight": {
+          "density": {
+            "risk": 0.11175,
+            "coverage": 0.8591
+          },
+          "near_coverage": {
+            "risk": 0.13261,
+            "coverage": 0.9634
+          },
+          "lidar_entropy": {
+            "risk": 0.10545,
+            "coverage": 0.7243
+          },
+          "entropy_grid": {
+            "risk": 0.10391,
+            "coverage": 0.6942
+          },
+          "mc_mi": {
+            "risk": 0.1065,
+            "coverage": 0.8105
+          },
+          "learned": {
+            "risk": 0.12723,
+            "coverage": 0.9546
+          },
+          "oracle": {
+            "risk": 0.11664,
+            "coverage": 0.9695
+          },
+          "accept all": {
+            "risk": 0.13838,
+            "coverage": 1.0
+          }
+        },
+        "2022-07-27_hoehenkirchner_forst": {
+          "density": {
+            "risk": 0.0763,
+            "coverage": 0.9018
+          },
+          "near_coverage": {
+            "risk": 0.0827,
+            "coverage": 0.9882
+          },
+          "lidar_entropy": {
+            "risk": 0.07446,
+            "coverage": 0.8805
+          },
+          "entropy_grid": {
+            "risk": 0.06673,
+            "coverage": 0.7991
+          },
+          "mc_mi": {
+            "risk": 0.0778,
+            "coverage": 0.9201
+          },
+          "learned": {
+            "risk": 0.08343,
+            "coverage": 0.9979
+          },
+          "oracle": {
+            "risk": 0.08352,
+            "coverage": 1.0
+          },
+          "accept all": {
+            "risk": 0.08352,
+            "coverage": 1.0
+          }
+        },
+        "2022-08-18_putzbrunn_feldwege": {
+          "density": {
+            "risk": 0.07541,
+            "coverage": 0.8251
+          },
+          "near_coverage": {
+            "risk": 0.08442,
+            "coverage": 0.8749
+          },
+          "lidar_entropy": {
+            "risk": 0.08901,
+            "coverage": 0.9125
+          },
+          "entropy_grid": {
+            "risk": 0.09042,
+            "coverage": 0.8918
+          },
+          "mc_mi": {
+            "risk": 0.08126,
+            "coverage": 0.8815
+          },
+          "learned": {
+            "risk": 0.04169,
+            "coverage": 0.7536
+          },
+          "oracle": {
+            "risk": 0.06817,
+            "coverage": 0.9658
+          },
+          "accept all": {
+            "risk": 0.09532,
+            "coverage": 1.0
+          }
+        },
+        "2022-08-30_siegertsbrunn_feldwege": {
+          "density": {
+            "risk": 0.157,
+            "coverage": 0.8374
+          },
+          "near_coverage": {
+            "risk": 0.17252,
+            "coverage": 0.9286
+          },
+          "lidar_entropy": {
+            "risk": 0.18411,
+            "coverage": 0.948
+          },
+          "entropy_grid": {
+            "risk": 0.18412,
+            "coverage": 0.948
+          },
+          "mc_mi": {
+            "risk": 0.17548,
+            "coverage": 0.9037
+          },
+          "learned": {
+            "risk": 0.0702,
+            "coverage": 0.6746
+          },
+          "oracle": {
+            "risk": 0.07451,
+            "coverage": 0.8739
+          },
+          "accept all": {
+            "risk": 0.18733,
+            "coverage": 1.0
+          }
+        },
+        "2022-09-14_garching_uebungsplatz": {
+          "density": {
+            "risk": 0.05913,
+            "coverage": 0.8048
+          },
+          "near_coverage": {
+            "risk": 0.07025,
+            "coverage": 0.9635
+          },
+          "lidar_entropy": {
+            "risk": 0.06342,
+            "coverage": 0.8571
+          },
+          "entropy_grid": {
+            "risk": 0.05921,
+            "coverage": 0.7927
+          },
+          "mc_mi": {
+            "risk": 0.06227,
+            "coverage": 0.8583
+          },
+          "learned": {
+            "risk": 0.07066,
+            "coverage": 0.9704
+          },
+          "oracle": {
+            "risk": 0.0597,
+            "coverage": 0.9859
+          },
+          "accept all": {
+            "risk": 0.07227,
+            "coverage": 1.0
+          }
+        },
+        "2022-09-21_garching_uebungsplatz_2": {
+          "density": {
+            "risk": 0.04725,
+            "coverage": 0.8039
+          },
+          "near_coverage": {
+            "risk": 0.05544,
+            "coverage": 0.9497
+          },
+          "lidar_entropy": {
+            "risk": 0.04934,
+            "coverage": 0.8585
+          },
+          "entropy_grid": {
+            "risk": 0.0462,
+            "coverage": 0.8082
+          },
+          "mc_mi": {
+            "risk": 0.05003,
+            "coverage": 0.8782
+          },
+          "learned": {
+            "risk": 0.05583,
+            "coverage": 0.9827
+          },
+          "oracle": {
+            "risk": 0.05545,
+            "coverage": 0.9976
+          },
+          "accept all": {
+            "risk": 0.05788,
+            "coverage": 1.0
+          }
+        },
+        "2022-10-12_solalinden_waldwege": {
+          "density": {
+            "risk": 0.03365,
+            "coverage": 0.7996
+          },
+          "near_coverage": {
+            "risk": 0.04112,
+            "coverage": 0.9574
+          },
+          "lidar_entropy": {
+            "risk": 0.03903,
+            "coverage": 0.8861
+          },
+          "entropy_grid": {
+            "risk": 0.03681,
+            "coverage": 0.8405
+          },
+          "mc_mi": {
+            "risk": 0.03747,
+            "coverage": 0.8699
+          },
+          "learned": {
+            "risk": 0.04096,
+            "coverage": 0.9749
+          },
+          "oracle": {
+            "risk": 0.04128,
+            "coverage": 0.9963
+          },
+          "accept all": {
+            "risk": 0.04409,
+            "coverage": 1.0
+          }
+        },
+        "2022-10-14_hohenbrunn_feldwege_waldwege": {
+          "density": {
+            "risk": 0.05434,
+            "coverage": 0.8354
+          },
+          "near_coverage": {
+            "risk": 0.0606,
+            "coverage": 0.8709
+          },
+          "lidar_entropy": {
+            "risk": 0.06039,
+            "coverage": 0.7787
+          },
+          "entropy_grid": {
+            "risk": 0.05965,
+            "coverage": 0.778
+          },
+          "mc_mi": {
+            "risk": 0.05445,
+            "coverage": 0.802
+          },
+          "learned": {
+            "risk": 0.05075,
+            "coverage": 0.9193
+          },
+          "oracle": {
+            "risk": 0.06129,
+            "coverage": 0.9894
+          },
+          "accept all": {
+            "risk": 0.07093,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-04_campus_rain": {
+          "density": {
+            "risk": 0.08048,
+            "coverage": 0.7937
+          },
+          "near_coverage": {
+            "risk": 0.09563,
+            "coverage": 0.9187
+          },
+          "lidar_entropy": {
+            "risk": 0.08089,
+            "coverage": 0.7781
+          },
+          "entropy_grid": {
+            "risk": 0.09307,
+            "coverage": 0.8516
+          },
+          "mc_mi": {
+            "risk": 0.07756,
+            "coverage": 0.7797
+          },
+          "learned": {
+            "risk": 0.07811,
+            "coverage": 0.8109
+          },
+          "oracle": {
+            "risk": 0.09598,
+            "coverage": 0.9875
+          },
+          "accept all": {
+            "risk": 0.10301,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-11_aying": {
+          "density": {
+            "risk": 0.0937,
+            "coverage": 0.8654
+          },
+          "near_coverage": {
+            "risk": 0.08961,
+            "coverage": 0.8351
+          },
+          "lidar_entropy": {
+            "risk": 0.09768,
+            "coverage": 0.8517
+          },
+          "entropy_grid": {
+            "risk": 0.09623,
+            "coverage": 0.8344
+          },
+          "mc_mi": {
+            "risk": 0.09022,
+            "coverage": 0.8124
+          },
+          "learned": {
+            "risk": 0.09141,
+            "coverage": 0.9206
+          },
+          "oracle": {
+            "risk": 0.09813,
+            "coverage": 0.9836
+          },
+          "accept all": {
+            "risk": 0.11062,
+            "coverage": 1.0
+          }
+        },
+        "2022-11-29_campus_rain_2": {
+          "density": {
+            "risk": 0.07092,
+            "coverage": 0.8192
+          },
+          "near_coverage": {
+            "risk": 0.07044,
+            "coverage": 0.8041
+          },
+          "lidar_entropy": {
+            "risk": 0.06115,
+            "coverage": 0.607
+          },
+          "entropy_grid": {
+            "risk": 0.0677,
+            "coverage": 0.664
+          },
+          "mc_mi": {
+            "risk": 0.07514,
+            "coverage": 0.7942
+          },
+          "learned": {
+            "risk": 0.0877,
+            "coverage": 0.986
+          },
+          "oracle": {
+            "risk": 0.08094,
+            "coverage": 0.9843
+          },
+          "accept all": {
+            "risk": 0.09175,
+            "coverage": 1.0
+          }
+        },
+        "2022-12-07_aying_hills": {
+          "density": {
+            "risk": 0.08414,
+            "coverage": 0.8641
+          },
+          "near_coverage": {
+            "risk": 0.07344,
+            "coverage": 0.8002
+          },
+          "lidar_entropy": {
+            "risk": 0.0944,
+            "coverage": 0.9184
+          },
+          "entropy_grid": {
+            "risk": 0.0881,
+            "coverage": 0.8534
+          },
+          "mc_mi": {
+            "risk": 0.0875,
+            "coverage": 0.8439
+          },
+          "learned": {
+            "risk": 0.09083,
+            "coverage": 0.9518
+          },
+          "oracle": {
+            "risk": 0.08842,
+            "coverage": 0.9845
+          },
+          "accept all": {
+            "risk": 0.09981,
+            "coverage": 1.0
+          }
+        },
+        "2023-01-20_aying_mangfall_2": {
+          "density": {
+            "risk": 0.1144,
+            "coverage": 0.8837
+          },
+          "near_coverage": {
+            "risk": 0.10643,
+            "coverage": 0.8132
+          },
+          "lidar_entropy": {
+            "risk": 0.10224,
+            "coverage": 0.7656
+          },
+          "entropy_grid": {
+            "risk": 0.09689,
+            "coverage": 0.7303
+          },
+          "mc_mi": {
+            "risk": 0.09018,
+            "coverage": 0.6957
+          },
+          "learned": {
+            "risk": 0.12409,
+            "coverage": 0.9974
+          },
+          "oracle": {
+            "risk": 0.11611,
+            "coverage": 0.9888
+          },
+          "accept all": {
+            "risk": 0.1246,
+            "coverage": 1.0
+          }
+        },
+        "2023-01-20_campus_snow": {
+          "density": {
+            "risk": 0.04857,
+            "coverage": 0.7871
+          },
+          "near_coverage": {
+            "risk": 0.05228,
+            "coverage": 0.8452
+          },
+          "lidar_entropy": {
+            "risk": 0.0243,
+            "coverage": 0.4355
+          },
+          "entropy_grid": {
+            "risk": 0.03325,
+            "coverage": 0.6129
+          },
+          "mc_mi": {
+            "risk": 0.05186,
+            "coverage": 0.8355
+          },
+          "learned": {
+            "risk": 0.0619,
+            "coverage": 0.9968
+          },
+          "oracle": {
+            "risk": 0.06195,
+            "coverage": 1.0
+          },
+          "accept all": {
+            "risk": 0.06195,
+            "coverage": 1.0
+          }
+        },
+        "2023-02-13_touareg_neuperlach": {
+          "density": {
+            "risk": 0.01925,
+            "coverage": 0.807
+          },
+          "near_coverage": {
+            "risk": 0.01495,
+            "coverage": 0.586
+          },
+          "lidar_entropy": {
+            "risk": 0.00417,
+            "coverage": 0.307
+          },
+          "entropy_grid": {
+            "risk": 0.00519,
+            "coverage": 0.2953
+          },
+          "mc_mi": {
+            "risk": 0.01383,
+            "coverage": 0.514
+          },
+          "learned": {
+            "risk": 0.02707,
+            "coverage": 0.9837
+          },
+          "oracle": {
+            "risk": 0.02733,
+            "coverage": 1.0
+          },
+          "accept all": {
+            "risk": 0.02733,
+            "coverage": 1.0
+          }
+        },
+        "2023-02-23_campus_roads": {
+          "density": {
+            "risk": 0.12749,
+            "coverage": 0.8
+          },
+          "near_coverage": {
+            "risk": 0.09647,
+            "coverage": 0.6203
+          },
+          "lidar_entropy": {
+            "risk": 0.14572,
+            "coverage": 0.8849
+          },
+          "entropy_grid": {
+            "risk": 0.1537,
+            "coverage": 0.925
+          },
+          "mc_mi": {
+            "risk": 0.13662,
+            "coverage": 0.8599
+          },
+          "learned": {
+            "risk": 0.11521,
+            "coverage": 0.8343
+          },
+          "oracle": {
+            "risk": 0.13235,
+            "coverage": 0.9564
+          },
+          "accept all": {
+            "risk": 0.16165,
+            "coverage": 1.0
+          }
+        },
+        "2023-03-02_garching": {
+          "density": {
+            "risk": 0.05403,
+            "coverage": 0.8061
+          },
+          "near_coverage": {
+            "risk": 0.06162,
+            "coverage": 0.899
+          },
+          "lidar_entropy": {
+            "risk": 0.05879,
+            "coverage": 0.8621
+          },
+          "entropy_grid": {
+            "risk": 0.05458,
+            "coverage": 0.7997
+          },
+          "mc_mi": {
+            "risk": 0.05935,
+            "coverage": 0.8913
+          },
+          "learned": {
+            "risk": 0.06522,
+            "coverage": 0.9738
+          },
+          "oracle": {
+            "risk": 0.0613,
+            "coverage": 0.9893
+          },
+          "accept all": {
+            "risk": 0.06912,
+            "coverage": 1.0
+          }
+        },
+        "2023-03-03_garching_2": {
+          "density": {
+            "risk": 0.04773,
+            "coverage": 0.796
+          },
+          "near_coverage": {
+            "risk": 0.04714,
+            "coverage": 0.7847
+          },
+          "lidar_entropy": {
+            "risk": 0.05098,
+            "coverage": 0.8464
+          },
+          "entropy_grid": {
+            "risk": 0.04765,
+            "coverage": 0.7884
+          },
+          "mc_mi": {
+            "risk": 0.05352,
+            "coverage": 0.8868
+          },
+          "learned": {
+            "risk": 0.05806,
+            "coverage": 0.9504
+          },
+          "oracle": {
+            "risk": 0.05809,
+            "coverage": 0.9939
+          },
+          "accept all": {
+            "risk": 0.06249,
+            "coverage": 1.0
+          }
+        },
+        "2023-04-05_flight_with_tiguan": {
+          "density": {
+            "risk": 0.16588,
+            "coverage": 0.7989
+          },
+          "near_coverage": {
+            "risk": 0.13424,
+            "coverage": 0.5923
+          },
+          "lidar_entropy": {
+            "risk": 0.18565,
+            "coverage": 0.8707
+          },
+          "entropy_grid": {
+            "risk": 0.20215,
+            "coverage": 0.9464
+          },
+          "mc_mi": {
+            "risk": 0.18804,
+            "coverage": 0.9182
+          },
+          "learned": {
+            "risk": 0.15191,
+            "coverage": 0.7122
+          },
+          "oracle": {
+            "risk": 0.10714,
+            "coverage": 0.8425
+          },
+          "accept all": {
+            "risk": 0.20955,
+            "coverage": 1.0
+          }
+        },
+        "2023-04-20_campus": {
+          "density": {
+            "risk": 0.06661,
+            "coverage": 0.7769
+          },
+          "near_coverage": {
+            "risk": 0.05106,
+            "coverage": 0.5935
+          },
+          "lidar_entropy": {
+            "risk": 0.06711,
+            "coverage": 0.5972
+          },
+          "entropy_grid": {
+            "risk": 0.06887,
+            "coverage": 0.6324
+          },
+          "mc_mi": {
+            "risk": 0.07167,
+            "coverage": 0.7579
+          },
+          "learned": {
+            "risk": 0.08086,
+            "coverage": 0.9424
+          },
+          "oracle": {
+            "risk": 0.08567,
+            "coverage": 0.9938
+          },
+          "accept all": {
+            "risk": 0.08977,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-15_neubiberg_rain": {
+          "density": {
+            "risk": 0.02456,
+            "coverage": 0.7689
+          },
+          "near_coverage": {
+            "risk": 0.01892,
+            "coverage": 0.5285
+          },
+          "lidar_entropy": {
+            "risk": 0.00617,
+            "coverage": 0.1218
+          },
+          "entropy_grid": {
+            "risk": 0.01207,
+            "coverage": 0.2979
+          },
+          "mc_mi": {
+            "risk": 0.02314,
+            "coverage": 0.6555
+          },
+          "learned": {
+            "risk": 0.0315,
+            "coverage": 0.9413
+          },
+          "oracle": {
+            "risk": 0.03461,
+            "coverage": 0.9972
+          },
+          "accept all": {
+            "risk": 0.03654,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-17_neubiberg_sunny": {
+          "density": {
+            "risk": 0.02139,
+            "coverage": 0.7128
+          },
+          "near_coverage": {
+            "risk": 0.01705,
+            "coverage": 0.4864
+          },
+          "lidar_entropy": {
+            "risk": 0.01855,
+            "coverage": 0.526
+          },
+          "entropy_grid": {
+            "risk": 0.02239,
+            "coverage": 0.6419
+          },
+          "mc_mi": {
+            "risk": 0.0268,
+            "coverage": 0.8121
+          },
+          "learned": {
+            "risk": 0.03367,
+            "coverage": 0.9645
+          },
+          "oracle": {
+            "risk": 0.03402,
+            "coverage": 0.997
+          },
+          "accept all": {
+            "risk": 0.03566,
+            "coverage": 1.0
+          }
+        },
+        "2023-05-24_neubiberg_cloudy": {
+          "density": {
+            "risk": 0.04362,
+            "coverage": 0.7843
+          },
+          "near_coverage": {
+            "risk": 0.04398,
+            "coverage": 0.701
+          },
+          "lidar_entropy": {
+            "risk": 0.02376,
+            "coverage": 0.2986
+          },
+          "entropy_grid": {
+            "risk": 0.03828,
+            "coverage": 0.4654
+          },
+          "mc_mi": {
+            "risk": 0.04664,
+            "coverage": 0.7396
+          },
+          "learned": {
+            "risk": 0.05057,
+            "coverage": 0.8841
+          },
+          "oracle": {
+            "risk": 0.05426,
+            "coverage": 0.9897
+          },
+          "accept all": {
+            "risk": 0.06085,
+            "coverage": 1.0
+          }
+        }
+      },
+      "labelled_site_scans": {
+        "k=25 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.537,
+              "mean_coverage": 0.583
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.497,
+              "mean_coverage": 0.5752
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.528,
+              "mean_coverage": 0.5212
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.536,
+              "mean_coverage": 0.4582
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.486,
+              "mean_coverage": 0.4617
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.46,
+              "mean_coverage": 0.6099
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.521,
+              "mean_coverage": 0.8374
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.112,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.875,
+              "mean_coverage": 0.8191
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.949,
+              "mean_coverage": 0.8052
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.863,
+              "mean_coverage": 0.7547
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.856,
+              "mean_coverage": 0.7593
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.933,
+              "mean_coverage": 0.832
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.937,
+              "mean_coverage": 0.9168
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.981,
+              "mean_coverage": 0.9744
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.112,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=25 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.1,
+              "median_risk_over_alpha": 0.525,
+              "mean_coverage": 0.538
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.05,
+              "median_risk_over_alpha": 0.52,
+              "mean_coverage": 0.5196
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.3,
+              "median_risk_over_alpha": 0.523,
+              "mean_coverage": 0.4757
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.3,
+              "median_risk_over_alpha": 0.518,
+              "mean_coverage": 0.4568
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.1,
+              "median_risk_over_alpha": 0.516,
+              "mean_coverage": 0.4799
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.05,
+              "median_risk_over_alpha": 0.52,
+              "mean_coverage": 0.5798
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.0,
+              "median_risk_over_alpha": 0.501,
+              "mean_coverage": 0.807
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.157,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.7,
+              "median_risk_over_alpha": 0.922,
+              "mean_coverage": 0.8176
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.1,
+              "median_risk_over_alpha": 0.944,
+              "mean_coverage": 0.798
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.2,
+              "median_risk_over_alpha": 0.873,
+              "mean_coverage": 0.7499
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.898,
+              "mean_coverage": 0.7565
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.5,
+              "median_risk_over_alpha": 0.978,
+              "mean_coverage": 0.8293
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.943,
+              "mean_coverage": 0.9139
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.3,
+              "median_risk_over_alpha": 0.953,
+              "mean_coverage": 0.9739
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.157,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=50 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.664,
+              "mean_coverage": 0.7293
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.668,
+              "mean_coverage": 0.7264
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.72,
+              "mean_coverage": 0.676
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.801,
+              "mean_coverage": 0.6571
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.742,
+              "mean_coverage": 0.6731
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.724,
+              "mean_coverage": 0.7776
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.741,
+              "mean_coverage": 0.924
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.111,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.933,
+              "mean_coverage": 0.8201
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.978,
+              "mean_coverage": 0.8024
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.928,
+              "mean_coverage": 0.7511
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.863,
+              "mean_coverage": 0.7573
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.963,
+              "mean_coverage": 0.8329
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.943,
+              "mean_coverage": 0.9176
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.963,
+              "mean_coverage": 0.9768
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.111,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=50 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.85,
+              "median_risk_over_alpha": 0.742,
+              "mean_coverage": 0.6927
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.85,
+              "median_risk_over_alpha": 0.753,
+              "mean_coverage": 0.6824
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.7,
+              "median_risk_over_alpha": 0.743,
+              "mean_coverage": 0.6357
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.65,
+              "median_risk_over_alpha": 0.744,
+              "mean_coverage": 0.6244
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 1.5,
+              "median_risk_over_alpha": 0.749,
+              "mean_coverage": 0.6574
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.7,
+              "median_risk_over_alpha": 0.726,
+              "mean_coverage": 0.7309
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.05,
+              "median_risk_over_alpha": 0.738,
+              "mean_coverage": 0.9009
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.157,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.55,
+              "median_risk_over_alpha": 0.922,
+              "mean_coverage": 0.8181
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.15,
+              "median_risk_over_alpha": 0.94,
+              "mean_coverage": 0.7981
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.4,
+              "median_risk_over_alpha": 0.871,
+              "mean_coverage": 0.7504
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.05,
+              "median_risk_over_alpha": 0.9,
+              "mean_coverage": 0.7569
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.55,
+              "median_risk_over_alpha": 0.986,
+              "mean_coverage": 0.8293
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.935,
+              "mean_coverage": 0.9127
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.6,
+              "median_risk_over_alpha": 0.953,
+              "mean_coverage": 0.9739
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.157,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=100 first": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.745,
+              "mean_coverage": 0.7771
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.701,
+              "mean_coverage": 0.7664
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.73,
+              "mean_coverage": 0.7283
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.735,
+              "mean_coverage": 0.7164
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.735,
+              "mean_coverage": 0.7361
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.708,
+              "mean_coverage": 0.7952
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.799,
+              "mean_coverage": 0.94
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.049,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.904,
+              "mean_coverage": 0.8206
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 10.0,
+              "median_risk_over_alpha": 0.98,
+              "mean_coverage": 0.8006
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.925,
+              "mean_coverage": 0.748
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.845,
+              "mean_coverage": 0.7533
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.938,
+              "mean_coverage": 0.8367
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.822,
+              "mean_coverage": 0.914
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.875,
+              "mean_coverage": 0.9754
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.0,
+              "median_risk_over_alpha": 1.049,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=100 random": {
+          "site only": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.35,
+              "median_risk_over_alpha": 0.876,
+              "mean_coverage": 0.7666
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.1,
+              "median_risk_over_alpha": 0.867,
+              "mean_coverage": 0.7614
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.7,
+              "median_risk_over_alpha": 0.863,
+              "mean_coverage": 0.7139
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.5,
+              "median_risk_over_alpha": 0.865,
+              "mean_coverage": 0.7028
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.3,
+              "median_risk_over_alpha": 0.865,
+              "mean_coverage": 0.734
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.876,
+              "mean_coverage": 0.804
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 0.65,
+              "median_risk_over_alpha": 0.857,
+              "mean_coverage": 0.9268
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.15,
+              "median_risk_over_alpha": 1.156,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.65,
+              "median_risk_over_alpha": 0.92,
+              "mean_coverage": 0.8197
+            },
+            "near_coverage": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.25,
+              "median_risk_over_alpha": 0.934,
+              "mean_coverage": 0.799
+            },
+            "lidar_entropy": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.55,
+              "median_risk_over_alpha": 0.87,
+              "mean_coverage": 0.7511
+            },
+            "entropy_grid": {
+              "recordings": 20,
+              "recordings_above_alpha": 8.25,
+              "median_risk_over_alpha": 0.896,
+              "mean_coverage": 0.758
+            },
+            "mc_mi": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.5,
+              "median_risk_over_alpha": 0.981,
+              "mean_coverage": 0.8297
+            },
+            "learned": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.05,
+              "median_risk_over_alpha": 0.939,
+              "mean_coverage": 0.9126
+            },
+            "oracle": {
+              "recordings": 20,
+              "recordings_above_alpha": 9.55,
+              "median_risk_over_alpha": 0.953,
+              "mean_coverage": 0.9728
+            },
+            "accept all": {
+              "recordings": 20,
+              "recordings_above_alpha": 11.15,
+              "median_risk_over_alpha": 1.156,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=200 first": {
+          "site only": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.739,
+              "mean_coverage": 0.8204
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.664,
+              "mean_coverage": 0.803
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.689,
+              "mean_coverage": 0.7262
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.669,
+              "mean_coverage": 0.7308
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.0,
+              "median_risk_over_alpha": 0.62,
+              "mean_coverage": 0.7747
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.0,
+              "median_risk_over_alpha": 0.724,
+              "mean_coverage": 0.8587
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.778,
+              "mean_coverage": 0.9639
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.801,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.597,
+              "mean_coverage": 0.8215
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.731,
+              "mean_coverage": 0.8241
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.66,
+              "mean_coverage": 0.7209
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.613,
+              "mean_coverage": 0.7216
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 4.0,
+              "median_risk_over_alpha": 0.689,
+              "mean_coverage": 0.8248
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.0,
+              "median_risk_over_alpha": 0.72,
+              "mean_coverage": 0.9339
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 5.0,
+              "median_risk_over_alpha": 0.775,
+              "mean_coverage": 0.9822
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 8.0,
+              "median_risk_over_alpha": 0.801,
+              "mean_coverage": 1.0
+            }
+          }
+        },
+        "k=200 random": {
+          "site only": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.5,
+              "median_risk_over_alpha": 0.942,
+              "mean_coverage": 0.8394
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.35,
+              "median_risk_over_alpha": 0.938,
+              "mean_coverage": 0.8336
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.55,
+              "median_risk_over_alpha": 0.937,
+              "mean_coverage": 0.792
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.5,
+              "median_risk_over_alpha": 0.932,
+              "mean_coverage": 0.7806
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.35,
+              "median_risk_over_alpha": 0.926,
+              "mean_coverage": 0.8122
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 3.75,
+              "median_risk_over_alpha": 0.944,
+              "mean_coverage": 0.8727
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 2.2,
+              "median_risk_over_alpha": 0.919,
+              "mean_coverage": 0.9565
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.982,
+              "mean_coverage": 1.0
+            }
+          },
+          "pooled + site": {
+            "density": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.35,
+              "median_risk_over_alpha": 0.807,
+              "mean_coverage": 0.824
+            },
+            "near_coverage": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.25,
+              "median_risk_over_alpha": 0.843,
+              "mean_coverage": 0.8221
+            },
+            "lidar_entropy": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.65,
+              "median_risk_over_alpha": 0.868,
+              "mean_coverage": 0.7465
+            },
+            "entropy_grid": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.35,
+              "median_risk_over_alpha": 0.824,
+              "mean_coverage": 0.7445
+            },
+            "mc_mi": {
+              "recordings": 17,
+              "recordings_above_alpha": 7.0,
+              "median_risk_over_alpha": 0.851,
+              "mean_coverage": 0.8263
+            },
+            "learned": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.35,
+              "median_risk_over_alpha": 0.89,
+              "mean_coverage": 0.9273
+            },
+            "oracle": {
+              "recordings": 17,
+              "recordings_above_alpha": 6.5,
+              "median_risk_over_alpha": 0.823,
+              "mean_coverage": 0.9814
+            },
+            "accept all": {
+              "recordings": 17,
+              "recordings_above_alpha": 9.0,
+              "median_risk_over_alpha": 0.982,
+              "mean_coverage": 1.0
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -81,7 +81,7 @@ bringing both models under budget. The Oct 26 feature stop is unchanged.
 README as an architecture document); the second Jetson run moves after the write-up. The deadline stands.
 
 ## Current state
-*Updated 2026-11-01.*
+*Updated 2026-11-03.*
 - **Weeks 1–2 complete; week 3 per ADR-0012.** Held-out 00001 test: wedge mIoU 30.9 → 34.5 fused; lethal cells
   88.8 % lethal / 1.7 % free; MOTA 0.59, IDF1 0.56, 41 IDSW; contract-following planner (offline port,
   `pipeline/planner.py`) moves in 84 % of scans. C++ core = Python reference in all 9 stages.
@@ -132,13 +132,19 @@ README as an architecture document); the second Jetson run moves after the write
     on 5 of 7 recordings for every score, the oracle included; monitors reject the easiest recording (entropy keeps
     40 % of neubiberg rain) and accept the hardest. The pooled weather test passes only because neubiberg rain
     dominates it. Implication for the paper: marginal calibration fails under site shift; needs a shift-aware gate.
-  - **Cross-fitting run (submitted 2026-11-01 ~19:00 UTC, results due ~01:30 UTC Nov 2):** folds b, c in
-    `config/goose_split.yaml` so all 23 recordings are held out once; 7 trainings (`salsanext_goose_{a,b,c}_s0`,
-    fold-a ensemble seeds 1-4; per-worker augmentation fix, so fold a s0 replaces the pilot model), evals with
-    MC dropout (8 passes) + ensemble MI (fold a) + in-grid entropy (`goose_faults.sbatch` PARALLEL=1), then
-    `pipeline/goose_sites.py` -> `docs/measurements/goose_sites.json` (LORO over 23, k labelled site scans,
-    ensemble baseline). Job ids: `<data root>/logs/goose_crossfit_jobs.txt` (10571-10582). If a training fails,
-    its dependents stay PENDING (DependencyNeverSatisfied): fix, resubmit, re-chain.
+  - **Cross-fitted GOOSE study (done 2026-11-03, `goose_sites.json`, `pipeline/goose_sites.py`):** folds b, c in
+    `config/goose_split.yaml`, all 23 recordings held out once; 7 models (`<data root>/weights/salsanext_goose_{a,b,c}_s0`
+    + fold-a seeds 1-4; val mIoU 32.5-37.0; per-worker augmentation fix, so fold a s0 replaces the pilot model);
+    runs `<data root>/runs/goose_heldout_{a,b,c}_<run>/` with MC dropout (8 passes), ensemble MI (fold a), in-grid
+    entropy. alpha is a swept required level (0.05, 0.075): the faults lower the mean loss (mix 9.2 % < clean
+    9.95 %), so the clean-mean alpha made every gate accept everything (first run, discarded).
+    Clean loss per recording 2.5-21.8 %. AUROC (unsafe, clean): density 0.67, near coverage 0.59, MC-dropout MI 0.51,
+    entropy 0.40, in-grid entropy 0.37; fold a ensemble MI 0.42 (density 0.82). alpha 5 %: exchangeable splits hold
+    alpha for every gate; coverage oracle 90 %, learned 65 %, density 57 %, MC dropout 51 %, entropy 45-47 %.
+    New recording (LORO): 7-10 of 23 above alpha for every gate, oracle 10/23 (ungated 19/23). Labelled scans from
+    the new site, site-only calibration: 50 random scans -> 0.1-0.3 of 20 above alpha at 45-49 % coverage (oracle
+    75 %); the first 50 of the drive -> 3-4 of 20 above (within-drive drift); adding site scans to the pool does not
+    help (7-9 of 20). Fold a at 7.5 % is degenerate (mix 5.95 %).
   - **Conformal unit caveat:** `threshold(units=)` (2026-11-01) treats a scan's rows under all runs as one
     exchangeable unit. The RELLIS pilot (`conformal_gate_pilot.json`) used row-level units with 5 s block
     splits; with blocks as units (~10 per half) the 1/(n+1) term alone exceeds alpha, so its finite-sample
