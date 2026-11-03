@@ -2,8 +2,10 @@
 that never saw its recording (folds a, b, c of config/goose_split.yaml, one SalsaNext per fold; runs from
 scripts/slurm/goose_faults.sbatch with SPLIT=heldout:<fold>). Loss and gate as in pipeline/conformal_gate.py:
 per-scan share of truly lethal cells reported free, 0 for a rejected scan; a scan's rows under every run are one
-exchangeable unit (threshold units=); alpha = mean clean per-scan loss
-over all recordings. "learned" is a logistic combination of the signals fitted on the calibration scans only.
+exchangeable unit (threshold units=). alpha is a required level, swept (--alphas), not the clean mean: on GOOSE
+the faults lower the mean loss (fewer rings and blocked sectors turn lethal cells UNKNOWN), so with the clean
+mean the fault mix already meets alpha and every gate accepts everything (first run, 2026-11-02).
+"learned" is a logistic combination of the signals fitted on the calibration scans only.
   0 per recording: fold, scans, clean loss; per model: best val mIoU
   1 AUROC of each signal for unsafe scans (loss above the pooled clean 95th percentile)
   2 exchangeable: a random half of the scans calibrates, the other half tests
@@ -59,6 +61,7 @@ def main():
     ap.add_argument("--folds", default="abc")
     ap.add_argument("--pattern", default="goose_heldout_{fold}_{name}", help="run directory under <data root>/runs")
     ap.add_argument("--trials", type=int, default=100)
+    ap.add_argument("--alphas", default="0.05,0.075", help="required levels of the per-scan loss")
     args = ap.parse_args()
     rng = np.random.default_rng(0)
     rows = load(tuple(args.folds), args.pattern)
@@ -71,7 +74,7 @@ def main():
     if not np.isnan(ens[fold == "a"]).any():
         sig[ENSEMBLE] = ens
     clean = run == "clean"
-    alpha = float(err[clean].mean())
+    alphas = [float(v) for v in args.alphas.split(",")]
     unsafe = err > np.percentile(err[clean], 95)
     recs = sorted(set(seq))
     scan_id = np.char.add(np.char.add(seq.astype(str), "/"), name.astype(str))
@@ -120,65 +123,72 @@ def main():
                           "mean_coverage": round(float(np.mean([per[s][k]["coverage"] for s in per])), 4)}
         return summary, per
 
-    out = {"date": datetime.date.today().isoformat(), "folds": args.folds, "alpha": round(alpha, 5),
-           "alpha_definition": "mean clean per-scan loss over all loaded recordings",
+    out = {"date": datetime.date.today().isoformat(), "folds": args.folds, "alphas": alphas,
+           "clean_mean_loss": round(float(err[clean].mean()), 5),
+           "fault_mix_mean_loss": round(float(err.mean()), 5),
            "signals": list(sig), "runs": sorted(set(run)), "rows": len(rows), "recordings": len(recs)}
     # 0
     w = DATA_ROOT / "weights"
     out["models_best_val_miou"] = {d.name: best_miou(d) for d in sorted(w.glob("salsanext_goose_*_s*"))}
     out["per_recording"] = {s: {"fold": str(fold[seq == s][0]), "scans": int((clean & (seq == s)).sum()),
-                                "clean_loss": round(float(err[clean & (seq == s)].mean()), 5)} for s in recs}
+                                "clean_loss": round(float(err[clean & (seq == s)].mean()), 5),
+                                "fault_mix_loss": round(float(err[seq == s].mean()), 5)} for s in recs}
     out["per_run_mean_loss"] = {r: round(float(err[run == r].mean()), 5) for r in RUNS if r in set(run)}
-    common = keys
     everything = np.ones(len(err), bool)
     # 1
     out["auroc_unsafe"] = {k: {"clean": round(auroc(sig[k][clean], unsafe[clean]), 3),
-                               "all runs": round(auroc(sig[k], unsafe), 3)} for k in common}
-    # 2, 3
-    out["exchangeable"] = exchangeable(everything, common, alpha)
-    out["leave_one_recording_out"], per = loro(everything, common, alpha)
-    out["leave_one_recording_out_per_recording"] = per
-    # 4
-    few, s_rec = {}, {s: score_set(seq != s, common) for s in recs}
-    for k_site in K_SITE:
-        for mode in ("first", "random"):
-            acc = {}
-            for s in recs:
-                ids = np.unique(scan_id[seq == s])  # sorted names = time order within a recording
-                if len(ids) < k_site + 50:
-                    continue
-                S = s_rec[s]
-                picks = [ids[:k_site]] if mode == "first" else \
-                    [rng.choice(ids, k_site, replace=False) for _ in range(max(1, args.trials // 5))]
-                for pick in picks:
-                    site = np.isin(scan_id, pick)
-                    test = (seq == s) & ~site
-                    for method, cal in (("site only", site), ("pooled + site", (seq != s) | site)):
-                        for k, v in gate(S, cal, test, alpha).items():
-                            acc.setdefault((method, k), {}).setdefault(s, []).append((v["risk"], v["coverage"]))
-            for (method, k), by_rec in acc.items():
-                risk = np.array([np.mean([r for r, _ in v]) for v in by_rec.values()])
-                above = np.array([np.mean([r > alpha for r, _ in v]) for v in by_rec.values()])
-                few.setdefault(f"k={k_site} {mode}", {}).setdefault(method, {})[k] = {
-                    "recordings": len(by_rec), "recordings_above_alpha": round(float(above.sum()), 2),
-                    "median_risk_over_alpha": round(float(np.median(risk / alpha)), 3),
-                    "mean_coverage": round(float(np.mean([np.mean([c for _, c in v]) for v in by_rec.values()])), 4)}
-    out["labelled_site_scans"] = few
-    # 5
+                               "all runs": round(auroc(sig[k], unsafe), 3)} for k in keys}
+    s_rec = {s: score_set(seq != s, keys) for s in recs}
+    fa = fold == "a"
     if ENSEMBLE in sig:
-        fa = fold == "a"
-        alpha_a = float(err[clean & fa].mean())
-        ks = common + [ENSEMBLE]
-        out["fold_a"] = {"alpha": round(alpha_a, 5),
+        ks_a = keys + [ENSEMBLE]
+        out["fold_a"] = {"clean_mean_loss": round(float(err[clean & fa].mean()), 5),
+                         "fault_mix_mean_loss": round(float(err[fa].mean()), 5),
                          "auroc_unsafe": {k: {"clean": round(auroc(sig[k][clean & fa], unsafe[clean & fa]), 3),
-                                              "all runs": round(auroc(sig[k][fa], unsafe[fa]), 3)} for k in ks},
-                         "exchangeable": exchangeable(fa, ks, alpha_a),
-                         "leave_one_recording_out": loro(fa, ks, alpha_a)[0]}
+                                              "all runs": round(auroc(sig[k][fa], unsafe[fa]), 3)} for k in ks_a},
+                         "by_alpha": {}}
+    out["by_alpha"] = {}
+    for alpha in alphas:
+        res = {}
+        # 2, 3
+        res["exchangeable"] = exchangeable(everything, keys, alpha)
+        res["leave_one_recording_out"], res["leave_one_recording_out_per_recording"] = loro(everything, keys, alpha)
+        # 4
+        few = {}
+        for k_site in K_SITE:
+            for mode in ("first", "random"):
+                acc = {}
+                for s in recs:
+                    ids = np.unique(scan_id[seq == s])  # sorted names = time order within a recording
+                    if len(ids) < k_site + 50:
+                        continue
+                    picks = [ids[:k_site]] if mode == "first" else \
+                        [rng.choice(ids, k_site, replace=False) for _ in range(max(1, args.trials // 5))]
+                    for pick in picks:
+                        site = np.isin(scan_id, pick)
+                        test = (seq == s) & ~site
+                        for method, cal in (("site only", site), ("pooled + site", (seq != s) | site)):
+                            for k, v in gate(s_rec[s], cal, test, alpha).items():
+                                acc.setdefault((method, k), {}).setdefault(s, []).append((v["risk"], v["coverage"]))
+                for (method, k), by_rec in acc.items():
+                    risk = np.array([np.mean([r for r, _ in v]) for v in by_rec.values()])
+                    above = np.array([np.mean([r > alpha for r, _ in v]) for v in by_rec.values()])
+                    few.setdefault(f"k={k_site} {mode}", {}).setdefault(method, {})[k] = {
+                        "recordings": len(by_rec), "recordings_above_alpha": round(float(above.sum()), 2),
+                        "median_risk_over_alpha": round(float(np.median(risk / alpha)), 3),
+                        "mean_coverage": round(float(np.mean([np.mean([c for _, c in v])
+                                                              for v in by_rec.values()])), 4)}
+        res["labelled_site_scans"] = few
+        out["by_alpha"][str(alpha)] = res
+        # 5
+        if ENSEMBLE in sig:
+            out["fold_a"]["by_alpha"][str(alpha)] = {"exchangeable": exchangeable(fa, ks_a, alpha),
+                                                     "leave_one_recording_out": loro(fa, ks_a, alpha)[0]}
     with open(args.out, "w") as f:
         f.write(json.dumps(out, indent=2) + "\n")
-    print(json.dumps({k: out[k] for k in ("alpha", "signals", "rows", "recordings", "auroc_unsafe",
-                                          "leave_one_recording_out")}, indent=1))
-
+    print(json.dumps({"alphas": alphas, "auroc_unsafe": out["auroc_unsafe"],
+                      "leave_one_recording_out": {a: v["leave_one_recording_out"] for a, v in out["by_alpha"].items()}},
+                     indent=1))
 
 if __name__ == "__main__":
     main()
