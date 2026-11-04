@@ -1,0 +1,93 @@
+# Third on-device session (bundle 7, commit 5c04561): run 4 (main replay) and run 5 (lidar dropout, H-6),
+# 2026-11-03 23:34-23:37 board clock (CST), run unattended by scripts/jetson/session.sh in tmux; reported by the
+# Jetson Claude agent. Orin NX 8 GB, JetPack 6.0, TensorRT 8.6.2, MAXN, jetson_clocks locked + fan at max for the
+# session only, restored on exit. find_me_loc and nomad.service stopped for the session (owner approved) and
+# started again on exit. Wi-Fi power save already off. Build clean, no source changes on the board.
+# Engines reused from run 2 (replay_out6/engines, same ONNX models); TensorRT warns "Using an engine plan file
+# across different models of devices" twice per run. GPU times match run 2 within 2 %.
+# Input: 00001 clip, scans 100-400 (319 scans), ros2 bag play --clock, rate 1.0; run 5: same clip 5-25 s with the
+# lidar removed for 3098 ms (scripts/jetson/make_dropout_clip.py).
+# Thermals (session tegrastats, 89 samples at 2 s): max CPU 53.3 C, GPU 49.9 C, tj 53.3 C; max VDD_IN 18.97 W;
+# no throttling.
+#
+# Result: the fixed health monitor reads the lidar OK in every message after the first scan arrives; mode
+# NOMINAL 374 of 434. Grid age at publish median 227 ms; 15 of 303 grids (5.0 %) over the 250 ms bound, and 23
+# SAFE_STOP messages for them with both sensors OK (the output-age check, H-2, isolated). Planner moves in 79 % of
+# decisions (run 2: 14 %). Lidar dropout: FAILED 299 ms after the last scan, SAFE_STOP through the gap, OK at the
+# first scan after it (H-6).
+
+== RUN 4 (main replay) ==
+segmentation_camera.csv: 306 rows          median      p95      max   (ms)
+  debayer_ms                                0.96     6.48    11.63
+  resize_ms                                 2.43     4.39    17.78
+  camera_gpu_ms                            21.06    24.53   327.15
+  camera_infer_ms                          22.55    27.50   330.05
+  total_ms                                 26.21    36.69   342.33
+
+segmentation_lidar.csv: 303 rows
+  receive_delay_ms                        127.49   128.62   201.48
+  decode_ms                                 0.93     1.61     6.31
+  range_proj_ms                             3.92     5.54    11.39
+  lidar_gpu_ms                             44.71    52.35   283.46
+  lidar_infer_ms                           47.28    55.21   287.54
+  map_ms                                   12.31    16.43    32.55   (new column; ~19 ms by subtraction in run 2)
+  match_ms                                  0.60     1.03     1.89
+  fuse_ms                                   5.00     7.46    10.97
+  base_ms                                   3.65     5.43     7.54
+  publish_ms                                0.03     0.06    11.78
+  total_ms                                 74.83    90.55   322.42   (run 2: 80.10; timed stages now sum to ~74)
+  camera_used                               1.00     1.00     1.00
+  cam_minus_wedge_ms                        5.50     6.17     6.71
+  age_at_publish_ms                       202.60   227.35   452.37
+
+bev_tracker.csv: 303 rows
+  receive_delay_ms                        202.60   227.35   452.37
+  grid_cluster_ms                           9.55    12.51    24.29
+  memory_ms                                 6.52     9.86    17.49
+  track_ms                                  0.02     0.04     0.34
+  publish_ms                                0.33     1.16     4.46
+  total_ms                                 18.34    23.27    48.50
+  n_points / n_dets / n_tracks           70864 / 5 / 7 (medians)
+  remembered_cells                       22274 (median)
+  age_at_publish_ms                       227.14   229.51   476.86   (the contract output; bound 250 ms)
+  grids older than 250 ms at publish: 15 of 303 (5.0 %)
+
+planner.csv: 307 rows
+  age_at_consume_ms                       227.14   251.55   476.86
+  speed_factor                              0.29     0.45     0.45
+  cmd_v                                     0.58     0.90     0.90
+  cmd_v > 0 in 79 % of 307 decisions: ok 243, blocked/unknown ahead 34, SAFE_STOP 20, stale output 6,
+  watchdog: SAFE_STOP 4
+
+lidar scans: 303 processed of 319 in the clip (95 %); 0 unmatched
+  recorded_lag_ms                         123.45   126.53   130.41
+  queueing_ms                               4.06     8.25    80.24
+
+health: 434 messages; NOMINAL 374, SAFE_STOP 60
+  os1_lidar: OK 397, DEGRADED 0, FAILED 37; pylon_camera: OK 397, DEGRADED 0, FAILED 37
+  status changes: #1 lidar FAILED ('no data received', before the first scan); #38 lidar OK; none after.
+  So 37 SAFE_STOP messages are start-up and 23 come from the output-age check with both sensors OK.
+
+== RUN 5 (lidar dropout, H-6; 3098 ms gap) ==
+segmentation_camera.csv: 186 rows: camera_gpu_ms median 19.69, p95 22.49; total_ms median 24.67, p95 35.24
+segmentation_lidar.csv: 156 rows (92 % of 170): lidar_gpu_ms median 45.31, p95 51.53; map_ms median 12.84,
+  p95 18.72; total_ms median 75.28, p95 90.58; age_at_publish_ms median 196.28, p95 246.07, max 495.94
+bev_tracker.csv: 156 rows: total_ms median 18.15, p95 22.70; age_at_publish_ms median 221.13, p95 270.39,
+  max 495.94; grids older than 250 ms at publish: 9 of 156 (5.8 %)
+lidar scans: 156 processed of 170; recorded_lag_ms median 123.63; queueing_ms median -2.32, p95 25.49
+  (negative: the nodes run on the bag's /clock at 40 Hz, so sim time under-reads by up to 25 ms)
+health: 308 messages; NOMINAL 236, SAFE_STOP 72; os1_lidar OK 249 / FAILED 59; pylon_camera OK 278 / FAILED 30
+  status changes: #1 lidar FAILED ('no data received'); #32 OK; #91 FAILED ('stale: no message for 299 ms');
+  #119 OK (data age 0 ms). Lidar FAILED for 28 ticks (2.8 s) of the 3.1 s gap: detection 299 ms after the last
+  scan (bound: 250 ms timeout + up to one 100 ms tick), recovery on the first scan after the gap.
+planner: cmd_v > 0 in 78 % of 157 decisions: ok 122, blocked/unknown ahead 23, SAFE_STOP 11, watchdog: SAFE_STOP 1
+  (the watchdog logs an override once and then publishes a zero command every 100 ms while it lasts)
+
+errors: none in either launch log (only the TensorRT engine-plan warning above).
+restore: clocks restored, find_me_loc and nomad.service started, exit 0; board still up and on Wi-Fi at 06:22.
+
+# Why the board kept dropping off Wi-Fi (previous boot's journal, saved by session.sh): at 01:01-01:03 on
+# 2026-11-03, 4 h after run 2 ended, wlan0 lost its DHCP address (NetworkManager 'ip-config-unavailable'). On
+# reconnecting, the WPA2-Enterprise (EAP) login timed out three times ("association took too long", 25 s each),
+# and NetworkManager failed the connection with 'no-secrets' at 01:04:25 and never retried. It stayed off until
+# the orderly reboot at 16:48. No thermal, over-current or out-of-memory events in that boot's journal.

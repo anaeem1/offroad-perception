@@ -24,7 +24,7 @@ tracked people with 1 s velocity arrows, and the corridor a contract-following p
 | Tracking | MOTA **0.59**, IDF1 0.56, 41 ID switches over 66 objects | [tracking_00001_test.json](docs/measurements/tracking_00001_test.json) |
 | Planner | A planner that follows the contract can move in **84 %** of scans | [robustness_00001_test.json](docs/measurements/robustness_00001_test.json) |
 | Robustness | 18 fault-injected replays: lidar faults degrade safety **silently**; camera faults cost at most the camera's own contribution | same, [figure](docs/figures/robustness.png) |
-| Runtime | C++ core identical to the Python reference in all 9 stages; on the Orin NX the grid is **228 ms** old at the median, 253 ms at p95 (bound 250 ms) | [cpp_parity.json](docs/measurements/cpp_parity.json), [jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt) |
+| Runtime | C++ core identical to the Python reference in all 9 stages; on the Orin NX the grid is **227 ms** old at the median, 5 % of grids exceed the 250 ms bound (the health monitor stops for them), and the planner moves in 79 % of decisions | [cpp_parity.json](docs/measurements/cpp_parity.json), [jetson_replay_run4.txt](docs/measurements/jetson_replay_run4.txt) |
 
 ## Scope
 - **Is:** an end-to-end perception system for a slow off-road machine (≤ 2 m/s), with an explicit output contract,
@@ -142,13 +142,13 @@ Target: Orin NX 8 GB, JetPack 6.0, TensorRT 8.6, ROS 2 Humble.
 
 | Stage | Budget (ms) | Orin NX, in the replay: median / p95 (ms) |
 |---|---|---|
-| Camera seg (SegFormer-B0 480×768 FP16), in parallel with the lidar path | 30 | 20.9 / 23.1 |
-| Lidar seg (SalsaNext FP16) | 20 | **44.0 / 53.5** (recorded overrun) |
-| Fusion + BEV, clustering + tracking, transport | 50 | ~52 by medians: 34 in the segmentation node besides the model (19 of it an untimed per-point class mapping, now a table lookup; re-measure pending), 18.6 BEV + tracking, ~0 transport (intra-process) |
-| **Grid age at publish**, from the sweep-start stamp ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) | 250 | **228 / 253**: 123 sensor lag recorded in the bag (sweep included) + 4 queueing + 80 segmentation + 19 BEV and tracking |
+| Camera seg (SegFormer-B0 480×768 FP16), in parallel with the lidar path | 30 | 21.1 / 24.5 |
+| Lidar seg (SalsaNext FP16) | 20 | **44.7 / 52.4** (recorded overrun) |
+| Fusion + BEV, clustering + tracking, transport | 50 | ~46 by medians: 27.5 in the segmentation node besides the model (12.3 of it the per-point class mapping), 18.3 BEV + tracking, ~0 transport (intra-process) |
+| **Grid age at publish**, from the sweep-start stamp ([ADR-0005](docs/adr/0005-output-age-guarantee.md)) | 250 | **227 / 230**, max 477; **5.0 % of grids over 250**: 123 sensor lag recorded in the bag (sweep included) + 4 queueing + 75 segmentation + 18 BEV and tracking |
 
-Run 2, clocks locked, board quieted ([jetson_replay_run2.txt](docs/measurements/jetson_replay_run2.txt)). Model rows are
-GPU times inside the replay; alone, SalsaNext FP16 takes 48.9 ms ([jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)).
+Run 4, clocks locked, board quieted, no throttling (peak 53 °C, 19 W; [jetson_replay_run4.txt](docs/measurements/jetson_replay_run4.txt)).
+Model rows are GPU times inside the replay; alone, SalsaNext FP16 takes 48.9 ms ([jetson_latency_sweep.txt](docs/measurements/jetson_latency_sweep.txt)).
 
 What the board has shown so far:
 - **Run 1** ([jetson_replay_run1.txt](docs/measurements/jetson_replay_run1.txt)): the full C++ stack builds and runs
@@ -166,13 +166,19 @@ What the board has shown so far:
 - **The health monitor was wrong in both runs.** It never reported the lidar OK, so the planner moved in only 14 %
   of decisions. It read point density from every 64th point, but RELLIS clouds are stored column-major, so that
   sample is always the top beam (11 % valid against 55 % overall). It also subscribed best effort and lost most
-  6.3 MB clouds that the segmentation node (reliable) received. Fixed in code, not yet on the board: density over all
-  points, as the Python reference computes it, and the segmentation node's QoS. Run 1's SAFE_STOP was still the
-  right answer (output ~720 ms old), but it does not isolate the output-age check.
+  6.3 MB clouds that the segmentation node (reliable) received. Fixed: density over all points, as the Python
+  reference computes it, and the segmentation node's QoS. Run 1's SAFE_STOP was still the right answer (output
+  ~720 ms old), but it does not isolate the output-age check.
 - **INT8 as built is slower, not faster:** the best calibration variant's engine (explicit Q/DQ) took 64.7 ms against
   48.9 ms for FP16 on the board; Q/DQ placement not inspected.
-- **Next on the board (bundle 7):** the fixed monitor, the lidar-dropout test for H-6 (inconclusive in run 2's
-  session for the same reason), and the class-mapping time.
+- **Run 4** ([jetson_replay_run4.txt](docs/measurements/jetson_replay_run4.txt)), with the fixed monitor: the lidar
+  reads OK in every health message after the first scan, the mode is NOMINAL in 374 of 434 messages, and the planner
+  moves in 79 % of decisions (run 2: 14 %; the offline planner: 84 % of scans). Apart from start-up, SAFE_STOP came
+  only from grids over the 250 ms bound, with both sensors OK: the output-age check (H-2) working on its own. The
+  class mapping takes 12.3 ms (was ~19), so the lidar path is 75 ms per scan.
+- **Run 5, lidar dropout (H-6):** with the lidar removed for 3.1 s, the monitor reports it FAILED 299 ms after the
+  last scan (bound: the 250 ms timeout plus one 100 ms tick), holds SAFE_STOP through the gap, and returns to OK on
+  the first scan after it. The planner logged its stop override; its watchdog then commands zero speed every 100 ms.
 
 ## Findings that changed the design
 Each was found in the data, not assumed, and each is recorded where it changed something.
@@ -213,8 +219,8 @@ Each was found in the data, not assumed, and each is recorded where it changed s
 - **Vehicles** are tracked poorly (recall 0.20): the lidar model segments them poorly. Needs vehicle-rich training data
   before any deployment near traffic (H-9).
 - **Partly blinded lidar** is not detected (H-14): replace the fixed density floor with a rolling nominal.
-- **Output age at p95 is 253 ms against the 250 ms bound** on the Orin NX: the lidar model takes 44 ms against a
-  20 ms budget. The fixed health monitor and the lidar-dropout test (H-6) still need a run on the board.
+- **5 % of grids exceed the 250 ms bound** on the Orin NX, and the health monitor stops for them. The lidar model takes
+  45 ms against a 20 ms budget; it is the lever. The grids themselves are not yet compared with the Python reference.
 - **Single dataset, single site.** Transfer to construction sites needs new data for training and new measurements
   of every limit in the ODD.
 

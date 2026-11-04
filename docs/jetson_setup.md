@@ -27,6 +27,13 @@
   Claude agent needs the network, so a session must not depend on it: run board work as one unattended script
   inside tmux (`scripts/jetson/session.sh`), with clocks locked only while it runs and the board restored on exit.
   A restart also undoes `jetson_clocks` and restarts find_me_loc and nomad.service.
+  **Cause** (previous boot's journal, saved by session.sh; `docs/measurements/jetson_replay_run4.txt`): at 01:01-01:04
+  on 2026-11-03 wlan0 lost its DHCP address; on reconnecting, the WPA2-Enterprise (EAP) login timed out three times
+  (25 s each), and NetworkManager failed the connection with 'no-secrets' and never retried. Three attempts and a
+  25 s timeout are NetworkManager's defaults. Not heat, power or memory: no such events in that boot.
+  **Proposed fix** (owner's decision; not applied as of 2026-11-04): retry the login and autoconnect forever,
+  `sudo nmcli connection modify CSCI-Wireless connection.auth-retries 0 connection.autoconnect-retries 0`, and
+  optionally a systemd timer that runs `nmcli connection up CSCI-Wireless` whenever wlan0 is not connected.
 
 ## 1. Identify the stack ✔
 `scripts/jetson/jetson_info.sh`. Done; see the table above.

@@ -60,8 +60,12 @@ Camera semantic seg (SegFormer) + lidar semantic seg (range-image CNN, TensorRT-
     `~/parklabs/CAT` on the Jetson). A Claude Code session runs there: hand it self-contained prompts with
     a fixed reply format. Its clock was at 1970, so check NTP sync first, and run `conda deactivate`
     before any ROS 2 work. See `docs/jetson_setup.md`.
-  - **Drops off Wi-Fi; only a physical restart (owner in the lab) brings it back** (2026-11-03, cause unknown).
-    Board work goes in one unattended tmux script (`scripts/jetson/session.sh`) that restores the board on exit.
+  - **Drops off Wi-Fi; only a physical restart (owner in the lab) brings it back.** Cause found 2026-11-04 from the
+    journal: DHCP lost, then the WPA2-Enterprise login timed out 3x and NetworkManager gave up ('no-secrets') for
+    good (its defaults). Fix proposed, not applied: `connection.auth-retries 0`, `autoconnect-retries 0`, optional
+    reconnect timer (`docs/jetson_setup.md`). Board work goes in one unattended tmux script
+    (`scripts/jetson/session.sh`) that restores the board on exit. Its `sudo -v` asks for the owner's password
+    (sudoers `verifypw=all`), so the owner must be at hand to type it in tmux.
   - ONNX ships at **opset 17** (ADR-0006).
   - TensorRT engines must be built **on the Jetson**, not on the server.
   - Keep exported ONNX opsets compatible with the Jetson's TensorRT version.
@@ -83,7 +87,7 @@ bringing both models under budget. The Oct 26 feature stop is unchanged.
 README as an architecture document); the second Jetson run moves after the write-up. The deadline stands.
 
 ## Current state
-*Updated 2026-11-03.*
+*Updated 2026-11-04.*
 - **Weeks 1–2 complete; week 3 per ADR-0012.** Held-out 00001 test: wedge mIoU 30.9 → 34.5 fused; lethal cells
   88.8 % lethal / 1.7 % free; MOTA 0.59, IDF1 0.56, 41 IDSW; contract-following planner (offline port,
   `pipeline/planner.py`) moves in 84 % of scans. C++ core = Python reference in all 9 stages.
@@ -104,9 +108,15 @@ README as an architecture document); the second Jetson run moves after the write
   every 64th point of a column-major cloud = beam 0 only (11 % vs 55 % valid), and best-effort QoS lost most
   6.3 MB clouds → lidar never OK, SAFE_STOP 386/436, H-6 dropout run inconclusive. Fixed in code 2026-11-03
   (all points; reliable depth 1 like segmentation_fusion), plus `onto_index` table and a `map_ms` column for the
-  ~19 ms untimed class mapping. After run 2 the board dropped off Wi-Fi and needed a physical restart (which also
-  restored clocks and services). `CAT/jetson_bundle7.tar.gz` = rerun of run 2 + dropout via `session.sh`, which
-  also saves the previous boot's journal to find the cause.
+  ~19 ms untimed class mapping.
+- **Jetson runs 4-5 (bundle 7, 2026-11-03, `jetson_replay_run4.txt`), fix verified:** lidar OK after start-up,
+  NOMINAL 374/434, planner moves in 79 % of decisions (offline 84 %); map_ms 12.3, lidar path 75 ms; grid age
+  227 ms median, 15/303 grids (5.0 %) > 250 ms → 23 SAFE_STOP messages with both sensors OK (H-2 isolated).
+  Dropout (H-6): FAILED 299 ms after the last scan, SAFE_STOP through the 3.1 s gap, OK on the next scan.
+  Peak 53 °C / 19 W, no throttling. TensorRT warns "engine plan file across different models of devices" for
+  the reused run-2 engines (timing unaffected). Pending: `replay_out7.tar.gz` (and `replay6_results.tar.gz`) to
+  the server → `pipeline/compare_jetson_outputs.py` (grids vs Python reference), where the late grids fall, cmd_vel
+  in the gap.
 - **Live-driver QoS caveat:** the Ouster ROS 2 driver publishes best effort by default; a reliable subscription is
   incompatible with that. Replay (bag play, reliable) is fine; a live deployment must match the driver's QoS
   in both segmentation_fusion and health_monitor.
@@ -116,7 +126,7 @@ README as an architecture document); the second Jetson run moves after the write
   repo-only deploy key `~/.ssh/offroad_perception_deploy` (set as `core.sshCommand` in the repo config):
   `git push`. Owner chose to publish everything as is (server paths, CLAUDE.md, author email).
 - **Demo video public on YouTube (2026-11-01):** https://youtu.be/2L4K43ye_TA, linked from the README GIF and caption.
-- **Next:** Jetson bundle 7 (fixed health monitor, H-6 dropout, map_ms).
+- **Next:** result tarballs → Jetson-vs-reference grid comparison; Wi-Fi fix on the board if the owner agrees.
 - **Research track (after the application, owner request 2026-10-27):** paper on perception monitors that
   track safety, not inputs. Proposal doc: claude.ai/artifact/1oV5xPPsY1D9NJ66GhjBag. Pilot (`monitor_pilot_00001.json`,
   `pipeline/pilot_monitors.py`, 12 replays with PREFIX=pilot): at fault-free risk, lidar entropy keeps 58 % of
